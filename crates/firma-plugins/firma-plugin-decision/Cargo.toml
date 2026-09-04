@@ -1,0 +1,20 @@
+[package]
+name = "firma-plugin-decision"
+version = "1.0.0"
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+description = "FIRMA decision plugins: decision.satisficing (§12.3, the mechanism under test), decision.random (§20.3 null, ADR 0027), decision.aspiration_update (§12.1)."
+
+[lints]
+workspace = true
+
+[dependencies]
+# plugins ← core, rng, viability, domain (§18.1, ADR 0020). No cross-plugin deps.
+firma-core = { workspace = true }
+firma-rng = { workspace = true }
+firma-domain = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+semver = { workspace = true }

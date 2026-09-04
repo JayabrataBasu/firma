@@ -1,0 +1,16 @@
+[package]
+name = "firma-core"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+description = "FIRMA shared types: ids, Delta, View, RngKey, plugin traits. No behaviour (manual §18.2)."
+
+[lints]
+workspace = true
+
+[dependencies]
+serde = { workspace = true }
+serde_json = { workspace = true }
+semver = { workspace = true }

@@ -1,0 +1,23 @@
+[package]
+name = "firma-py"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+publish = false
+description = "PyO3 native extension backing firma_lab.metrics (manual §23.1) — the offline-metric surface only; no simulation logic, no kernel dependency."
+
+[lib]
+name = "_native"
+crate-type = ["cdylib", "rlib"]
+
+[lints]
+workspace = true
+
+[dependencies]
+firma-core = { workspace = true }
+firma-config = { workspace = true }
+firma-io = { workspace = true }
+firma-analysis = { workspace = true }
+pyo3 = { version = "0.29", features = ["extension-module"] }

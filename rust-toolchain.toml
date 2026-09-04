@@ -1,0 +1,6 @@
+# Manual §24.1: Rust edition 2021+, toolchain pinned; MSRV raised only via ADR.
+# Pinned exactly so every build — local, CI, and a reviewer's — uses one compiler.
+[toolchain]
+channel = "1.98.0"
+components = ["rustfmt", "clippy"]
+profile = "minimal"

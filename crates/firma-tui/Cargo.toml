@@ -1,0 +1,29 @@
+[package]
+name = "firma-tui"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+publish = false
+description = "Live event-log monitor (manual §23.2, MVP). Reads the event log by tailing; MUST NOT link firma-kernel (ADR 0045/0046)."
+
+[lib]
+name = "firma_tui"
+path = "src/lib.rs"
+
+[[bin]]
+name = "firma-tui"
+path = "src/main.rs"
+
+[lints]
+workspace = true
+
+[dependencies]
+firma-core = { workspace = true }
+firma-config = { workspace = true }
+firma-io = { workspace = true }
+firma-analysis = { workspace = true }
+serde_json = { workspace = true }
+ratatui = { workspace = true }
+crossterm = { workspace = true }

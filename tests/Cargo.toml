@@ -1,0 +1,57 @@
+[package]
+name = "firma-conformance"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+publish = false
+description = "FIRMA cross-crate conformance suite: the manual §25 test matrix. Phase 1 gate: DT-1..DT-6, VT-2, VT-6 (§26.3)."
+
+[lints]
+workspace = true
+
+# Manual §38 shows `tests/{determinism,validation,integration}/`. Here that is a
+# workspace member package with one test target per file (PROGRESS.md OQ-6).
+[[test]]
+name = "determinism"
+path = "tests/determinism.rs"
+
+[[test]]
+name = "validation"
+path = "tests/validation.rs"
+
+[[test]]
+name = "integration"
+path = "tests/integration.rs"
+
+[[test]]
+name = "golden"
+path = "tests/golden.rs"
+
+[[test]]
+name = "sanity"
+path = "tests/sanity.rs"
+
+[[test]]
+name = "tui_live_demo"
+path = "tests/tui_live_demo.rs"
+
+[dependencies]
+firma-core = { workspace = true }
+firma-rng = { workspace = true }
+firma-domain = { workspace = true }
+firma-config = { workspace = true }
+firma-viability = { workspace = true }
+firma-plugin-constraint = { workspace = true }
+firma-plugin-action-market = { workspace = true }
+firma-plugin-action-shaping = { workspace = true }
+firma-plugin-decision = { workspace = true }
+firma-plugin-locality = { workspace = true }
+firma-io = { workspace = true }
+firma-kernel = { workspace = true }
+firma-analysis = { workspace = true }
+firma-tui = { workspace = true }
+firma-cli = { workspace = true }
+serde_json = { workspace = true }
+ratatui = { workspace = true }

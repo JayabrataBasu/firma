@@ -1,0 +1,38 @@
+# Manual §24.1: cargo-deny for licences and advisories. New dependencies are
+# justified in docs/adr/0010-tooling-and-dependencies.md.
+
+[advisories]
+version = 2
+yanked = "deny"
+ignore = []
+
+[licenses]
+version = 2
+# Manual §33.6 / ADR 0010: the project ships under Apache-2.0 (OSI-approved).
+# Permissive licences only in the dependency tree.
+allow = [
+    "Apache-2.0",
+    "MIT",
+    "BSD-2-Clause",
+    "BSD-3-Clause",
+    "Unicode-3.0",
+    "Zlib",
+]
+confidence-threshold = 0.9
+
+[bans]
+multiple-versions = "warn"
+wildcard-dependencies = "deny"
+# Manual §25.6 lint `no-dynamic-loading`: native dynamic plugin loading is
+# prohibited permanently (ADR 0008). Belt-and-braces with the CI grep check.
+deny = [
+    { name = "libloading" },
+    { name = "dlopen" },
+    { name = "dlopen2" },
+    { name = "abi_stable" },
+]
+
+[sources]
+unknown-registry = "deny"
+unknown-git = "deny"
+allow-registry = ["https://github.com/rust-lang/crates.io-index"]

@@ -1,0 +1,15 @@
+[package]
+name = "firma-rng"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+description = "FIRMA counter-based RNG (Philox-4x32-10) with hierarchical key derivation (manual §21.2, ADR 0003)."
+
+[lints]
+workspace = true
+
+[dependencies]
+firma-core = { workspace = true }
+sha2 = { workspace = true }

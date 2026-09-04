@@ -1,0 +1,21 @@
+[package]
+name = "firma-kernel"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+description = "FIRMA deterministic substrate: state store, phase scheduler, delta reconciler, invariant enforcer, RNG key derivator (manual §19). NO domain logic (§17 A1)."
+
+[lints]
+workspace = true
+
+[dependencies]
+firma-core = { workspace = true }
+firma-rng = { workspace = true }
+serde = { workspace = true }
+
+[dev-dependencies]
+# Only the in-crate mock rules (src/tests.rs) name `semver::Version` directly;
+# the kernel proper never touches semver.
+semver = { workspace = true }

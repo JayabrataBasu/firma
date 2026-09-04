@@ -1,0 +1,43 @@
+[package]
+name = "firma-cli"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+description = "FIRMA command-line interface: run, replay, verify (manual §23, §26.3). Also the orchestration library the conformance suite drives."
+default-run = "firma"
+
+[lib]
+name = "firma_cli"
+path = "src/lib.rs"
+
+[[bin]]
+name = "firma"
+path = "src/main.rs"
+
+[lints]
+workspace = true
+
+[dependencies]
+firma-core = { workspace = true }
+firma-rng = { workspace = true }
+firma-domain = { workspace = true }
+firma-config = { workspace = true }
+firma-viability = { workspace = true }
+firma-registry = { workspace = true }
+firma-io = { workspace = true }
+firma-kernel = { workspace = true }
+firma-plugin-testkit = { workspace = true }
+firma-plugin-constraint = { workspace = true }
+firma-plugin-action-market = { workspace = true }
+firma-plugin-action-shaping = { workspace = true }
+firma-plugin-decision = { workspace = true }
+firma-plugin-observation = { workspace = true }
+firma-plugin-shock = { workspace = true }
+firma-plugin-locality = { workspace = true }
+firma-plugin-resource = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+semver = { workspace = true }
+sha2 = { workspace = true }

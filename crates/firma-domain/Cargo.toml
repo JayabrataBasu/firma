@@ -1,0 +1,27 @@
+[package]
+name = "firma-domain"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+description = "FIRMA shared domain vocabulary: §8.1 firm-agent state, §8.2 constraint parameters, §9.2 scale factors, §16.1 bounds. Types only, no behaviour (ADR 0020)."
+
+[lints]
+workspace = true
+
+[dependencies]
+# ADR 0020: `firma-domain ← firma-core` only. `firma-kernel` MUST NOT depend on
+# this crate — it is the crate that defines "firm", and §7.3/§17 A1 keep that
+# out of the kernel's reachable graph.
+firma-core = { workspace = true }
+serde = { workspace = true }
+# Stage 1 (ADR 0021): the `Constraint` trait's `version()` returns
+# `semver::Version`, mirroring `Rule` (§20.5).
+semver = { workspace = true }
+# Stage 2 (ADR 0023): `Effect` / `LaggedRecord` / `Edge` own their canonical
+# JSON wire format — the payload of the kernel's opaque `PushAgentRecord` /
+# `PushGlobalRecord` store (ADR 0022). serde_json is already an accepted
+# workspace dependency (ADR 0010); this adds it to one more crate, not a new
+# dependency. Still no other I/O.
+serde_json = { workspace = true }

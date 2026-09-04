@@ -1,0 +1,24 @@
+[package]
+name = "firma-analysis"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+publish = false
+description = "Offline event-log reconstruction and metrics (manual §14, §22.2, §17 A5) — kernel-free (ADR 0045/0046), shared by firma-tui, firma-conformance, and firma-py."
+
+[lints]
+workspace = true
+
+[dependencies]
+firma-core = { workspace = true }
+firma-domain = { workspace = true }
+firma-config = { workspace = true }
+firma-io = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+
+[[example]]
+name = "sanity_report_json"
+path = "examples/sanity_report_json.rs"

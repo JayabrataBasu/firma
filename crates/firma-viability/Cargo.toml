@@ -1,0 +1,20 @@
+[package]
+name = "firma-viability"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+description = "Generic viability-kernel backward iteration (manual §9.3). Phase 1: solver only — no domain logic (ADR 0011)."
+
+[lints]
+workspace = true
+
+[dependencies]
+# Phase 1: the generic backward-iteration solver has no dependencies.
+# Stage 1 (Phase 2, ADR 0020/0021): the domain surface (`margin`, `FirmaDynamics`)
+# needs the §8 state/param types and the §11 deterministic core. `firma-viability`
+# depends on `firma-domain::MarginTerm` only — never `Constraint` /
+# `ViolationSemantic` (ADR 0021 decision 3), so it stays domain-policy-free.
+firma-domain = { workspace = true }
+

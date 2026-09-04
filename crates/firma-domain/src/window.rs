@@ -1,0 +1,54 @@
+//! The action window `W` (manual §8.1) and its entry type (ADR 0014, ADR 0028).
+//!
+//! `W` is a per-agent list of the last `L_W` actions the firm took, kept in the
+//! kernel's opaque `agent_lists` store under [`keys::ACTION_WINDOW`](crate::keys::ACTION_WINDOW)
+//! and maintained by the `constrain` rule. Its only consumer is
+//! [`margin::u_from_window`](crate::margin::u_from_window), which derives the
+//! regulated-activity intensity `u` (§9.1 `g_2`).
+
+use serde::{Deserialize, Serialize};
+
+/// One entry of the action window: the action a firm took and the tick it took
+/// it (the tick is for log-readability; `u` uses only `action`).
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct WindowEntry {
+    /// The tick the action was taken.
+    pub tick: u64,
+    /// The §11 canonical action index 0–8. A firm with no decision this tick is
+    /// recorded as `0` (`hold`).
+    pub action: u8,
+}
+
+impl WindowEntry {
+    /// Construct.
+    #[must_use]
+    pub fn new(tick: u64, action: u8) -> WindowEntry {
+        WindowEntry { tick, action }
+    }
+
+    /// Serialise to the canonical JSON stored in the window.
+    #[must_use]
+    pub fn to_json(&self) -> String {
+        serde_json::to_string(self).expect("WindowEntry serialises")
+    }
+
+    /// Parse one stored window entry.
+    ///
+    /// # Errors
+    /// If `s` is not a valid [`WindowEntry`] JSON object.
+    pub fn from_json(s: &str) -> Result<WindowEntry, String> {
+        serde_json::from_str(s).map_err(|e| format!("invalid WindowEntry: {e}"))
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn roundtrip() {
+        let e = WindowEntry::new(42, 2);
+        assert_eq!(WindowEntry::from_json(&e.to_json()).unwrap(), e);
+    }
+}

@@ -1,0 +1,22 @@
+[package]
+name = "firma-plugin-testkit"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+description = "FIRMA Phase 1 test plugins: rules that move one integer, plus a no-op resolver. NO domain logic (manual §26.3)."
+
+[lints]
+workspace = true
+
+[dependencies]
+firma-core = { workspace = true }
+firma-rng = { workspace = true }
+# ADR 0022 Fix 3: `SelectAction` (Part F decision-procedure stand-in) writes the
+# `keys::SELECTED_ACTION` hand-off key. `plugins ← domain` is permitted (§18.1);
+# this is the testkit's only `firma-domain` use.
+firma-domain = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+semver = { workspace = true }

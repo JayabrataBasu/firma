@@ -1,0 +1,23 @@
+/target
+**/*.rs.bk
+*.pdb
+# Run outputs (event logs, snapshots, manifests) are large; archived per §33.6,
+# not committed. Golden-trace hashes ARE committed (see tests/).
+/runs
+/out
+.DS_Store
+CLAUDE.md
+
+# Python toolchain (Stage 7, ADR 0046) — the venv and build artefacts are
+# local/reproducible from pyproject.toml + Cargo.toml, not checked in.
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+*.egg-info/
+# maturin's compiled extension, placed inside python/firma_lab/ by
+# `maturin develop` (an editable install) — a platform/version-specific
+# build artefact, not source.
+python/firma_lab/_native*.so
+python/firma_lab/_native*.pyd
+

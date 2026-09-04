@@ -1,0 +1,1024 @@
+//! `firma-plugin-decision` — the MVP `Decision`-category plugins (manual §12.3,
+//! §12.1, §20.3).
+//!
+//! * [`Satisficing`] (`decision.satisficing`) — **the mechanism under test**
+//!   (§12.3). A faithful transcription of Steps 1–5: Evaluate `h` and every
+//!   `ς_j`; Attend (SURVIVAL / GOAL(argmax ς) / NONE); Narrow (`ψ(h)`,
+//!   `w_eff`); Scan in focus-priority order; select the **first satisficing**
+//!   action within `w_eff` (not the argmax — §12.3 rule 1), with inadmissible
+//!   actions not consuming scan budget (§11.4 / §12.3 rule 2), falling back to
+//!   the first admissible action in priority order. It is **fully
+//!   deterministic** given `(x, θ, e, A, ς, focus)` — Steps 1–5 draw no random
+//!   numbers; `apply()` never touches `firma_rng` (grep-checked by
+//!   `no_rng_in_satisficing`).
+//! * [`DecisionRandom`] (`decision.random`) — the structural null (ADR 0027):
+//!   uniform over the **admissible set**, ignoring focus / narrowing / priority
+//!   / satisficing entirely. Draws once per firm from the `mechanism` stream,
+//!   `purpose_tag = "decision_random"`.
+//! * [`AspirationUpdate`] (`decision.aspiration_update`) — the §12.1 adaptive
+//!   update `A_{j,t+1} = A_j + α(v_j − A_j)`, run in the `record` phase (§10.1
+//!   phase 9 — "Aspirations update"). A separate `Rule`: different phase,
+//!   different concern, and it also persists `v_1`'s `r^L_{t-1}` baseline that
+//!   [`Satisficing`] reads the next tick.
+//!
+//! All three read `θ` and the environment prices from the kernel's opaque
+//! global store (`firma_domain::keys`); a run **MUST** seed `θ` (ADR 0015).
+//! `Attention` (§8.4) stays the keyed-store interim (ADR 0022 Decision 1 /
+//! ADR 0024): `focus` and `w_eff` are written by [`Satisficing`] under
+//! `keys::FOCUS` / `keys::W_EFF` for offline R2 (§14.2), not read back by the
+//! model.
+
+#![forbid(unsafe_code)]
+
+use serde::{Deserialize, Serialize};
+
+use firma_core::{
+    AgentId, ComponentId, ConflictClass, Delta, DeltaKind, DeltaKindTag, DeltaTarget, Phase,
+    PluginId, ResourceKind, RngKey, Rule, View,
+};
+use firma_domain::dynamics::{
+    market_core, shaping_cost_step, ActionParams, EnvParams, MARKET_ACTIONS,
+};
+use firma_domain::{
+    keys, margin::standard_margin, Aspirations, ConstraintContext, ConstraintParams, FirmAuxState,
+    FirmState, RelationGraph, ScaleFactors,
+};
+
+/// This crate's build version (new crate; `1.0.0` like the action plugins).
+#[must_use]
+pub fn version() -> semver::Version {
+    semver::Version::new(1, 0, 0)
+}
+
+/// Plugin ids and declared content hashes (Phase-1 style — no artefact hashing).
+pub mod catalog {
+    /// `decision.satisficing`.
+    pub const SATISFICING_ID: &str = "decision.satisficing";
+    /// `decision.random`.
+    pub const RANDOM_ID: &str = "decision.random";
+    /// `decision.aspiration_update`.
+    pub const ASPIRATION_UPDATE_ID: &str = "decision.aspiration_update";
+
+    /// Declared content hash for the decision build.
+    pub const CONTENT_HASH: &str = "phase2s3-decision-v1";
+}
+
+// --------------------------------------------------------------------------
+// §12.3 Step 2 — focus
+// --------------------------------------------------------------------------
+
+/// `focus` (§12.3 Step 2). `Goal` carries `j ∈ {1, 2, 3}` (§12.1 goal index).
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum Focus {
+    /// `h < h_crit`.
+    Survival,
+    /// `max_j ς_j > 0`; `j` = `argmax` (ties → lowest).
+    Goal(u8),
+    /// Neither — the inertia case.
+    None,
+}
+
+impl Focus {
+    /// Integer code stored under `keys::FOCUS` for offline analysis: `-1` NONE,
+    /// `0` SURVIVAL, `1..=3` GOAL(j).
+    #[must_use]
+    pub fn code(self) -> i64 {
+        match self {
+            Focus::None => -1,
+            Focus::Survival => 0,
+            Focus::Goal(j) => i64::from(j),
+        }
+    }
+
+    /// §12.3 **Step 2 (Attend)**, as a pure function of `h` and the three
+    /// shortfalls `ς_j` — the two quantities VT-8 (§25.4) must show are
+    /// independently manipulable (ADR 0040):
+    ///
+    /// ```text
+    /// if h < h_crit                 -> SURVIVAL
+    /// else if max_j ς_j > 0         -> GOAL(argmax_j ς_j, ties -> lowest j)
+    /// else                         -> NONE
+    /// ```
+    ///
+    /// **`h` and `shortfalls` are separate parameters and the body computes
+    /// neither from the other** — it branches on `h`, then branches on
+    /// `shortfalls`. This is the type-level half of VT-8 criterion (iii).
+    #[must_use]
+    pub fn attend(h: f64, shortfalls: [f64; 3], h_crit: f64) -> Focus {
+        if h < h_crit {
+            Focus::Survival
+        } else {
+            let mut best = 0usize;
+            for j in 1..3 {
+                if shortfalls[j] > shortfalls[best] {
+                    best = j;
+                }
+            }
+            if shortfalls[best] > 0.0 {
+                Focus::Goal((best + 1) as u8)
+            } else {
+                Focus::None
+            }
+        }
+    }
+
+    /// §12.3 Step 4 priority order (action indices 0–8) for this focus.
+    /// `NONE` has no scan order — it repeats the previous action.
+    #[must_use]
+    pub fn scan_order(self) -> &'static [u8] {
+        match self {
+            //                    §12.3 Step 4 table, transcribed exactly
+            Focus::Survival => &[1, 3, 5, 2, 0, 4, 6, 7, 8],
+            Focus::Goal(1) => &[2, 1, 3, 6, 8, 5, 4, 0, 7],
+            Focus::Goal(2) => &[4, 1, 3, 2, 6, 5, 0, 8, 7],
+            Focus::Goal(3) => &[5, 3, 1, 7, 2, 8, 6, 0, 4],
+            Focus::Goal(_) => &[], // unreachable — j is 1..=3 by construction
+            Focus::None => &[],
+        }
+    }
+}
+
+// --------------------------------------------------------------------------
+// §12.3 Step 3 — narrowing
+// --------------------------------------------------------------------------
+
+/// `ψ(h)` (§12.3 Step 3): `1` when `h ≥ h_crit`; `(max(h,0)/h_crit)^β` when
+/// `h < h_crit`.
+///
+/// The `max(h, 0)` handles `h < 0` (a firm past the viability boundary, under
+/// SURVIVAL focus): for `β > 0` it yields `ψ = 0` ⇒ `w_eff = 1` (the tightest
+/// possible narrowing — scan only the single highest-priority survival
+/// action). For `β = 0`, `0.0_f64.powf(0.0) == 1.0` (IEEE 754), so `ψ ≡ 1` —
+/// **no narrowing**, exactly as "β = 0 is the null" requires; there is no
+/// special-cased `β == 0` branch, the formula produces it.
+#[must_use]
+pub fn psi(h: f64, h_crit: f64, beta: f64) -> f64 {
+    if h >= h_crit {
+        1.0
+    } else {
+        (h.max(0.0) / h_crit).powf(beta)
+    }
+}
+
+/// `w_eff = max(1, ⌈w_max · ψ(h)⌉)` (§12.3 Step 3). `ψ ∈ [0, 1]` for every
+/// input above, so the result is in `1..=w_max`.
+#[must_use]
+pub fn w_eff(psi_h: f64, w_max: u32) -> u32 {
+    let raw = (f64::from(w_max) * psi_h).ceil().max(1.0);
+    // raw is finite in [1, w_max]; the cast is exact.
+    (raw as u32).max(1)
+}
+
+// --------------------------------------------------------------------------
+// §12.3 Steps 2–5 as one pure function — the VT-8 seam (ADR 0040)
+// --------------------------------------------------------------------------
+
+/// The result of one run of §12.3 Steps 2–5.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct Selection {
+    /// The §12.3 Step 2 focus.
+    pub focus: Focus,
+    /// The selected action index `0..=8`.
+    pub action: u8,
+    /// `w_eff` — the effective search width used (`0` on a `NONE` / inertia
+    /// tick, which does no scan).
+    pub w_eff: u32,
+}
+
+/// §12.3 **Steps 2–5 (Attend, Narrow, Scan order, Satisficing selection)** as
+/// a single pure function (ADR 0040).
+///
+/// **`h` and `shortfalls` enter as independent typed parameters and the body
+/// contains no path from either to the other** — `Focus::attend` branches on
+/// each in turn; `psi` / [`w_eff`] read **only** `h`; the scan reads only the
+/// `admissible` / `satisfices` closures and `focus`. This makes VT-8 criterion
+/// (iii) ("no path in the decision procedure computing one from the other") a
+/// fact you can check by reading this signature and these ~15 lines, not by
+/// code archaeology (§17 A3 posture applied to a validation test).
+///
+/// The **normal** [`Satisficing::apply`] path computes the real `h`
+/// ([`standard_margin`](firma_domain::margin::standard_margin)) and the real
+/// `ς_j` (`A_j − v_j`) from firm state and calls this; the **VT-8 harness**
+/// calls it directly with grid-constructed `(h, ς)` pairs that never touch
+/// firm state. `apply` has **no Step-2–5 logic of its own** — it computes the
+/// two quantities, builds the two closures, and calls here — so the two paths
+/// cannot drift.
+///
+/// * `prev_action` — the action to repeat on a `NONE` (inertia) tick.
+/// * `admissible(a)` — §11.4 admissibility of action `a`.
+/// * `satisfices(a, focus)` — §12.3 Step 5's `satisfices` test (never called
+///   for `Focus::None`).
+///
+/// Every input is a distinct named parameter on purpose — that is what makes
+/// VT-8 criterion (iii) checkable by reading this one signature (ADR 0040), so
+/// `clippy::too_many_arguments` is silenced rather than bundling `h` and
+/// `shortfalls` behind a struct that would hide the seam.
+#[allow(clippy::too_many_arguments)]
+pub fn select(
+    h: f64,
+    shortfalls: [f64; 3],
+    beta: f64,
+    h_crit: f64,
+    w_max: u32,
+    prev_action: u8,
+    admissible: impl Fn(u8) -> bool,
+    satisfices: impl Fn(u8, Focus) -> bool,
+) -> Selection {
+    // Step 2.
+    let focus = Focus::attend(h, shortfalls, h_crit);
+    if focus == Focus::None {
+        // Inertia (§12.3 Step 4 NONE row): repeat the previous action, no scan.
+        return Selection {
+            focus,
+            action: prev_action,
+            w_eff: 0,
+        };
+    }
+
+    // Step 3 — narrowing. Reads only `h`.
+    let w = w_eff(psi(h, h_crit, beta), w_max);
+
+    // Steps 4–5 — scan in focus-priority order for the first satisficing
+    // action within `w`; inadmissible actions do not consume budget (§12.3
+    // rule 2); fall back to the first admissible action in priority order.
+    let order = focus.scan_order();
+    let mut scanned = 0u32;
+    let mut pick: Option<u8> = None;
+    for &a in order {
+        if scanned >= w {
+            break;
+        }
+        if !admissible(a) {
+            continue;
+        }
+        scanned += 1;
+        if satisfices(a, focus) {
+            pick = Some(a); // first satisficing, not argmax (§12.3 rule 1)
+            break;
+        }
+    }
+    let action =
+        pick.unwrap_or_else(|| order.iter().copied().find(|&a| admissible(a)).unwrap_or(0));
+
+    Selection {
+        focus,
+        action,
+        w_eff: w,
+    }
+}
+
+// --------------------------------------------------------------------------
+// shared: reading firm state from the View
+// --------------------------------------------------------------------------
+
+fn res(name: &str) -> ResourceKind {
+    ResourceKind(name.to_owned())
+}
+
+/// §8.1 constraint-carrying state from the view.
+fn firm_state(view: &dyn View, agent: AgentId) -> FirmState {
+    FirmState {
+        liquid_capital: view.agent_stock(agent, &res(keys::CAPITAL)),
+        input_stock: view.agent_stock(agent, &res(keys::INPUT)),
+        capability: view.agent_real(agent, keys::CAPABILITY).unwrap_or(0.0),
+        obligation: view.agent_int(agent, keys::OBLIGATION).unwrap_or(0),
+    }
+}
+
+/// `u` (regulated-activity intensity, §9.1 `g_2`) for one firm — derived on
+/// demand from the action window `W` (ADR 0014, ADR 0028), falling back to a
+/// seeded `keys::REGULATED_INTENSITY` while `W` is still empty (tick 0).
+fn firm_u(view: &dyn View, agent: AgentId, l_w: usize) -> f64 {
+    let w = view.agent_records(agent, keys::ACTION_WINDOW);
+    if w.is_empty() {
+        view.agent_real(agent, keys::REGULATED_INTENSITY)
+            .unwrap_or(0.0)
+    } else {
+        let entries: Vec<firma_domain::WindowEntry> = w
+            .iter()
+            .filter_map(|s| firma_domain::WindowEntry::from_json(s).ok())
+            .collect();
+        firma_domain::margin::u_from_window(&entries, l_w)
+    }
+}
+
+/// §8.1 auxiliary state relevant to `g_j`: `λ` and `u` (aspirations are not a
+/// `g_j` input, so they are zeroed here — `standard_margin` ignores them).
+fn firm_aux(view: &dyn View, agent: AgentId, l_w: usize) -> FirmAuxState {
+    FirmAuxState {
+        legitimacy: view.agent_real(agent, keys::LEGITIMACY).unwrap_or(1.0),
+        regulated_intensity: firm_u(view, agent, l_w),
+        aspirations: Aspirations {
+            capital_growth: 0.0,
+            capability: 0.0,
+            obligation_clearance: 0.0,
+        },
+    }
+}
+
+/// The firm's *observed* environment/θ this tick (ADR 0035): the single
+/// [`EnvSnapshot`] an `Observation` plugin wrote under `keys::OBSERVED_ENV` in
+/// `observe`, or `None` when no `Observation` plugin ran — in which case
+/// [`theta`] / [`env_params`] fall back to the true global store and the run is
+/// byte-identical to a pre-Stage-5 run.
+fn observed_env(view: &dyn View, agent: AgentId) -> Option<firma_domain::EnvSnapshot> {
+    view.agent_records(agent, keys::OBSERVED_ENV)
+        .last()
+        .and_then(|s| firma_domain::EnvSnapshot::from_json(s).ok())
+}
+
+/// §8.2 `θ` **as `agent` sees it** (§12.2 via ADR 0035): the observed snapshot
+/// if present, else the true global store. **MUST be seeded** (ADR 0015); an
+/// unseeded `θ_limit` / `θ_Q` of `0` makes `compliance` / `obligation` bind at
+/// once.
+fn theta(view: &dyn View, agent: AgentId) -> ConstraintParams {
+    let o = observed_env(view, agent);
+    ConstraintParams {
+        theta_limit: o
+            .map(|o| o.theta_limit)
+            .or_else(|| view.global_real(keys::THETA_LIMIT))
+            .unwrap_or(0.0),
+        theta_cap: o
+            .map(|o| o.theta_cap)
+            .or_else(|| view.global_real(keys::THETA_CAP))
+            .unwrap_or(0.0),
+        theta_q: o
+            .map(|o| o.theta_q)
+            .or_else(|| view.global_int(keys::THETA_Q))
+            .unwrap_or(0),
+    }
+}
+
+/// §8.3 environment prices **as `agent` sees it** (ADR 0035): the observed
+/// snapshot if present, else the true global store. Unseeded ⇒ `0`.
+fn env_params(view: &dyn View, agent: AgentId) -> EnvParams {
+    let o = observed_env(view, agent);
+    EnvParams {
+        input_price: o
+            .map(|o| o.input_price)
+            .or_else(|| view.global_int(keys::INPUT_PRICE))
+            .unwrap_or(0),
+        output_price: o
+            .map(|o| o.output_price)
+            .or_else(|| view.global_int(keys::OUTPUT_PRICE))
+            .unwrap_or(0),
+    }
+}
+
+// --------------------------------------------------------------------------
+// shaping-scan configuration (shared by Satisficing and DecisionRandom)
+// --------------------------------------------------------------------------
+
+/// Per-firm `ShapingCapability` (§8.4) for scan/admissibility purposes: the
+/// minimum commitment `κ_a` of each shaping action the firm can attempt. A
+/// shaping action with **no configured cost** is treated as **absent from the
+/// repertoire** — inadmissible, and (per §12.3 rule 2) it does not consume
+/// scan budget. `contract` / `diversify` have no §16.1 values (ADR 0023), so
+/// they are opt-in; `lobby`'s `κ_ℓ = 25` (§16.1) is the default.
+#[derive(Debug, Clone, Copy, PartialEq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct ShapingScanParams {
+    /// `κ_ℓ` — lobby cost (§16.1 default `25`).
+    #[serde(default = "default_lobby_cost")]
+    pub lobby_cost: i64,
+    /// `κ_k` — contract cost. `None` ⇒ `contract` not in repertoire.
+    #[serde(default)]
+    pub contract_cost: Option<i64>,
+    /// `κ_d` — diversify cost. `None` ⇒ `diversify` not in repertoire.
+    #[serde(default)]
+    pub diversify_cost: Option<i64>,
+}
+
+fn default_lobby_cost() -> i64 {
+    25
+}
+
+impl Default for ShapingScanParams {
+    fn default() -> Self {
+        ShapingScanParams {
+            lobby_cost: default_lobby_cost(),
+            contract_cost: None,
+            diversify_cost: None,
+        }
+    }
+}
+
+impl ShapingScanParams {
+    /// `κ_a` for shaping action index `a ∈ {6, 7, 8}`, or `None` if `a` is not
+    /// in the firm's repertoire.
+    fn cost(&self, a: u8) -> Option<i64> {
+        match a {
+            6 => Some(self.lobby_cost),
+            7 => self.contract_cost,
+            8 => self.diversify_cost,
+            _ => None,
+        }
+    }
+}
+
+// --------------------------------------------------------------------------
+// admissibility (§11.4 / §12.3 `admissible(a, x, θ, e)`; ADR 0021 Decision 2)
+// --------------------------------------------------------------------------
+
+/// Snapshot of everything `admissible` / `satisfices` need for one firm this
+/// tick — built once, reused across the whole scan.
+struct DecideCtx {
+    agent: AgentId,
+    state: FirmState,
+    theta: ConstraintParams,
+    env: EnvParams,
+    action: ActionParams,
+    shaping: Option<ShapingScanParams>,
+    graph: RelationGraph,
+}
+
+impl DecideCtx {
+    /// `admissible(a, x, θ, e)` — in repertoire ∧ affordable ∧ (scope-gated:
+    /// `c ≥ θ_cap`) ∧ (contract: has a `supply` partner). For the six market
+    /// actions this is exactly `market_core(a, …).is_some()` (ADR 0021 D2).
+    fn admissible(&self, a: u8) -> bool {
+        if a < 6 {
+            let action = MARKET_ACTIONS[a as usize];
+            market_core(action, &self.state, &self.theta, &self.env, &self.action).is_some()
+        } else {
+            let Some(scan) = &self.shaping else {
+                return false; // no ShapingCapability configured
+            };
+            let Some(cost) = scan.cost(a) else {
+                return false; // this shaping action not in repertoire
+            };
+            if shaping_cost_step(cost, &self.state).is_none() {
+                return false; // cannot afford κ_a
+            }
+            // `contract` also needs an incoming `supply` edge (§11.2 action 7).
+            a != 7 || self.graph.has_supply_partner(self.agent)
+        }
+    }
+
+    /// The post-action `FirmState` a one-step lookahead expects (§12.3 Step 5,
+    /// "the deterministic core with stochastic terms at expectation"):
+    /// `market_core` for market actions (its own §9.3 lag-collapse
+    /// approximation included, e.g. `invest_capability`), `shaping_cost_step`
+    /// (cost only) for shaping. `None` iff `!admissible(a)`.
+    fn lookahead(&self, a: u8) -> Option<FirmState> {
+        if a < 6 {
+            market_core(
+                MARKET_ACTIONS[a as usize],
+                &self.state,
+                &self.theta,
+                &self.env,
+                &self.action,
+            )
+        } else {
+            let cost = self.shaping.as_ref().and_then(|s| s.cost(a))?;
+            shaping_cost_step(cost, &self.state)
+        }
+    }
+
+    /// `h` for a given `FirmState` under this firm's `λ` / `u` / `θ` (the aux
+    /// `u` is held at its current value — §9.3: `u` tracking is not part of the
+    /// `FirmState → FirmState` core).
+    fn margin_at(&self, s: &FirmState, aux: &FirmAuxState, scales: &ScaleFactors) -> f64 {
+        let ctx = ConstraintContext {
+            state: s,
+            aux,
+            theta: &self.theta,
+        };
+        standard_margin(&ctx, scales)
+    }
+}
+
+// --------------------------------------------------------------------------
+// decision.satisficing
+// --------------------------------------------------------------------------
+
+/// Parameters for [`Satisficing`] (§12.3, §16.1). `β` is **config**, not
+/// hard-coded — `β = 0` (the null) must fall out of `ψ`'s formula.
+#[derive(Debug, Clone, Copy, PartialEq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct SatisficingParams {
+    /// `h_crit` — survival-attention threshold. §16.1 default `0.15`.
+    #[serde(default = "default_h_crit")]
+    pub h_crit: f64,
+    /// `β` — narrowing sharpness. §16.1 default `1.0`; sweep `{0, 0.5, 1, 2, 4}`.
+    #[serde(default = "default_beta")]
+    pub beta: f64,
+    /// `w_max` — max search width. §16.1 default `6`; sweep `{3, 6, 9}`.
+    #[serde(default = "default_w_max")]
+    pub w_max: u32,
+    /// `L_W` — action-window length, for `u` in `g_2` (ADR 0014, ADR 0028).
+    /// §16.1 default `8`; sweep `{4, 8, 16}`.
+    #[serde(default = "default_l_w")]
+    pub l_w: u32,
+    /// `s_j` — §9.2 scale factors for `h`. §9.2 defaults.
+    #[serde(default)]
+    pub scales: ScaleFactors,
+    /// §11.1 action parameters for the one-step lookahead. §16.1 defaults.
+    #[serde(default)]
+    pub action: ActionParams,
+    /// Which shaping actions the firm can scan. `None` ⇒ none (default).
+    #[serde(default)]
+    pub shaping: Option<ShapingScanParams>,
+}
+
+fn default_h_crit() -> f64 {
+    0.15
+}
+fn default_beta() -> f64 {
+    1.0
+}
+fn default_w_max() -> u32 {
+    6
+}
+fn default_l_w() -> u32 {
+    8
+}
+
+impl Default for SatisficingParams {
+    fn default() -> Self {
+        SatisficingParams {
+            h_crit: default_h_crit(),
+            beta: default_beta(),
+            w_max: default_w_max(),
+            l_w: default_l_w(),
+            scales: ScaleFactors::default(),
+            action: ActionParams::default(),
+            shaping: None,
+        }
+    }
+}
+
+impl SatisficingParams {
+    /// Validate against §12.3 / §16.1.
+    ///
+    /// # Errors
+    /// `h_crit ≤ 0`, `β < 0`, `w_max == 0`, or a non-finite real.
+    pub fn validate(&self) -> Result<(), String> {
+        if !(self.h_crit.is_finite() && self.h_crit > 0.0) {
+            return Err(format!(
+                "h_crit must be finite and > 0, got {}",
+                self.h_crit
+            ));
+        }
+        if !(self.beta.is_finite() && self.beta >= 0.0) {
+            return Err(format!("beta must be finite and >= 0, got {}", self.beta));
+        }
+        if self.w_max == 0 {
+            return Err("w_max must be >= 1".to_string());
+        }
+        if self.l_w == 0 {
+            return Err("l_w must be >= 1".to_string());
+        }
+        Ok(())
+    }
+}
+
+/// `decision.satisficing` — §12.3. Runs in `decide` for every live agent (a
+/// per-agent `Strategic` marker is a Phase-5 component-bag concern; every live
+/// agent is treated as `Strategic`).
+pub struct Satisficing {
+    id: PluginId,
+    params: SatisficingParams,
+    reads: Vec<ComponentId>,
+    writes: Vec<DeltaKindTag>,
+}
+
+impl Satisficing {
+    /// Build from parameters.
+    ///
+    /// # Errors
+    /// Invalid [`SatisficingParams`].
+    pub fn new(params: SatisficingParams) -> Result<Satisficing, String> {
+        params.validate()?;
+        Ok(Satisficing {
+            id: PluginId::new(catalog::SATISFICING_ID),
+            params,
+            reads: vec![ComponentId::ledger()],
+            writes: vec![DeltaKindTag::SetAgentInt],
+        })
+    }
+
+    /// The `[ς_1, ς_2, ς_3]` shortfalls (§12.1: `ς_j = A_j − v_j`). An
+    /// **absent** aspiration ⇒ `ς_j = 0` (no shortfall for that goal yet).
+    fn shortfalls(view: &dyn View, agent: AgentId, s: &FirmState) -> [f64; 3] {
+        let v1 = view
+            .agent_int(agent, keys::REALIZED_CAPITAL_GROWTH)
+            .unwrap_or(0) as f64;
+        let v2 = s.capability;
+        let v3 = -(s.obligation as f64);
+        let v = [v1, v2, v3];
+        let a_keys = [
+            keys::ASPIRATION_CAPITAL_GROWTH,
+            keys::ASPIRATION_CAPABILITY,
+            keys::ASPIRATION_OBLIGATION_CLEARANCE,
+        ];
+        let mut sc = [0.0; 3];
+        for j in 0..3 {
+            if let Some(a) = view.agent_real(agent, a_keys[j]) {
+                sc[j] = a - v[j];
+            }
+        }
+        sc
+    }
+
+    /// `satisfices(a, focus)` (§12.3 Step 5 table).
+    fn satisfices(
+        dc: &DecideCtx,
+        aux: &FirmAuxState,
+        scales: &ScaleFactors,
+        a: u8,
+        focus: Focus,
+        h_t: f64,
+        sc: &[f64; 3],
+    ) -> bool {
+        let Some(n) = dc.lookahead(a) else {
+            return false;
+        };
+        match focus {
+            Focus::Survival => dc.margin_at(&n, aux, scales) > h_t,
+            Focus::Goal(j) => {
+                let dv = match j {
+                    1 => (n.liquid_capital - dc.state.liquid_capital) as f64,
+                    2 => n.capability - dc.state.capability,
+                    3 => (dc.state.obligation - n.obligation) as f64,
+                    _ => return false,
+                };
+                dv >= sc[(j - 1) as usize]
+            }
+            Focus::None => false,
+        }
+    }
+}
+
+impl Rule for Satisficing {
+    fn id(&self) -> PluginId {
+        self.id.clone()
+    }
+    fn version(&self) -> semver::Version {
+        version()
+    }
+    fn phase(&self) -> Phase {
+        Phase::Decide
+    }
+    fn reads(&self) -> &[ComponentId] {
+        &self.reads
+    }
+    fn writes(&self) -> &[DeltaKindTag] {
+        &self.writes
+    }
+    fn apply(&self, view: &dyn View, _key: RngKey) -> Vec<Delta> {
+        let p = &self.params;
+        let graph = RelationGraph::from_records(view.global_records(keys::RELATION_EDGES))
+            .unwrap_or_default();
+        let mut out = Vec::new();
+
+        for &agent in view.live_agents() {
+            let state = firm_state(view, agent);
+            let aux = firm_aux(view, agent, p.l_w as usize);
+            let dc = DecideCtx {
+                agent,
+                state,
+                theta: theta(view, agent),
+                env: env_params(view, agent),
+                action: p.action,
+                shaping: p.shaping,
+                graph: graph.clone(),
+            };
+
+            // --- Step 1: Evaluate the two quantities VT-8 must show are
+            //     independently manipulable (ADR 0040). `h_t` comes only from
+            //     `standard_margin`; `sc` only from `A_j − v_j`. ---
+            let h_t = dc.margin_at(&dc.state, &aux, &p.scales);
+            let sc = Self::shortfalls(view, agent, &dc.state);
+            let prev = view
+                .agent_int(agent, keys::SELECTED_ACTION)
+                .and_then(|v| u8::try_from(v).ok())
+                .filter(|a| *a <= 8)
+                .unwrap_or(0);
+
+            // --- Steps 2–5: the pure decision function. `apply` carries no
+            //     Step-2–5 logic of its own, so this path and the VT-8 harness
+            //     cannot drift (ADR 0040). ---
+            let sel = select(
+                h_t,
+                sc,
+                p.beta,
+                p.h_crit,
+                p.w_max,
+                prev,
+                |a| dc.admissible(a),
+                |a, focus| Self::satisfices(&dc, &aux, &p.scales, a, focus, h_t, &sc),
+            );
+
+            let set = |field: &str, value: i64| Delta {
+                target: DeltaTarget::Agent(agent),
+                kind: DeltaKind::SetAgentInt {
+                    field: field.to_owned(),
+                    value,
+                },
+                conflict_class: ConflictClass::Independent,
+                origin: self.id.clone(),
+            };
+            out.push(set(keys::SELECTED_ACTION, i64::from(sel.action)));
+            out.push(set(keys::FOCUS, sel.focus.code()));
+            out.push(set(keys::W_EFF, i64::from(sel.w_eff))); // 0 on a NONE tick
+        }
+        out
+    }
+    fn assumption(&self) -> &str {
+        "The firm attends to survival when its viability margin is thin and \
+         otherwise to its largest unmet goal; it narrows its search as the \
+         margin narrows (sharpness β); and it takes the first action it scans, \
+         in a focus-dependent priority order, that it expects to be good enough \
+         — not the best one (§12.3 satisficing, Cyert & March)."
+    }
+}
+
+// --------------------------------------------------------------------------
+// decision.random  (ADR 0027)
+// --------------------------------------------------------------------------
+
+/// Parameters for [`DecisionRandom`].
+#[derive(Debug, Clone, Copy, PartialEq, Serialize, Deserialize, Default)]
+#[serde(deny_unknown_fields)]
+pub struct RandomParams {
+    /// §11.1 action parameters — for the admissibility check only. §16.1
+    /// defaults.
+    #[serde(default)]
+    pub action: ActionParams,
+    /// Which shaping actions are in the firm's repertoire. `None` ⇒ none.
+    #[serde(default)]
+    pub shaping: Option<ShapingScanParams>,
+}
+
+/// `decision.random` — the structural null (ADR 0027). Picks **uniformly among
+/// the admissible actions**; ignores focus, narrowing, priority, and
+/// satisficing entirely. One `mechanism`-stream draw per firm per `decide`.
+pub struct DecisionRandom {
+    id: PluginId,
+    params: RandomParams,
+    reads: Vec<ComponentId>,
+    writes: Vec<DeltaKindTag>,
+}
+
+impl DecisionRandom {
+    /// Build from parameters.
+    ///
+    /// # Errors
+    /// Never — `RandomParams` cannot be invalid; the signature matches the
+    /// other constructors.
+    pub fn new(params: RandomParams) -> Result<DecisionRandom, String> {
+        Ok(DecisionRandom {
+            id: PluginId::new(catalog::RANDOM_ID),
+            params,
+            reads: vec![ComponentId::ledger()],
+            writes: vec![DeltaKindTag::SetAgentInt],
+        })
+    }
+}
+
+impl Rule for DecisionRandom {
+    fn id(&self) -> PluginId {
+        self.id.clone()
+    }
+    fn version(&self) -> semver::Version {
+        version()
+    }
+    fn phase(&self) -> Phase {
+        Phase::Decide
+    }
+    fn reads(&self) -> &[ComponentId] {
+        &self.reads
+    }
+    fn writes(&self) -> &[DeltaKindTag] {
+        &self.writes
+    }
+    fn apply(&self, view: &dyn View, key: RngKey) -> Vec<Delta> {
+        let graph = RelationGraph::from_records(view.global_records(keys::RELATION_EDGES))
+            .unwrap_or_default();
+        let mut out = Vec::new();
+
+        for &agent in view.live_agents() {
+            let dc = DecideCtx {
+                agent,
+                state: firm_state(view, agent),
+                theta: theta(view, agent),
+                env: env_params(view, agent),
+                action: self.params.action,
+                shaping: self.params.shaping,
+                graph: graph.clone(),
+            };
+
+            // Admissible set, ascending index (deterministic). Never empty:
+            // `hold` (0) is always admissible (§11.1).
+            let adm: Vec<u8> = (0u8..=8).filter(|&a| dc.admissible(a)).collect();
+            let n = adm.len().max(1) as u64;
+
+            let mut rng = firma_rng::open_for(&key, Some(agent.0), "decision_random");
+            let idx = rng.next_below(n) as usize;
+            let chosen = adm.get(idx).copied().unwrap_or(0);
+
+            out.push(Delta {
+                target: DeltaTarget::Agent(agent),
+                kind: DeltaKind::SetAgentInt {
+                    field: keys::SELECTED_ACTION.to_owned(),
+                    value: i64::from(chosen),
+                },
+                conflict_class: ConflictClass::Independent,
+                origin: self.id.clone(),
+            });
+        }
+        out
+    }
+    fn assumption(&self) -> &str {
+        "The firm chooses uniformly at random among the actions it can currently \
+         take, with no attention, no priority, and no notion of 'good enough' — \
+         the structural null that shows the model's findings require its \
+         decision mechanism (§20.3, §28.4)."
+    }
+}
+
+// --------------------------------------------------------------------------
+// decision.aspiration_update  (§12.1)
+// --------------------------------------------------------------------------
+
+/// Parameters for [`AspirationUpdate`].
+#[derive(Debug, Clone, Copy, PartialEq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct AspirationUpdateParams {
+    /// `α` — aspiration adaptation rate, `α ∈ (0, 1)` (§12.1). §16.1 default
+    /// `0.10`; sweep `{0.05, 0.1, 0.2}`.
+    #[serde(default = "default_alpha")]
+    pub alpha: f64,
+}
+
+fn default_alpha() -> f64 {
+    0.10
+}
+
+impl Default for AspirationUpdateParams {
+    fn default() -> Self {
+        AspirationUpdateParams {
+            alpha: default_alpha(),
+        }
+    }
+}
+
+/// `decision.aspiration_update` — §12.1's `A_{j,t+1} = A_j + α(v_j − A_j)`, run
+/// in the `record` phase (§10.1 phase 9). Also persists `v_1`'s `r^L_{t-1}`
+/// baseline and the realised `v_1` that [`Satisficing`] reads next `decide`.
+pub struct AspirationUpdate {
+    id: PluginId,
+    alpha: f64,
+    reads: Vec<ComponentId>,
+    writes: Vec<DeltaKindTag>,
+}
+
+impl AspirationUpdate {
+    /// Build from parameters.
+    ///
+    /// # Errors
+    /// `α` not in `(0, 1)` (§12.1).
+    pub fn new(params: AspirationUpdateParams) -> Result<AspirationUpdate, String> {
+        if !(params.alpha.is_finite() && params.alpha > 0.0 && params.alpha < 1.0) {
+            return Err(format!("alpha must be in (0, 1), got {}", params.alpha));
+        }
+        Ok(AspirationUpdate {
+            id: PluginId::new(catalog::ASPIRATION_UPDATE_ID),
+            alpha: params.alpha,
+            reads: vec![ComponentId::ledger()],
+            writes: vec![DeltaKindTag::AdjustAgentReal, DeltaKindTag::SetAgentInt],
+        })
+    }
+}
+
+impl Rule for AspirationUpdate {
+    fn id(&self) -> PluginId {
+        self.id.clone()
+    }
+    fn version(&self) -> semver::Version {
+        version()
+    }
+    fn phase(&self) -> Phase {
+        Phase::Record
+    }
+    fn reads(&self) -> &[ComponentId] {
+        &self.reads
+    }
+    fn writes(&self) -> &[DeltaKindTag] {
+        &self.writes
+    }
+    fn apply(&self, view: &dyn View, _key: RngKey) -> Vec<Delta> {
+        let mut out = Vec::new();
+        for &agent in view.live_agents() {
+            let r_l = view.agent_stock(agent, &res(keys::CAPITAL));
+            let c = view.agent_real(agent, keys::CAPABILITY).unwrap_or(0.0);
+            let q = view.agent_int(agent, keys::OBLIGATION).unwrap_or(0);
+            let prev = view
+                .agent_int(agent, keys::PREV_TICK_CAPITAL)
+                .unwrap_or(r_l);
+            let v1 = r_l - prev;
+            let v = [v1 as f64, c, -(q as f64)];
+            let a_keys = [
+                keys::ASPIRATION_CAPITAL_GROWTH,
+                keys::ASPIRATION_CAPABILITY,
+                keys::ASPIRATION_OBLIGATION_CLEARANCE,
+            ];
+
+            for j in 0..3 {
+                let delta = match view.agent_real(agent, a_keys[j]) {
+                    // absent ⇒ seed: A := v_j  (store is 0, add v_j)
+                    None => v[j],
+                    // present ⇒ A += α(v_j − A)
+                    Some(a) => self.alpha * (v[j] - a),
+                };
+                if delta != 0.0 {
+                    out.push(Delta {
+                        target: DeltaTarget::Agent(agent),
+                        kind: DeltaKind::AdjustAgentReal {
+                            field: a_keys[j].to_owned(),
+                            delta,
+                        },
+                        conflict_class: ConflictClass::Independent,
+                        origin: self.id.clone(),
+                    });
+                }
+            }
+
+            let set = |field: &str, value: i64| Delta {
+                target: DeltaTarget::Agent(agent),
+                kind: DeltaKind::SetAgentInt {
+                    field: field.to_owned(),
+                    value,
+                },
+                conflict_class: ConflictClass::Independent,
+                origin: self.id.clone(),
+            };
+            out.push(set(keys::REALIZED_CAPITAL_GROWTH, v1));
+            out.push(set(keys::PREV_TICK_CAPITAL, r_l));
+        }
+        out
+    }
+    fn assumption(&self) -> &str {
+        "Each goal's aspiration level drifts toward the value the firm actually \
+         realised, at rate α — so sustained underperformance eventually makes a \
+         low outcome 'satisfactory' (§12.1 adaptive aspirations, Cyert & March)."
+    }
+}
+
+// --------------------------------------------------------------------------
+// registration
+// --------------------------------------------------------------------------
+
+/// A constructor signature shared by every rule this crate registers.
+pub type Ctor = fn(&serde_json::Value) -> Result<Box<dyn Rule>, String>;
+
+fn build_satisficing(p: &serde_json::Value) -> Result<Box<dyn Rule>, String> {
+    let params: SatisficingParams = if p.is_null() {
+        SatisficingParams::default()
+    } else {
+        serde_json::from_value(p.clone()).map_err(|e| e.to_string())?
+    };
+    Ok(Box::new(Satisficing::new(params)?))
+}
+
+fn build_random(p: &serde_json::Value) -> Result<Box<dyn Rule>, String> {
+    let params: RandomParams = if p.is_null() {
+        RandomParams::default()
+    } else {
+        serde_json::from_value(p.clone()).map_err(|e| e.to_string())?
+    };
+    Ok(Box::new(DecisionRandom::new(params)?))
+}
+
+fn build_aspiration_update(p: &serde_json::Value) -> Result<Box<dyn Rule>, String> {
+    let params: AspirationUpdateParams = if p.is_null() {
+        AspirationUpdateParams::default()
+    } else {
+        serde_json::from_value(p.clone()).map_err(|e| e.to_string())?
+    };
+    Ok(Box::new(AspirationUpdate::new(params)?))
+}
+
+/// Registration entries for `firma-cli` — `(id, content_hash, ctor)`.
+#[must_use]
+pub fn registered() -> Vec<(&'static str, &'static str, Ctor)> {
+    vec![
+        (
+            catalog::SATISFICING_ID,
+            catalog::CONTENT_HASH,
+            build_satisficing,
+        ),
+        (catalog::RANDOM_ID, catalog::CONTENT_HASH, build_random),
+        (
+            catalog::ASPIRATION_UPDATE_ID,
+            catalog::CONTENT_HASH,
+            build_aspiration_update,
+        ),
+    ]
+}
+
+pub mod support;
+
+#[cfg(test)]
+mod tests;

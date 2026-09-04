@@ -1,0 +1,39 @@
+{
+  "experiment": "phase2-smoke",
+  "schema_version": "1.0.0",
+  "engine": ">=0.1.0, <0.2.0",
+  "seeds": { "mechanism": 20260904, "environment": 7, "shock": 11, "init": 13 },
+  "world": {
+    "ticks": 10,
+    "resources": ["capital", "input"],
+    "conflict_resolver": { "id": "conflict.additive", "version": "^1" },
+    "snapshot_every": 5,
+    "global_reals": { "theta_limit": 0.45, "theta_cap": 0.40 },
+    "global_ints": { "theta_q": 100, "input_price": 2, "output_price": 3 }
+  },
+  "agents": [
+    { "id": 0, "birth_tick": 0, "stocks": { "capital": 500, "input": 20 },
+      "reals": { "capability": 0.60, "legitimacy": 1.0, "aspiration_capital_growth": 8.0 } },
+    { "id": 1, "birth_tick": 0, "stocks": { "capital": 500, "input": 20 },
+      "reals": { "capability": 0.58, "legitimacy": 1.0, "aspiration_capital_growth": 8.0 } },
+    { "id": 2, "birth_tick": 0, "stocks": { "capital": 210, "input": 5 },
+      "reals": { "capability": 0.50, "legitimacy": 1.0, "aspiration_capability": 0.80 } },
+    { "id": 3, "birth_tick": 0, "stocks": { "capital": 2, "input": 0 },
+      "reals": { "capability": 0.10, "legitimacy": 1.0 } }
+  ],
+  "environment": { "stocks": { "capital": 1000000, "input": 1000000 } },
+  "rules": [
+    { "id": "decision.satisficing", "version": "^1", "params": { "l_w": 4 } },
+    { "id": "action.market.standard.hold", "version": "^1", "params": {} },
+    { "id": "action.market.standard.produce_ordinary", "version": "^1", "params": {} },
+    { "id": "action.market.standard.produce_regulated", "version": "^1", "params": {} },
+    { "id": "action.market.standard.acquire_input", "version": "^1", "params": {} },
+    { "id": "action.market.standard.invest_capability", "version": "^1", "params": {} },
+    { "id": "action.market.standard.deliver", "version": "^1", "params": {} },
+    { "id": "action.shaping.rdt_standard.resolve_lagged", "version": "^1", "params": {} },
+    { "id": "constraint.action_window", "version": "^1", "params": { "l_w": 4 } },
+    { "id": "constraint.enforce", "version": "^1",
+      "params": { "t_c": 4, "p_c": 30, "delta_lambda": 0.15, "p_q": 20, "l_w": 4 } },
+    { "id": "decision.aspiration_update", "version": "^1", "params": { "alpha": 0.10 } }
+  ]
+}

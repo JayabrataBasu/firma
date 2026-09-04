@@ -1,0 +1,18 @@
+[package]
+name = "firma-io"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+description = "FIRMA durable, reconstructible record: event log, snapshot store, manifest (manual §22). NDJSON in Phase 1 (ADR 0012)."
+
+[lints]
+workspace = true
+
+[dependencies]
+firma-core = { workspace = true }
+firma-config = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+sha2 = { workspace = true }

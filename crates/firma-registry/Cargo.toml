@@ -1,0 +1,16 @@
+[package]
+name = "firma-registry"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+description = "FIRMA compile-time plugin registry: resolve config references to compiled Rule/ConflictResolver builds, verifying version + content hash (manual §18.2, §20, ADR 0008)."
+
+[lints]
+workspace = true
+
+[dependencies]
+firma-core = { workspace = true }
+serde_json = { workspace = true }
+semver = { workspace = true }

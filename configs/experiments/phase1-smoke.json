@@ -1,0 +1,29 @@
+{
+  "experiment": "phase1-smoke",
+  "schema_version": "1.0.0",
+  "engine": ">=0.1.0, <0.2.0",
+  "seeds": { "mechanism": 1, "environment": 2, "shock": 3, "init": 4 },
+  "world": {
+    "ticks": 400,
+    "resources": ["capital", "input"],
+    "conflict_resolver": { "id": "conflict.additive", "version": "^1" },
+    "snapshot_every": 25
+  },
+  "agents": [
+    { "id": 0, "birth_tick": 0, "stocks": { "capital": 100000, "input": 5000 } },
+    { "id": 1, "birth_tick": 0, "stocks": { "capital": 100000, "input": 5000 } },
+    { "id": 2, "birth_tick": 0, "stocks": { "capital": 100000, "input": 5000 } }
+  ],
+  "environment": { "stocks": { "capital": 0, "input": 0 } },
+  "rules": [
+    { "id": "testkit.transfer", "version": "^1",
+      "params": { "resource": "capital", "from": { "agent": 0 }, "to": { "agent": 1 }, "amount": 1 } },
+    { "id": "testkit.transfer", "version": "^1",
+      "params": { "resource": "input", "from": { "agent": 2 }, "to": { "agent": 0 }, "amount": 1, "phase": "act_market" } },
+    { "id": "testkit.keyed_nudge", "version": "^1",
+      "params": { "resource": "capital", "from": 1, "to": 2, "modulus": 4, "purpose": "nudge_a" } }
+  ],
+  "interventions": [
+    { "at": 0, "op": "null" }
+  ]
+}

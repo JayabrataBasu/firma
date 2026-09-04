@@ -1,0 +1,88 @@
+[workspace]
+resolver = "2"
+members = [
+    "crates/firma-core",
+    "crates/firma-rng",
+    "crates/firma-domain",
+    "crates/firma-viability",
+    "crates/firma-config",
+    "crates/firma-registry",
+    "crates/firma-io",
+    "crates/firma-kernel",
+    "crates/firma-analysis",
+    "crates/firma-tui",
+    "crates/firma-py",
+    "crates/firma-plugins/firma-plugin-testkit",
+    "crates/firma-plugins/firma-plugin-constraint",
+    "crates/firma-plugins/firma-plugin-action-market",
+    "crates/firma-plugins/firma-plugin-action-shaping",
+    "crates/firma-plugins/firma-plugin-decision",
+    "crates/firma-plugins/firma-plugin-observation",
+    "crates/firma-plugins/firma-plugin-shock",
+    "crates/firma-plugins/firma-plugin-locality",
+    "crates/firma-plugins/firma-plugin-resource",
+    "crates/firma-cli",
+    "tests",
+]
+
+# Per manual §0.6 / §22.3: the workspace version tracks the engine version that
+# is recorded in every run manifest. Bump MAJOR on any change to numerical
+# output (manual §20.5, §24.6).
+[workspace.package]
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.98.0"
+license = "Apache-2.0"
+repository = "https://github.com/JayabrataBasu/firma"
+
+[workspace.dependencies]
+firma-core = { path = "crates/firma-core" }
+firma-rng = { path = "crates/firma-rng" }
+firma-domain = { path = "crates/firma-domain" }
+firma-config = { path = "crates/firma-config" }
+firma-viability = { path = "crates/firma-viability" }
+firma-registry = { path = "crates/firma-registry" }
+firma-io = { path = "crates/firma-io" }
+firma-kernel = { path = "crates/firma-kernel" }
+firma-analysis = { path = "crates/firma-analysis" }
+firma-tui = { path = "crates/firma-tui" }
+firma-plugin-testkit = { path = "crates/firma-plugins/firma-plugin-testkit" }
+firma-plugin-constraint = { path = "crates/firma-plugins/firma-plugin-constraint" }
+firma-plugin-action-market = { path = "crates/firma-plugins/firma-plugin-action-market" }
+firma-plugin-action-shaping = { path = "crates/firma-plugins/firma-plugin-action-shaping" }
+firma-plugin-decision = { path = "crates/firma-plugins/firma-plugin-decision" }
+firma-plugin-observation = { path = "crates/firma-plugins/firma-plugin-observation" }
+firma-plugin-shock = { path = "crates/firma-plugins/firma-plugin-shock" }
+firma-plugin-locality = { path = "crates/firma-plugins/firma-plugin-locality" }
+firma-plugin-resource = { path = "crates/firma-plugins/firma-plugin-resource" }
+firma-cli = { path = "crates/firma-cli" }
+
+# External dependencies. Each is justified in docs/adr/0010-tooling-and-dependencies.md
+# per manual §24.1 ("new dependency requires PR justification").
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+sha2 = "0.10"
+semver = { version = "1", features = ["serde"] }
+# `firma-tui` (manual §23.2, ADR 0046): ratatui + crossterm are the manual's
+# named choice, not a discretionary pick.
+ratatui = "0.30"
+crossterm = "0.29"
+
+# Manual §24.1: clippy at deny(warnings) plus §25.6 project lints.
+# `warnings = "deny"` is applied in CI via RUSTFLAGS rather than baked in here,
+# so a compiler upgrade cannot brick local builds; CI still enforces it.
+[workspace.lints.rust]
+missing_docs = "deny"
+unsafe_code = "forbid"
+rust_2018_idioms = { level = "deny", priority = -1 }
+unreachable_pub = "warn"
+
+[workspace.lints.clippy]
+all = { level = "deny", priority = -1 }
+
+[profile.release]
+# Manual §21.4: no fast-math, no FMA contraction; keep optimiser reordering
+# conservative so release and debug agree.
+overflow-checks = true
+lto = "thin"
+codegen-units = 1

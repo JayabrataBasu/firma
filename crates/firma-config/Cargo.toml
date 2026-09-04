@@ -1,0 +1,18 @@
+[package]
+name = "firma-config"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+description = "FIRMA run configuration: schema, validation, content hashing (manual §20.4). JSON in Phase 1 (ADR 0010 / OQ-2)."
+
+[lints]
+workspace = true
+
+[dependencies]
+firma-core = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+semver = { workspace = true }
+sha2 = { workspace = true }

@@ -1,0 +1,65 @@
+name: ci
+
+# Manual §24.7: every merge green on the full CI matrix.
+# Manual §25.1: tests run in order "the software works" -> "the science is sound".
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+
+env:
+  CARGO_TERM_COLOR: always
+  # Manual §24.1: clippy / build at deny(warnings). Applied here, not baked into
+  # the crates, so a toolchain bump cannot brick local builds.
+  RUSTFLAGS: "-D warnings"
+  RUSTDOCFLAGS: "-D warnings"
+
+jobs:
+  format:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: rustup show          # honours rust-toolchain.toml
+      - run: cargo fmt --all --check
+
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: rustup show
+      - run: rustup component add clippy
+      - name: clippy (deny warnings) — manual §24.1
+        run: cargo clippy --all-targets --all-features -- -D warnings
+      - name: project architecture lints — manual §25.6
+        run: bash scripts/lint-architecture.sh
+
+  deny:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: EmbarkStudios/cargo-deny-action@v2
+        with:
+          command: check advisories bans licenses sources
+
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: rustup show
+      - name: unit / integration / property tests — manual §25.1
+        run: cargo test --workspace --all-features
+      - name: determinism gate DT-1..DT-6 — manual §25.2
+        run: cargo test -p firma-conformance --test determinism -- --nocapture
+      - name: validation VT-2, VT-6 — manual §25.4 (Phase 1 gate, §26.3)
+        run: cargo test -p firma-conformance --test validation -- --nocapture
+      - name: golden trace — manual §25.7
+        run: cargo test -p firma-conformance --test golden -- --nocapture
+
+  # Manual §21.4: cross-platform bit-identity is verified per-platform, not assumed.
+  determinism-macos:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: rustup show
+      - run: cargo test -p firma-conformance --test determinism -- --nocapture
