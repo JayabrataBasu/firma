@@ -601,3 +601,131 @@ fn run_and_verify_end_to_end() {
     assert!(v.ok(), "verify failed: {v:?}");
     let _ = std::fs::remove_dir_all(&dir);
 }
+
+/// ADR-0054 test-plan items 3 (persistence across ticks) and 4 (real-state
+/// independence), combined in one scenario: a single `at: 0`
+/// `SetAgentReal` intervention pins a *healthy* margin (`h = 0.40`, no
+/// shortfall on any goal) and a seeded `SELECTED_ACTION = 2`
+/// (`produce_regulated`). Under the pin, `Focus::attend` must resolve to
+/// `None` (healthy margin, zero shortfall) at **every** tick without the
+/// intervention ever being reapplied (item 3) — which means the firm
+/// repeats `produce_regulated` every tick, driving its *real* regulated-
+/// activity window past `θ_limit` regardless of the pin's claim of health.
+/// `constraint.enforce`'s real violation detection must still kill the
+/// firm (item 4) — a pinned firm is not pinned out of a real compliance
+/// violation.
+#[test]
+fn adr0054_pin_persists_and_real_violations_still_kill() {
+    use firma_core::{DeltaKind, DeltaTarget, Event};
+
+    let cfg = config(
+        r#"{
+      "experiment": "adr0054-item3-4", "schema_version": "1.0.0", "engine": ">=0.1.0, <0.2.0",
+      "seeds": { "mechanism": 1, "environment": 1, "shock": 1, "init": 1 },
+      "world": { "ticks": 20, "resources": ["capital", "input"],
+        "conflict_resolver": { "id": "conflict.additive", "version": "^1" },
+        "global_reals": { "theta_limit": 0.40, "theta_cap": 0.20 },
+        "global_ints": { "theta_q": 100, "input_price": 2, "output_price": 3 } },
+      "agents": [ { "id": 0, "stocks": { "capital": 5000, "input": 5000 },
+        "reals": { "capability": 0.9, "legitimacy": 1.0 },
+        "ints": { "selected_action": 2 } } ],
+      "environment": { "stocks": { "capital": 100000000, "input": 100000000 } },
+      "interventions": [
+        { "at": 0, "op": "set_agent_real", "agent": 0, "field": "pinned_margin", "value": 0.40 },
+        { "at": 0, "op": "set_agent_real", "agent": 0, "field": "pinned_shortfall_capital_growth", "value": 0.0 },
+        { "at": 0, "op": "set_agent_real", "agent": 0, "field": "pinned_shortfall_capability", "value": 0.0 },
+        { "at": 0, "op": "set_agent_real", "agent": 0, "field": "pinned_shortfall_obligation_clearance", "value": 0.0 }
+      ],
+      "rules": [
+        { "id": "decision.satisficing", "version": "^1", "params": { "l_w": 4 } },
+        { "id": "action.market.standard.hold", "version": "^1", "params": {} },
+        { "id": "action.market.standard.produce_ordinary", "version": "^1", "params": {} },
+        { "id": "action.market.standard.produce_regulated", "version": "^1", "params": {} },
+        { "id": "action.market.standard.acquire_input", "version": "^1", "params": {} },
+        { "id": "action.market.standard.invest_capability", "version": "^1", "params": {} },
+        { "id": "action.market.standard.deliver", "version": "^1", "params": {} },
+        { "id": "constraint.action_window", "version": "^1", "params": { "l_w": 4 } },
+        { "id": "constraint.enforce", "version": "^1",
+          "params": { "t_c": 4, "p_c": 30, "delta_lambda": 0.15, "p_q": 20, "l_w": 4 } }
+      ] }"#,
+    );
+    let reg = model_registry();
+    let dir = scratch("adr0054-persist");
+    let report = execute_run(&cfg, &reg, &dir, &RunOptions::default()).unwrap();
+    assert!(report.conservation_ok);
+
+    let events: Vec<Event> = firma_io::read_events::<Event>(&dir.join("events.ndjson"))
+        .unwrap()
+        .map(Result::unwrap)
+        .collect();
+
+    // Item 1 (of this test's own scope) -- exactly one `at: 0` batch of
+    // interventions, never reapplied.
+    let intervention_ticks: std::collections::BTreeSet<u64> = events
+        .iter()
+        .filter_map(|e| match e {
+            Event::InterventionApplied { tick, .. } => Some(*tick),
+            _ => None,
+        })
+        .collect();
+    assert_eq!(
+        intervention_ticks,
+        std::collections::BTreeSet::from([0]),
+        "the pin must be applied once, at tick 0, never reapplied"
+    );
+
+    // Item 3 -- persistence: every recorded `focus`/`selected_action` write
+    // reflects the pin (None / repeat-2), for the whole run, read fresh
+    // from Step 1 every tick with no repeated intervention.
+    let mut saw_focus = 0;
+    let mut saw_action = 0;
+    for e in &events {
+        if let Event::DeltaApplied {
+            target: DeltaTarget::Agent(a),
+            kind: DeltaKind::SetAgentInt { field, value },
+            ..
+        } = e
+        {
+            if a.0 != 0 {
+                continue;
+            }
+            if field == "focus" {
+                assert_eq!(
+                    *value, -1,
+                    "Focus::None (-1) expected at every tick under this pin"
+                );
+                saw_focus += 1;
+            }
+            if field == "selected_action" {
+                assert_eq!(
+                    *value, 2,
+                    "NONE focus must repeat the seeded selected_action (2, produce_regulated)"
+                );
+                saw_action += 1;
+            }
+        }
+    }
+    assert!(
+        saw_focus >= 2,
+        "expected multiple ticks' worth of focus writes before death"
+    );
+    assert!(
+        saw_action >= 2,
+        "expected multiple ticks' worth of selected_action writes"
+    );
+
+    // Item 4 -- real-state independence: despite the pin's claim of a
+    // healthy h = 0.40, the firm's *real* regulated-activity window still
+    // breaches θ_limit = 0.40 under sustained produce_regulated, and
+    // `constraint.enforce` still kills it -- a pinned firm is not pinned
+    // out of a real compliance violation.
+    let died = events
+        .iter()
+        .any(|e| matches!(e, Event::AgentDied { agent, .. } if agent.0 == 0));
+    assert!(
+        died,
+        "the firm must still die of a real compliance violation despite the healthy pin"
+    );
+
+    let _ = std::fs::remove_dir_all(&dir);
+}

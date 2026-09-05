@@ -293,6 +293,13 @@ fn describe_intervention(iv: &Intervention) -> String {
         Intervention::RemoveRule(id) => format!("remove_rule({id})"),
         Intervention::FreezeRule(id) => format!("freeze_rule({id})"),
         Intervention::RemoveAgent(a) => format!("remove_agent({})", a.0),
+        Intervention::SetAgentReal {
+            agent,
+            field,
+            value,
+        } => {
+            format!("set_agent_real(agent {}, {field}, {value})", agent.0)
+        }
     }
 }
 

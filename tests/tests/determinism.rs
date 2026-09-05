@@ -134,6 +134,74 @@ fn dt4_null_fork_equals_continuation() {
     assert_eq!(cont, forked, "DT-4: null fork produced different state");
 }
 
+/// ADR-0054 test-plan item 1 — `Intervention::SetAgentReal`'s own
+/// RNG-non-interference, modeled on DT-4's structure but scoped to this
+/// specific variant (DT-4 itself only ever forks with `Null`; no existing
+/// test — DT-4 or otherwise — proves any *non-null* variant, existing or
+/// new, perturbs no RNG stream when applied; see ADR-0054's test plan for
+/// why a generic fork test cannot be assumed to cover a specific new match
+/// arm). Uses `standard_registry()`'s `testkit.keyed_nudge` — a genuinely
+/// RNG-consuming rule (draws a keyed value every tick) that has no idea
+/// what `"pinned_margin"`/`"pinned_shortfall_capital_growth"` mean (those
+/// keys are `decision.satisficing`-specific, and `decision.satisficing`
+/// is not in `standard_registry()` at all) — so if `SetAgentReal` itself
+/// perturbed anything beyond the one field it targets, this rule's draws,
+/// and therefore the whole event stream, would diverge from a `Null`
+/// fork's. They must not: this is the same byte-identical assertion DT-4
+/// makes for `Null`, extended to a non-null-but-semantically-inert
+/// intervention specifically to isolate the kernel-level mechanism's own
+/// RNG-safety from `decision.satisficing`'s own (expected, and separately
+/// tested — `firma-plugin-decision`'s `adr0054_*` tests) behavioural
+/// response when it *does* read a pin.
+#[test]
+fn adr0054_set_agent_real_perturbs_no_rng_stream() {
+    let reg = standard_registry();
+    let kernel = Kernel::new();
+    let cfg = active_config(80);
+
+    let (mut world, schedule) = prepare_run(&cfg, &reg).unwrap();
+    run_kernel(&kernel, &mut world, &schedule, 30);
+    let snap = kernel.snapshot(&world);
+
+    let mut cont = kernel.restore(&snap);
+    let cont_events = run_kernel(&kernel, &mut cont, &schedule, 50);
+
+    for (label, field) in [
+        ("margin", "pinned_margin"),
+        ("shortfall", "pinned_shortfall_capital_growth"),
+    ] {
+        let mut forked = kernel
+            .fork(
+                &snap,
+                &Intervention::SetAgentReal {
+                    agent: firma_core::AgentId(0),
+                    field: field.to_string(),
+                    value: 0.02,
+                },
+            )
+            .unwrap();
+        let fork_events = run_kernel(&kernel, &mut forked, &schedule, 50);
+
+        assert_eq!(
+            cont_events, fork_events,
+            "ADR-0054 ({label}): SetAgentReal (targeting a key no rule in \
+             this rule set reads) diverged from the unforked continuation — \
+             the intervention itself perturbed something beyond its own \
+             target field"
+        );
+        // Deliberately NOT `assert_eq!(cont, forked)` the way DT-4's Null
+        // case is: unlike `Null`, `SetAgentReal` genuinely writes a new
+        // `agent_reals` entry into `forked`'s `World` — that one field
+        // legitimately differs from `cont`'s World by design, so a full
+        // `World` equality check would fail for a reason that has nothing
+        // to do with RNG perturbation. `cont_events == fork_events` above
+        // is the precise claim under test (every RNG-consuming rule's
+        // draws, and therefore every delta they produce, are identical) —
+        // `testkit.transfer`/`testkit.keyed_nudge` read only stocks, never
+        // this field, so their deltas are unaffected by its presence.
+    }
+}
+
 /// DT-5 — Snapshot → restore → continue equals an uninterrupted run.
 #[test]
 fn dt5_snapshot_restore_continue() {

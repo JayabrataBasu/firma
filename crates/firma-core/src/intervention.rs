@@ -59,6 +59,23 @@ pub enum Intervention {
 
     /// `remove_agent(i)` — population manipulation.
     RemoveAgent(AgentId),
+
+    /// `set_param(path, value)` restricted to a named per-agent real scalar
+    /// (manual §6.5) — force an agent's keyed real field to an absolute
+    /// value (ADR 0054). Domain-agnostic, the same opaque-field-key pattern
+    /// `DeltaKind::SetAgentInt`/`AdjustAgentReal` already use (ADR 0022/
+    /// 0024): the kernel does not know what `field` means (§17 A1);
+    /// `firma-domain`/plugin crates define which keys are meaningful to
+    /// read (see `firma_domain::keys::PINNED_MARGIN`/`PINNED_SHORTFALL_*`,
+    /// read by `decision.satisficing`).
+    SetAgentReal {
+        /// Target agent.
+        agent: AgentId,
+        /// Opaque field key.
+        field: String,
+        /// New absolute value.
+        value: f64,
+    },
 }
 
 impl Intervention {

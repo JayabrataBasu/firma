@@ -9,8 +9,8 @@ date: ""
 ### A Computational Laboratory for Firm Behaviour Under Constraint
 
 **Document ID:** FIRMA-MANUAL
-**Version:** 1.0.0
-**Date:** 2 September 2026
+**Version:** 1.0.1
+**Date:** 2 September 2026 (v1.0.1 PATCH: §28.2 experiment-table relabel, see ADR-0052)
 **Status:** Authoritative and complete. Single source of truth.
 
 **Supersedes and consolidates:** FIRMA-SPEC-001 v1.1.0 · FIRMA-MODEL-001 v1.0.0 · FIRMA-LIT-001 v1.1.0 · ADR 0001–0009 · TC-001–TC-005 · FIRMA-PREREG-E1 v1.0.0 · FIRMA-SPEC-001-AMD-001.
@@ -1838,10 +1838,10 @@ Required fields: `id`, `schema_version`, `engine_requirement`, `question_id`, `h
 | # | Experiment | Type | Phase | Purpose |
 |---|---|---|---|---|
 | V1–V8 | Validation suite (§25.4) | Validation | 1–2 | Engine and model correctness |
-| **E1** | **Shortfall × margin orthogonal sweep** | Mechanistic | 3 | **Primary result (H1a, H1b, H1c)** |
-| E2 | Novelty vs. magnitude (H2) | Mechanistic | 3 | Threat-rigidity core |
-| E3 | Shaping availability ablation (H3) | Ablation | 3 | The distinctive mechanism |
-| E4 | Survival by response type (H4) | Robustness | 3 | Adaptive vs. maladaptive |
+| **Result 1** | **Shortfall × margin orthogonal sweep** | Mechanistic | 3 | **Primary — H1a, H1b, H1c** |
+| Result 2 | Novelty vs. magnitude (H2) | Mechanistic | 3 | Threat-rigidity core |
+| Result 3 | Shaping availability ablation (H3) | Ablation | 3 | The distinctive mechanism |
+| Result 4 | Survival by response type (H4) | Robustness | 3 | Adaptive vs. maladaptive |
 | E5 | Rigidity-measure convergent validity | Methodological | 3 | Construct validity; **publishable alone** |
 | E6 | Encoding-artefact suite (AT-1…5) | Robustness | 3 | Artefact exclusion |
 | E7 | Decision-theory comparison (satisficing / optimising / random) | Comparative | 4 | Does the behavioural assumption matter? |
@@ -1849,6 +1849,13 @@ Required fields: `id`, `schema_version`, `engine_requirement`, `question_id`, `h
 | E9 | Two-sided lobbying | Comparative | 4 | Strategic regulator |
 | E10 | Path-dependence decomposition | History | 4 | How contingent is the outcome? |
 | E11 | Unitary vs. coalitional | Comparative | 5 | Addresses §33.1 |
+
+**Results 1–4 are reported together under one shared Phase-3 pre-registration
+filing (§30, "Pre-registration: Experiment E1" in that document's own
+naming) — they are not four independently registered experiments, and
+"Result *N*" here is deliberately not an "E*N*" label so it cannot be
+misread as one.** (PATCH, manual v1.0.1: renamed from E1–E4 to resolve a
+naming collision with §30's own "E1" usage — see ADR-0052.)
 
 **E5 deserves emphasis: methodological papers are the most likely early publications and are least dependent on the substantive result being interesting.** They are not overhead.
 
@@ -2645,4 +2652,4 @@ Cyert & March (1963) · Simon (1947) · Morgan, *Images of Organization* · Nels
 
 ---
 
-*End of FIRMA Project Manual v1.0.0*
+*End of FIRMA Project Manual v1.0.1*

@@ -895,6 +895,67 @@ impl Satisficing {
         sc
     }
 
+    /// ADR 0054 (E1 Arm A direct manipulation): read the four
+    /// `keys::PINNED_*` fields `Intervention::SetAgentReal` writes,
+    /// enforcing the "all four or none" contract (ADR-0054 Part A item 1).
+    /// `None` ⇒ no pin active for this agent (every existing config, and
+    /// every agent no Arm-A intervention targets) — Step 1 computes exactly
+    /// as before this ADR. `Some((h, [ς_1, ς_2, ς_3]))` ⇒ all four pins are
+    /// active and Step 1 substitutes them directly.
+    ///
+    /// # Panics
+    /// If **some but not all** of the four keys are present for `agent` —
+    /// this is almost certainly a config/intervention error (a forgotten
+    /// pin, not a meaningful partial state: `h` and the three `ς_j` are
+    /// pinned as one atomic group for Arm A, never independently), so it
+    /// fails loudly rather than silently computing a mix of pinned and real
+    /// values. `Rule::apply` has no `Result` return (manual §18.2's
+    /// `firma-kernel` contract), so a loud panic — not a silent fallback —
+    /// is this codebase's only mechanism for rejecting a runtime-detected
+    /// state this invalid; true config-load-time rejection isn't possible
+    /// here because these values arrive via a scheduled `Intervention`, not
+    /// via static `SatisficingParams`, so their presence isn't knowable
+    /// until the tick they're applied.
+    fn read_pins(view: &dyn View, agent: AgentId) -> Option<(f64, [f64; 3])> {
+        let margin = view.agent_real(agent, keys::PINNED_MARGIN);
+        let s1 = view.agent_real(agent, keys::PINNED_SHORTFALL_CAPITAL_GROWTH);
+        let s2 = view.agent_real(agent, keys::PINNED_SHORTFALL_CAPABILITY);
+        let s3 = view.agent_real(agent, keys::PINNED_SHORTFALL_OBLIGATION_CLEARANCE);
+        let slots = [
+            ("PINNED_MARGIN", margin.is_some()),
+            ("PINNED_SHORTFALL_CAPITAL_GROWTH", s1.is_some()),
+            ("PINNED_SHORTFALL_CAPABILITY", s2.is_some()),
+            ("PINNED_SHORTFALL_OBLIGATION_CLEARANCE", s3.is_some()),
+        ];
+        match slots.iter().filter(|(_, present)| *present).count() {
+            0 => None,
+            4 => Some((
+                margin.expect("checked present above"),
+                [
+                    s1.expect("checked present above"),
+                    s2.expect("checked present above"),
+                    s3.expect("checked present above"),
+                ],
+            )),
+            n => {
+                let missing: Vec<&str> = slots
+                    .iter()
+                    .filter(|(_, present)| !present)
+                    .map(|(name, _)| *name)
+                    .collect();
+                panic!(
+                    "agent {}: partial Arm-A pin state (ADR 0054) — {n}/4 of \
+                     PINNED_MARGIN/PINNED_SHORTFALL_{{CAPITAL_GROWTH,CAPABILITY,\
+                     OBLIGATION_CLEARANCE}} are set for this agent; missing: \
+                     {missing:?}. All four must be set together, or none — a \
+                     partial pin is a config/intervention error, not a \
+                     supported partial feature.",
+                    agent.0
+                );
+            }
+        }
+    }
+
     /// `satisfices(a, focus)` (§12.3 Step 5 table).
     fn satisfices(
         dc: &DecideCtx,
@@ -996,9 +1057,18 @@ impl Rule for Satisficing {
 
             // --- Step 1: Evaluate the two quantities VT-8 must show are
             //     independently manipulable (ADR 0040). `h_t` comes only from
-            //     `standard_margin`; `sc` only from `A_j − v_j`. ---
-            let h_t = dc.margin_at(&dc.state, &aux, &p.scales);
-            let sc = Self::shortfalls(view, agent, &dc.state);
+            //     `standard_margin`; `sc` only from `A_j − v_j` — unless Arm
+            //     A's direct-manipulation pins (ADR 0054) are active, in
+            //     which case the pinned values are substituted here, before
+            //     `select()` is ever called, so `select()` itself never
+            //     learns whether a component was pinned or computed. ---
+            let (h_t, sc) = match Self::read_pins(view, agent) {
+                Some((pinned_h, pinned_sc)) => (pinned_h, pinned_sc),
+                None => (
+                    dc.margin_at(&dc.state, &aux, &p.scales),
+                    Self::shortfalls(view, agent, &dc.state),
+                ),
+            };
 
             // --- Steps 2–5: the pure decision function. `apply` carries no
             //     Step-2–5 logic of its own, so this path and the VT-8 harness

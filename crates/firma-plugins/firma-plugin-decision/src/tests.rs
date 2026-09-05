@@ -696,3 +696,164 @@ fn h3_toggle_off_reverts_to_payoff_only_despite_long_lag() {
          payoff-only satisficing test — a config-only switch, no code change"
     );
 }
+
+// --------------------------------------------------------------------------
+// ADR 0054 — Arm A direct manipulation (`PINNED_MARGIN`/`PINNED_SHORTFALL_*`)
+// --------------------------------------------------------------------------
+// Test plan items 2 (independence), 6 (rare-quadrant construction), and 7
+// (shortfall-mapping cross-check against VT-8's own construction), plus the
+// partial-pin validation contract (ADR-0054 Part A item 1). Items 1
+// (RNG-non-interference), 3 (persistence across ticks), and 4 (real-state
+// independence) are kernel/conformance-level and live in
+// `crates/firma-kernel/src/tests.rs` and `tests/tests/*.rs` respectively —
+// not duplicated here. Item 5 (backward compatibility) is this crate's
+// existing 22-test suite (none of which sets a `PINNED_*` key) staying
+// green, re-confirmed, not a new test.
+
+/// Item 2 — independence: a "fat margin, no shortfall" *real* state (the
+/// same shape as `attend_none_when_no_shortfall_and_margin_fat`, which
+/// would resolve to `Focus::None` unpinned) with all four pins set to
+/// SURVIVAL-triggering values must resolve to `Focus::Survival` — proving
+/// the override is *total*, not blended with the real state.
+#[test]
+fn adr0054_pins_override_real_state_totally() {
+    let v = seed_common(MockView::new(3, Phase::Decide, 1, &[0]))
+        .with_stock(0, "capital", 400) // real state: healthy, no shortfall
+        .with_stock(0, "input", 10)
+        .with_agent_real(0, keys::CAPABILITY, 0.9)
+        .with_agent_int(0, keys::OBLIGATION, 0)
+        .with_agent_real(0, keys::PINNED_MARGIN, 0.02) // pinned: thin margin
+        .with_agent_real(0, keys::PINNED_SHORTFALL_CAPITAL_GROWTH, 0.0)
+        .with_agent_real(0, keys::PINNED_SHORTFALL_CAPABILITY, 0.0)
+        .with_agent_real(0, keys::PINNED_SHORTFALL_OBLIGATION_CLEARANCE, 0.0);
+    let d = Satisficing::new(SatisficingParams::default())
+        .unwrap()
+        .apply(&v, v.rng_key());
+    assert_eq!(
+        field_value(&d, 0, keys::FOCUS),
+        Some(Focus::Survival.code()),
+        "real state alone (fat margin) would give Focus::None — the pin must win totally"
+    );
+}
+
+/// Item 6 — rare-quadrant construction: a *healthy* pinned margin
+/// (`h = 0.40`, comfortably above `h_crit = 0.15`) combined with a *high*
+/// pinned shortfall (`ς_1 = 1.0`) — a combination real organic dynamics
+/// would rarely produce (a firm doing well on viability but badly on
+/// goals) — must be directly constructible and resolve to `Focus::Goal(1)`.
+#[test]
+fn adr0054_rare_quadrant_healthy_margin_high_shortfall_is_constructible() {
+    let v = seed_common(MockView::new(3, Phase::Decide, 1, &[0]))
+        .with_stock(0, "capital", 5) // real state: actually thin (irrelevant once pinned)
+        .with_stock(0, "input", 3)
+        .with_agent_real(0, keys::CAPABILITY, 0.9)
+        .with_agent_int(0, keys::OBLIGATION, 0)
+        .with_agent_real(0, keys::PINNED_MARGIN, 0.40)
+        .with_agent_real(0, keys::PINNED_SHORTFALL_CAPITAL_GROWTH, 1.0)
+        .with_agent_real(0, keys::PINNED_SHORTFALL_CAPABILITY, 0.0)
+        .with_agent_real(0, keys::PINNED_SHORTFALL_OBLIGATION_CLEARANCE, 0.0);
+    let d = Satisficing::new(SatisficingParams::default())
+        .unwrap()
+        .apply(&v, v.rng_key());
+    assert_eq!(
+        field_value(&d, 0, keys::FOCUS),
+        Some(Focus::Goal(1).code()),
+        "healthy pinned h (0.40 >= h_crit) + high pinned ς_1 (1.0) must reach GOAL(1), \
+         not SURVIVAL — a real-state margin of 5/100 would give SURVIVAL unpinned"
+    );
+}
+
+/// Item 7 — shortfall-mapping cross-check against
+/// `vt8_orthogonal_manipulation_of_h_and_shortfall`'s own construction
+/// (`tests/tests/validation.rs`, `select(h, [s1, 0.0, 0.0], ...)`): the
+/// accepted Option-B mapping (ADR-0054) pins `ς_1` to the swept value and
+/// `ς_2`/`ς_3` at `0.0` — confirm `Satisficing::apply()`'s pin-read path
+/// produces the *same* `Focus`/`w_eff` as calling `select()` directly with
+/// VT-8's own `[s1, 0.0, 0.0]` shape, for representative values drawn from
+/// VT-8's actual grid (`h_levels`/`s_levels` in that test).
+#[test]
+fn adr0054_shortfall_mapping_matches_vt8_construction() {
+    let h_crit = default_h_crit();
+    let beta = default_beta();
+    let w_max = default_w_max();
+    // A sample from VT-8's own h_levels x s_levels grid, spanning both
+    // SURVIVAL and GOAL(1) regimes.
+    for &(h, s1) in &[
+        (0.02_f64, 0.25_f64),
+        (0.05, -0.25),
+        (0.20, 0.50),
+        (0.20, -1.0),
+        (0.40, 2.0),
+    ] {
+        let direct = select(
+            h,
+            [s1, 0.0, 0.0],
+            beta,
+            h_crit,
+            w_max,
+            0,
+            |a| a <= 5,
+            |_a, _f| false,
+        );
+
+        let v = seed_common(MockView::new(3, Phase::Decide, 1, &[0]))
+            .with_stock(0, "capital", 400)
+            .with_stock(0, "input", 10)
+            .with_agent_real(0, keys::CAPABILITY, 0.9)
+            .with_agent_int(0, keys::OBLIGATION, 0)
+            .with_agent_real(0, keys::PINNED_MARGIN, h)
+            .with_agent_real(0, keys::PINNED_SHORTFALL_CAPITAL_GROWTH, s1)
+            .with_agent_real(0, keys::PINNED_SHORTFALL_CAPABILITY, 0.0)
+            .with_agent_real(0, keys::PINNED_SHORTFALL_OBLIGATION_CLEARANCE, 0.0);
+        let d = Satisficing::new(SatisficingParams::default())
+            .unwrap()
+            .apply(&v, v.rng_key());
+
+        assert_eq!(
+            field_value(&d, 0, keys::FOCUS),
+            Some(direct.focus.code()),
+            "h={h}, ς_1={s1}: Focus diverged from VT-8's own [s1,0,0] construction"
+        );
+        assert_eq!(
+            field_value(&d, 0, keys::W_EFF),
+            Some(i64::from(direct.w_eff)),
+            "h={h}, ς_1={s1}: w_eff diverged from VT-8's own [s1,0,0] construction"
+        );
+    }
+}
+
+/// Partial-pin contract (ADR-0054 Part A item 1): three of the four
+/// `PINNED_*` keys present, one missing, must panic loudly rather than
+/// silently compute a mix of pinned and real values.
+#[test]
+#[should_panic(expected = "partial Arm-A pin state")]
+fn adr0054_partial_pin_panics() {
+    let v = seed_common(MockView::new(3, Phase::Decide, 1, &[0]))
+        .with_stock(0, "capital", 400)
+        .with_stock(0, "input", 10)
+        .with_agent_real(0, keys::CAPABILITY, 0.9)
+        .with_agent_int(0, keys::OBLIGATION, 0)
+        .with_agent_real(0, keys::PINNED_MARGIN, 0.02)
+        .with_agent_real(0, keys::PINNED_SHORTFALL_CAPITAL_GROWTH, 0.0)
+        .with_agent_real(0, keys::PINNED_SHORTFALL_CAPABILITY, 0.0);
+    // PINNED_SHORTFALL_OBLIGATION_CLEARANCE deliberately omitted.
+    let _ = Satisficing::new(SatisficingParams::default())
+        .unwrap()
+        .apply(&v, v.rng_key());
+}
+
+/// The complementary partial-pin case — exactly one of four present —
+/// confirmed to panic too (not just the three-of-four case above).
+#[test]
+#[should_panic(expected = "partial Arm-A pin state")]
+fn adr0054_single_pin_panics() {
+    let v = seed_common(MockView::new(3, Phase::Decide, 1, &[0]))
+        .with_stock(0, "capital", 400)
+        .with_stock(0, "input", 10)
+        .with_agent_real(0, keys::CAPABILITY, 0.9)
+        .with_agent_int(0, keys::OBLIGATION, 0)
+        .with_agent_real(0, keys::PINNED_MARGIN, 0.02);
+    let _ = Satisficing::new(SatisficingParams::default())
+        .unwrap()
+        .apply(&v, v.rng_key());
+}

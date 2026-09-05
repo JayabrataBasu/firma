@@ -1069,6 +1069,350 @@ evidence... A screenshot MUST NOT appear in a results section").
   owner's review of ADR-0044's per-hypothesis reading and the H3
   model-revision-vs-descope decision it names.
 
+### Manual naming patch, seed semantics, and `firma_lab.spec`/`runner` (ADR-0052/0053)
+
+**Part A — manual v1.0.0 → v1.0.1, ADR-0052 (Accepted, owner-directed
+exception).** §28.2's experiment table rows `E1`–`E4` relabeled `Result
+1`–`Result 4` (E5–E11 untouched), resolving the collision with §30's own
+"Experiment E1" usage every Accepted ADR since ADR-0044 already relies on.
+Renamed the §28.2 side, not §30's (retroactively misaligning every
+existing citation would be worse than the ambiguity). Applied directly to
+`docs/MANUAL.md` — an explicit, one-time exception to the normal
+PATCH-candidate-in-PROGRESS.md convention, not a new standing practice.
+PATCH bump per §0.6's own table (a relabel + one clarifying sentence,
+altering no MUST/primitive/formal-model/phase/plugin-category/metric/ADR/
+contract). `CLAUDE.md`'s own version citation updated to match (not
+tracked by git — see ADR-0052's note). **Found, flagged, deliberately NOT
+fixed**: `firma_core::MANUAL_VERSION` (`crates/firma-core/src/lib.rs`) is
+hashed into every run's `run_id` (it's a field of `RunIdentity`) — bumping
+it to `"1.0.1"` would change every committed golden/frozen hash in the
+test suite, a whole-test-suite ripple categorically outside "apply this
+one manual patch directly." Left stale on purpose, named as a follow-up
+decision in ADR-0052 (bump-and-regenerate, or reconsider whether manual
+PATCH bumps should be trajectory-hashed at all).
+
+**Part B — seed/stream semantics, ADR-0053 (DRAFT — pending owner
+review).** `firma_lab.spec.derive_seeds(replicate) -> StreamSeeds` sets
+**all four** `StreamSeeds` fields (`mechanism`, `environment`, `shock`,
+`init`) to the replicate value `n`, not only `environment`/`shock` as
+§21.3's one illustrative sentence names — justified directly against
+§21.2's RNG key formula (it does not depend on any economic config value,
+confirmed by reading `firma-rng`'s key derivation, so matching
+`mechanism`'s seed too only strengthens the CRN property at zero
+additional cost) and checked against all three arms' actual comparisons
+(§30.4/§30.7), finding no arm needs different matching behaviour. Enforced
+in code, not just documented: `ExperimentSpec.jobs()` is the only call
+site, computing `derive_seeds(n)` once per replicate and reusing it across
+every cell. **Overlap re-check, run fresh** (no prior audit of this kind
+was found anywhere in this repo, checked by grep before concluding so):
+every committed `StreamSeeds` tuple in the repository enumerated; exactly
+two exact `(n,n,n,n)` collisions in `[1,200]` found — `n=1`
+(`determinism.rs::tick_is_atomic_wrt_event_log_on_invariant_abort`) and
+`n=4` (`determinism.rs::dt2_agent_order_irrelevant`) — both Phase-1
+**kernel** DT tests under `standard_registry()` (the Phase-1 testkit
+registry), using rules (`testkit.force_adjust`/`testkit.transfer`) that do
+not exist in `model_registry()` at all. Reasoned, not assumed: these do
+not "touch the registered design grid" (§30.6) — they cannot even load
+E1's rules, let alone its factor levels or DVs — so **no re-registration
+or fresh-seed-range requirement is triggered**; seeds 1–200 remain clean
+for the real filing.
+
+**Part C — `firma_lab.spec.ExperimentSpec` and `firma_lab.runner`, built
+for real (not stubs).** `ExperimentSpec` (typed dataclasses: `Factor`,
+`ArmDesign`, `Hypothesis`, `Job`, `ExperimentSpec`) validates every
+required §28.1 field at construction (`__post_init__`, no silent
+defaults — same discipline as `firma-domain`'s required-config types) and
+content-hashes via canonical JSON + SHA-256
+(`ExperimentSpec.content_hash()`). `build_narrowed_e1_spec()` constructs
+the real **195-cell** ADR-0051 design (Arm A 125, Arm B 60 — no
+shaping-lag factor, Arm C 10) — confirmed constructing, validating, and
+hashing correctly at all 195 cells / 39,000 jobs (200 replicates;
+`content_hash()` deterministic and dict-insertion-order-independent).
+**Corrected, precise claim about job-config *generation* specifically**
+(spec construction and job-config generation are different operations —
+conflating them in an earlier summary was imprecise, corrected here after
+a dedicated per-arm verification round): of the 39,000 jobs, **13,000
+generate a real, runnable config** (Arm B: 60/60 cells, all 12,000 jobs;
+Arm C: 5/10 cells — the `decision.satisficing` half — 1,000 of its 2,000
+jobs) — **26,000 do not** (Arm A: 0/125 cells, all 25,000 jobs, blocked
+on the missing `Intervention` primitive named below; Arm C: the other
+5/10 cells — the `decision.random` half — 1,000 jobs, blocked on a
+distinct, second gap: `RandomParams` has no `beta` field, so the swap-then-
+patch ordering that makes Arm A's failure loud does the same here,
+`KeyError`, not a silent drop). Every number above was produced by
+actually running `build_job_config` across the full real 195-cell spec's
+job space this round, not estimated (the code itself was already
+accurate — only the earlier prose summary conflating "spec confirmed"
+with "jobs confirmed" was imprecise). `firma_lab.runner` expands a spec
+into concrete `firma run --model` job configs
+(`build_job_config`, patching each factor's level in per its
+`apply_kind`), executes each via the real `firma` CLI binary as a
+subprocess (no `firma-kernel`/`firma-registry` PyO3 dependency added —
+ADR-0045's Note still holds), and persists a real per-job manifest
+(`firma_lab_job.json`: full resolved config, seeds, spec content-hash,
+`run_id`/`event_log_sha256`/`conservation_ok`, failure reason). Resumable
+(a job with a `"completed"` record is skipped, not re-run or
+double-counted; a `"failed"` one is retried on the next call) and failure
+handling is real (a bad `firma run` invocation is recorded with its
+reason, not raised — other jobs continue). **Concurrent-execution
+determinism confirmed empirically, not just asserted**: the same
+synthetic spec run sequentially (`max_workers=1`) and concurrently
+(`max_workers=8`) produces byte-identical `event_log_sha256` per job
+(`test_concurrent_execution_does_not_change_any_jobs_event_log_hash`).
+
+**Two real implementation gaps found while building this, named plainly,
+neither invented around:**
+
+1. **Arm A's `h`/`ς` factors cannot be expanded into a real job — all 125
+   cells, all 25,000 jobs, verified by actually running `build_job_config`
+   against every one of them (not a sample).** §30.4's
+   "h and ς set directly by intervention at each measurement tick" needs
+   an engine primitive `firma_core::Intervention`
+   (`crates/firma-core/src/intervention.rs`, read directly) does not have
+   — only `SetStock` (a raw resource stock), `AddRule`/`RemoveRule`/
+   `FreezeRule`, and `RemoveAgent` exist; nothing forces a *computed*
+   quantity like `h`. `Factor(apply_kind="direct_intervention")` is
+   represented as valid spec *data* (so the spec itself still constructs,
+   validates, and hashes), but `firma_lab.runner.build_job_config` raises
+   `NotImplementedError` with this exact citation if it ever has to expand
+   one into a real job — not worked around with an invented config shape
+   the real engine could not consume. Arm A's real execution is blocked on
+   this primitive existing, a genuine Phase-3 (or earlier) build item, not
+   a `firma_lab` tooling gap.
+2. **Arm C's `β` factor is ambiguous against `decision.random`'s actual
+   params — exactly its 5 `decision.random` cells (1,000 of its 2,000
+   jobs) are affected; the 5 `decision.satisficing` cells (the other
+   1,000) are unaffected and generate real configs.** `RandomParams` (`firma-plugin-decision/src/lib.rs`,
+   `#[serde(deny_unknown_fields)]`) has no `beta` field at all — found by
+   building `build_job_config`'s factor-application ordering (a real bug:
+   applying `rule_param` before `rule_swap` let a later plugin-swap
+   silently destroy an earlier beta patch with no error; fixed by
+   swap-first ordering, now `KeyError`s loudly instead). §30.4's own
+   5-level-β × 2-level-decision-plugin = 10-cell Arm C design does not say
+   what β means for its `decision.random` half; this was not resolved
+   unilaterally — `build_job_config` now fails loudly for exactly this
+   case rather than guessing, and it is named here for the owner/§30.4 to
+   settle before Arm C's real jobs can be expanded.
+3. **Arm B's "Shock magnitude" factor levels are unspecified by the
+   manual** (§30.4: "4 levels," no values given) — left as explicit
+   placeholder strings (`"level_1"`..`"level_4"`) in
+   `build_narrowed_e1_spec`, flagged in-line as a placeholder, not
+   invented as if settled; real magnitude values are a separate design
+   decision, out of this instruction's scope (seed semantics and tooling,
+   not shock design).
+
+**Testing**: `python/tests/test_spec.py` (42 tests) and
+`python/tests/test_runner.py` (11 tests, real subprocess execution against
+the built `firma` binary, skipped if it is not built) — 56/56 passing.
+`test_runner.py` uses only `firma_lab.spec.build_synthetic_spec()` (a
+2-factor × 2-level × 3-replicate design against `decision.satisficing`,
+`model_registry()`-valid) and one deliberately-failing one-off spec (an
+`l_w=0` cell, which `SatisficingParams::validate()` rejects) — **the real
+195-cell/39,000-run E1 design is never executed**, per this instruction's
+explicit hard stop; only its construction, validation, and hashing are
+exercised (`test_narrowed_e1_spec_*` in `test_spec.py`).
+
+### Seed-matching re-investigation (ADR-0053 updated) and Arm-A `Intervention` design (ADR-0054, DRAFT)
+
+**Seed-matching, resolved more strongly than first cited.** A closer,
+code-grounded re-read (added to ADR-0053 as a new "Part 1b," not a
+reversal) checked whether §21.3's "matched-environment design" could
+instead mean `mechanism`'s own seed should *differ* across compared
+cells. Traced "a fork" to its actual technical definition: `Intervention`/
+§6.5 have no "fork" operator (a fork is $X^{do(a)}_T = a(X_T)$, the
+factual/counterfactual pairing §14.6 defines concretely — *"For E1 the
+fork is the no-shock branch... ΔH_rep = H_rep^factual − H_rep^no-shock"*)
+— and confirmed directly in code (`firma-rng`'s `key()`, fed
+`run_seed = world.seeds.for_stream(stream)` per `firma-kernel/src/
+world.rs`) that a fork's "identical keys" property (§21.2 property 3) is
+**structurally impossible** unless `StreamSeeds.mechanism` (not just
+environment/shock) is identical between branches. Also read
+`stage5_rng_streams_follow_the_declared_stream` directly (no prior claim
+that it supports either reading was found anywhere in this session) — it
+tests stream isolation (§21.2 property 4), a different, unrelated
+question, evidence for neither reading. Net effect: the adopted
+all-four-fields-matched design has real structural support for the fork
+case; extending it to Arm A/B/C's cross-*cell* sweep (not literal forks)
+remains an inferred, stated design decision, not directly-quoted text —
+recorded as such. `derive_seeds` itself: **unchanged**.
+
+**Job-generation claim corrected with exact, freshly-run numbers** (also
+folded into Part C's own paragraph above): of 39,000 jobs, **13,000**
+generate real configs (Arm B 12,000/12,000; Arm C 1,000/2,000 — the
+`decision.satisficing` half only) and **26,000** do not (Arm A 0/25,000;
+Arm C the other 1,000 — the `decision.random` half). Every number is from
+actually running `build_job_config` across the full real spec, not
+estimated.
+
+**ADR-0054 (DRAFT — pending owner review): a design, not an
+implementation, for the missing `Intervention` variant blocking Arm A.**
+Read §6.5's operator table, §30.2/§30.4 in full, §14.6, and grepped
+"intervention"/"fork"/"do("/"counterfactual" across the whole manual (41
+hits, every one read) before designing. **Major finding, changing the
+shape of the task**: `firma-kernel`'s fork/snapshot/intervention
+machinery is not missing — it already exists, is specified in the manual
+(§18.2: `fn fork(&self, snap: &Snapshot, iv: &Intervention) -> World`),
+is implemented (`Kernel::fork`/`apply_intervention`,
+`crates/firma-kernel/src/lib.rs`), and is tested (DT-4, passing). The
+per-tick intervention dispatcher (`firma-cli::orchestrator::
+apply_interventions_at`) already runs every tick, before that tick's
+phases, for every existing `Intervention` variant. The actual gap is one
+new enum variant, not a subsystem.
+
+Proposed: `Intervention::SetAgentReal { agent, field: String, value: f64 }`
+— parallel to the existing `SetStock`, reusing an **already-implemented**
+method (`World::set_agent_real`, `crates/firma-kernel/src/world.rs:167`),
+kernel-pure (opaque field key, same pattern as `SetAgentInt`/
+`AdjustAgentReal`). Two new `firma-domain::keys` constants
+(`PINNED_MARGIN`, three `PINNED_SHORTFALL_*` mirroring the existing
+`ASPIRATION_*` triplet) read by `Satisficing::apply()`'s Step 1 only,
+falling through to today's computed values when absent (ADR-0047's
+opt-in precedent) — `select()` (ADR-0040) needs **no** change at all,
+since the override happens before it is ever called. "At each measurement
+tick" (§30.4) resolved as read-side persistence (set once at `at: 0`,
+held for the run via the existing per-tick dispatcher already reading
+`cfg.interventions` every tick) rather than write-side repetition — no
+new phase. CRN/fork preservation confirmed by construction: every
+`Intervention` match arm, existing and proposed, is a pure RNG-free
+`World` mutation. **One question flagged for the owner, not resolved
+unilaterally**: how §30.4's one swept "Shortfall ς" scalar maps onto
+`select()`'s three independent `shortfalls[3]` — no manual text answers
+this; ADR-0054 proposes setting all three `ς_j` to the same swept value,
+named as a design decision requiring confirmation, not a derivation.
+
+**No code written.** `firma-core`, `firma-kernel`, `firma-domain`,
+`firma-plugin-decision`, and `firma_lab.spec`/`runner.py` are all
+untouched by this round — ADR-0054 authorizes no implementation; a
+follow-up instruction, after owner review, is required first.
+
+**Two clarifications folded into ADR-0054 (still DRAFT), both changing its
+text, neither its Rust/Python scope:**
+
+1. **DT-4 does not cover `SetAgentReal`, checked directly, not assumed.**
+   Both copies of DT-4 (`crates/firma-kernel/src/tests.rs` and
+   `tests/tests/determinism.rs`) fork exclusively with `Intervention::
+   Null`; no existing test (DT-4 or otherwise — `freeze_rule_intervention_
+   silences_a_rule` only checks `FreezeRule`'s functional effect) proves
+   RNG-draw preservation for *any* non-null variant, existing or proposed.
+   ADR-0054's test plan item 1 rewritten as a new, specific, named case —
+   fork twice (once `SetAgentReal`, once `Null`) from the same snapshot,
+   assert identical RNG draw sequences keyed by `RngKey` regardless of
+   whether the pin's downstream causal effect later diverges the two
+   branches' selected actions.
+2. **Shortfall-mapping recommendation reversed, with the comparison shown
+   in the ADR, not just the conclusion.** Read `vt8_orthogonal_
+   manipulation_of_h_and_shortfall` directly (`tests/tests/validation.rs`)
+   — the project's own already-validated `h`-vs-`ς` grid construction
+   sweeps **only** `shortfalls[0]` (`ς_1`, capital growth), fixing
+   `shortfalls[1]`/`shortfalls[2]` at an explicit `0.0` — i.e. exactly
+   "Option B" from this round's instruction, **not** "leave the other two
+   organic" (a mischaracterization of Option B the ADR now corrects
+   explicitly). Checked directly against `Focus::attend`/`satisfices()`'s
+   actual logic: Option A (uniform) and Option B (targeted) are
+   **functionally equivalent** for this mechanism (only the argmax
+   component, always `ς_1` under either construction, is ever read) — so
+   the two do not test different claims about H1a/H1b. ADR-0054 now
+   recommends Option B specifically because it reuses VT-8's own
+   validated construction rather than introducing an equivalent,
+   untested second one — not because Option A was wrong.
+
+### ADR-0054 Accepted and implemented — Arm A direct manipulation is real
+
+**Part A.** ADR-0054 moved DRAFT → **Accepted**, with two scoping
+additions made first (not as a later correction): (1) an explicit
+aspiration-drift paragraph — `decision.aspiration_update` keeps updating
+the *real* `A_j`/`ς_j` from real `v_j` every tick, completely independent
+of an active pin, so a pinned firm's real shortfall silently and
+continuously diverges from what's actually driving its decisions, for the
+whole run; (2) the partial-pin decision — checked against Arm A's own 125
+cells (every one specifies both `h` and `ς` together) and found no
+legitimate use for a partial pin anywhere, so `decision.satisficing`
+requires all four `PINNED_*` keys together or none, enforced at runtime
+(`Satisficing::read_pins`) with a loud `panic!` naming the missing
+key(s) — true config-load-time rejection isn't possible since these
+values arrive via a scheduled `Intervention`, not static
+`SatisficingParams`, stated explicitly rather than glossed over. Also
+fixed the title's own factual imprecision ("two" pin keys → "four").
+
+**Part B — implemented, first real code this whole thread has
+authorized:**
+
+- `Intervention::SetAgentReal { agent, field, value }`
+  (`firma-core::intervention`) + its `Kernel::apply_intervention` match
+  arm (`crates/firma-kernel/src/lib.rs`, no `rebase_conservation()` —
+  reals aren't in the conservation ledger) + the one other exhaustive
+  match the compiler required (`firma-cli::orchestrator::
+  describe_intervention`). Confirmed end-to-end against the real `firma`
+  binary before writing anything else: a hand-built `{"op":
+  "set_agent_real", ...}` intervention JSON parses and runs correctly.
+- Four `firma_domain::keys::PINNED_*` constants.
+- `Satisficing::apply()`'s Step 1 substitutes pinned `h_t`/`ς_j` when
+  `Satisficing::read_pins` finds all four present, computes exactly as
+  before when none are — `select()` (ADR-0040) untouched, confirmed by
+  the diff, not just asserted.
+- `firma_lab.spec`'s Arm-A `h`/`varsigma` factors now carry real
+  `json_path`/`companions` data (a new `Factor.companions` field, for the
+  two fixed-`0.0` shortfall keys ADR-0054's accepted Option B requires
+  alongside the swept `ς_1`); `firma_lab.runner.build_job_config`
+  implements `direct_intervention` for real (emits one
+  `TimedIntervention` per agent per pinned field), replacing the
+  `NotImplementedError`.
+
+**Test plan — all 7 items real and passing, plus 2 more found necessary
+while implementing item 5:**
+
+1. RNG-non-interference — `tests/tests/determinism.rs::
+   adr0054_set_agent_real_perturbs_no_rng_stream` (margin- and
+   shortfall-key sub-cases). Modeled on DT-4 but **not** asserting full
+   `World` equality the way DT-4's `Null` case does — `SetAgentReal`
+   genuinely writes a new field, so only the *subsequent* 50 ticks'
+   events (proving no RNG stream was perturbed) are compared, with the
+   reasoning for that difference stated in the test itself.
+2. Independence (`adr0054_pins_override_real_state_totally`) — a "fat
+   margin, no shortfall" real state that would resolve `Focus::None`
+   unpinned resolves `Focus::Survival` when pinned, total override
+   confirmed.
+3–4. Persistence + real-state independence, combined in one scenario
+   (`tests/tests/integration.rs::
+   adr0054_pin_persists_and_real_violations_still_kill`): one `at: 0`
+   intervention pins `h=0.40` (healthy) + zero shortfall, seeding
+   `SELECTED_ACTION=2`; `Focus::None` (repeat) holds at *every* tick with
+   zero reapplication, driving sustained `produce_regulated` — the firm
+   still dies of a *real* compliance violation despite the "healthy" pin
+   the whole time. `agent_died` event confirmed present.
+5. Backward compatibility — the crate's existing 22-test suite (now 27)
+   stays green with zero modification; all four frozen hashes (golden
+   `f304edd4…`, `phase1-smoke` `14b9eb59…`/`310f636f…`, `phase2-smoke`
+   `0529c6bb…`/`9a476938…`, `phase2-stage5-smoke` `5824031c…`/
+   `fd3aa4f2…`) re-confirmed byte-identical by direct re-run of each
+   config, not from memory.
+6. Rare-quadrant (`adr0054_rare_quadrant_healthy_margin_high_shortfall_
+   is_constructible`) — pinned `h=0.40` + `ς_1=1.0` simultaneously
+   reaches `Focus::Goal(1)`, confirmed directly constructible.
+7. VT-8 cross-check (`adr0054_shortfall_mapping_matches_vt8_
+   construction`) — for 5 `(h, ς_1)` pairs drawn from VT-8's own grid,
+   `Satisficing::apply()`'s pin-read path produces the identical
+   `Focus`/`w_eff` `select(h, [ς_1, 0, 0], ...)` gives directly.
+8–9. Two partial-pin panic tests (`adr0054_partial_pin_panics` — 3 of 4
+   set; `adr0054_single_pin_panics` — 1 of 4 set) — beyond the original
+   plan, added because confirming item 5's "behaviour-preserving" claim
+   required also confirming the new panic contract actually fires.
+
+**Full regression, re-run this round**: `cargo test --workspace` green
+except the one pre-existing, already-documented `sc4_wmax_beta_probe`
+failure (its own numbers — `4/400` at `w_max∈{6,9}, β=0.0` — byte-
+identical to every prior round's, confirming no new regression);
+`cargo clippy --workspace --all-targets -D warnings` clean; `cargo fmt
+--all --check` clean (two files needed `cargo fmt --all`, both
+mechanical); `lint-architecture.sh` 9/9; `check_deps.py` clean.
+
+**Job-config generation re-run against the full real 195-cell spec (not a
+sample), confirming the prior round's gap is closed**: **Arm A 125/125
+cells, 25,000/25,000 jobs succeed** (up from 0/25,000). Arm B (12,000/
+12,000) and Arm C (1,000/2,000 — its own, still-deferred thread)
+unchanged. **No real job was executed against real reserved seeds** —
+generation only, per the authorizing instruction's explicit hard stop.
+
 ### H3 model revision, round 3 (ADR-0049) — same branch, still NOT merged
 
 **Owner-confirmed genuine defect, not an acceptable approximation**: round
@@ -1526,3 +1870,39 @@ filed-document naming convention turns out to be once the narrowed E1 is
 built (Phase 3 work, not this ADR) — left unresolved deliberately, since
 naming it precisely is a Phase 3 build decision, not a Phase 2/3-boundary
 scope decision.
+
+**OQ-14 — Arm A's "pin every agent to the same value" is correct *only*
+under an unenforced single-firm-per-job assumption (ADR-0054,
+investigated, not fixed).** `firma_lab.spec` fixes no firm count for an
+Arm-A job at all — `_add_pin_intervention` (`python/firma_lab/runner.py`)
+broadcasts the pin to every agent in whatever `model_config_template`
+the caller supplies (a required, externally-supplied parameter; no real
+Arm-A template has been built yet, only single-agent smoke-test
+templates). Re-read §30.4/§30.6/§30.7 fresh (not from memory) for
+whether this is the *right* behaviour: three converging pieces of
+textual evidence say Arm A's registered design requires **exactly one
+firm per run** — (1) §30.4's own accounting, "Total 315 cells × 200
+seeds = 63,000 **runs**," treats one seed as one run with no
+per-run firm multiplier; (2) §30.7's H1a/H1b analysis formula,
+`ΔH_rep ~ ς + h + ς:h + β + (1 | seed)`, has **only** a `(1|seed)`
+random effect — no firm/agent-level grouping term, which is only a
+well-specified mixed model if each seed contributes exactly one
+observation; (3) §14.2's own definition of repertoire entropy is
+explicitly per-firm-per-tick, `H_{\text{rep}}$ over window $W_{i,t}$"
+(agent `i`, tick `t` subscripts) — a multi-firm run would produce
+multiple `H_rep` values per seed with no accounting in (2)'s formula.
+**Conclusion: the current pin-broadcast logic is correct, not wrong** —
+under a single-firm template it does exactly the right thing, and no
+manual text was found that clearly specifies otherwise. **What is
+actually missing, not fixed here per the investigating instruction's
+explicit "report, don't patch"**: nothing validates that Arm A's
+`model_config_template` is single-firm. A future caller supplying a
+multi-firm template (e.g. reusing an existing multi-firm example config
+as a shortcut) would get no error — every agent would be pinned
+identically, producing pseudoreplicated observations §30.7's own stated
+formula does not account for. Candidate follow-up, not decided or
+authorized here: validate (reject loudly, this project's "no silent
+defaults" standard) that Arm A's template has exactly one agent, at
+`ExperimentSpec` construction or `build_job_config` time. `ADR-0054` is
+Accepted and therefore not edited to record this — logged here per the
+project's minor-open-question convention instead.
