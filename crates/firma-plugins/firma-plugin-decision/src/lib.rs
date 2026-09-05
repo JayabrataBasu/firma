@@ -52,6 +52,72 @@ pub fn version() -> semver::Version {
     semver::Version::new(1, 0, 0)
 }
 
+// ============================================================================
+// TEMPORARY DIAGNOSTIC TRACE — H3 lobby/contract non-selection investigation.
+//
+// Added per the owner's instruction to observe, with direct evidence, why
+// ADR-0047–0049's shaping-lookahead mechanism essentially never gets
+// selected: whether the scan never reaches lobby/contract's checklist
+// position, reaches it but the ADR-0048 time-margin gate never opens,
+// reaches it with the gate open but still loses the payoff comparison, or a
+// mix. This module and its call sites are **strictly observational**: every
+// `trace::emit` call is a side effect only (an optional write to stderr or a
+// file named by `FIRMA_TRACE_DECISION_PATH`), gated behind the
+// `FIRMA_TRACE_DECISION=1` environment variable, and never changes a
+// return value, a branch taken, or the `Vec<Delta>` `Satisficing::apply`
+// produces. No threshold, cost, gate condition, or scan order is touched.
+//
+// Deliberately **not** `#[cfg(test)]`-gated: the diagnosis instruction asks
+// for traces from full `sanity.rs` scenario runs (`cfg_arm_b_satisficing`,
+// `cfg_wide_search`), which are ordinary `#[test]` functions compiled in the
+// normal (non-cfg-test-attribute) build of this crate — a `#[cfg(test)]`
+// gate here would not reach them from an external `tests/` crate. A runtime
+// env-var gate was chosen instead of a Cargo feature so the "tracing off vs
+// on, same binary, diff the hash" check the instruction asks for needs no
+// rebuild between the two runs. This is temporary, diagnostic-only code —
+// strip this module and its four call sites (search
+// `FIRMA_TRACE_DECISION`/`trace::`) before merging this branch.
+// ============================================================================
+mod trace {
+    use std::io::Write;
+    use std::sync::{Mutex, OnceLock};
+
+    /// `true` iff `FIRMA_TRACE_DECISION=1` is set. Checked once per process.
+    pub(crate) fn is_enabled() -> bool {
+        static ENABLED: OnceLock<bool> = OnceLock::new();
+        *ENABLED.get_or_init(|| std::env::var("FIRMA_TRACE_DECISION").as_deref() == Ok("1"))
+    }
+
+    fn sink() -> &'static Mutex<Box<dyn Write + Send>> {
+        static SINK: OnceLock<Mutex<Box<dyn Write + Send>>> = OnceLock::new();
+        SINK.get_or_init(|| {
+            let w: Box<dyn Write + Send> = match std::env::var("FIRMA_TRACE_DECISION_PATH") {
+                Ok(path) if !path.is_empty() => Box::new(
+                    std::fs::OpenOptions::new()
+                        .create(true)
+                        .append(true)
+                        .open(&path)
+                        .unwrap_or_else(|e| panic!("FIRMA_TRACE_DECISION_PATH={path}: {e}")),
+                ),
+                _ => Box::new(std::io::stderr()),
+            };
+            Mutex::new(w)
+        })
+    }
+
+    /// Write one newline-delimited JSON record. No-op unless `is_enabled()`.
+    /// Never panics on a write failure (a full disk must not perturb a run
+    /// that happens to be diagnosed) — the write error is silently dropped.
+    pub(crate) fn emit(v: serde_json::Value) {
+        if !is_enabled() {
+            return;
+        }
+        if let Ok(mut w) = sink().lock() {
+            let _ = writeln!(w, "{v}");
+        }
+    }
+}
+
 /// Plugin ids and declared content hashes (Phase-1 style — no artefact hashing).
 pub mod catalog {
     /// `decision.satisficing`.
@@ -607,9 +673,25 @@ impl DecideCtx {
         aux: &FirmAuxState,
         scales: &ScaleFactors,
     ) -> Option<f64> {
+        // DIAGNOSTIC (read-only, see `trace` module doc comment): scan reached
+        // this shaping action's SURVIVAL-branch evaluation at all.
+        if trace::is_enabled() {
+            trace::emit(serde_json::json!({
+                "kind": "shaping_eval_entered",
+                "tick": self.tick, "agent": self.agent.0, "action": a,
+            }));
+        }
         let scan = self.shaping.as_ref()?;
         let cost = scan.cost(a)?;
         let after_cost = shaping_cost_step(cost, &self.state)?;
+        if trace::is_enabled()
+            && (a == 6 && scan.lobby_success.is_none() || a == 7 && scan.contract_success.is_none())
+        {
+            trace::emit(serde_json::json!({
+                "kind": "shaping_no_success_model_configured",
+                "tick": self.tick, "agent": self.agent.0, "action": a,
+            }));
+        }
         let (lag_min, p, theta_success, state_success) = match a {
             6 => {
                 let lp = scan.lobby_success?;
@@ -650,6 +732,14 @@ impl DecideCtx {
                 &self.action,
                 scales,
             );
+            if trace::is_enabled() {
+                let gate_open = ttb.is_none_or(|t| lag_min < t);
+                trace::emit(serde_json::json!({
+                    "kind": "shaping_gate",
+                    "tick": self.tick, "agent": self.agent.0, "action": a,
+                    "lag_min": lag_min, "time_to_boundary": ttb, "gate_open": gate_open,
+                }));
+            }
             if let Some(ttb) = ttb {
                 if lag_min >= ttb {
                     return None; // cannot possibly arrive in time ⇒ cost-only fallback
@@ -660,6 +750,14 @@ impl DecideCtx {
 
         let h_success = Self::margin_with_theta(&state_success, aux, &theta_success, scales);
         let h_failure = Self::margin_with_theta(&after_cost, aux, &self.theta, scales);
+        if trace::is_enabled() {
+            trace::emit(serde_json::json!({
+                "kind": "shaping_payoff_computed",
+                "tick": self.tick, "agent": self.agent.0, "action": a,
+                "p_success": p, "h_success": h_success, "h_failure": h_failure,
+                "e_h": p * h_success + (1.0 - p) * h_failure,
+            }));
+        }
         Some(p * h_success + (1.0 - p) * h_failure)
     }
 }
@@ -819,7 +917,15 @@ impl Satisficing {
             Focus::Survival => {
                 if a >= 6 {
                     if let Some(e_h) = dc.shaping_expected_survival_margin(a, aux, scales) {
-                        return e_h > h_t;
+                        let result = e_h > h_t;
+                        if trace::is_enabled() {
+                            trace::emit(serde_json::json!({
+                                "kind": "shaping_payoff_comparison",
+                                "tick": dc.tick, "agent": dc.agent.0, "action": a,
+                                "e_h": e_h, "h_t": h_t, "result": result,
+                            }));
+                        }
+                        return result;
                     }
                 }
                 dc.margin_at(&n, aux, scales) > h_t
@@ -897,6 +1003,11 @@ impl Rule for Satisficing {
             // --- Steps 2–5: the pure decision function. `apply` carries no
             //     Step-2–5 logic of its own, so this path and the VT-8 harness
             //     cannot drift (ADR 0040). ---
+            // DIAGNOSTIC (read-only, see `trace` module doc comment): the two
+            // closures below are unchanged except for one `trace::emit` call
+            // each, which is a no-op unless `FIRMA_TRACE_DECISION=1`. Neither
+            // closure's return value is altered by the addition — `r` is
+            // computed first, exactly as before, and returned unchanged.
             let sel = select(
                 h_t,
                 sc,
@@ -904,9 +1015,37 @@ impl Rule for Satisficing {
                 p.h_crit,
                 p.w_max,
                 prev,
-                |a| dc.admissible(a),
-                |a, focus| Self::satisfices(&dc, &aux, &p.scales, a, focus, h_t, &sc),
+                |a| {
+                    let r = dc.admissible(a);
+                    if trace::is_enabled() {
+                        trace::emit(serde_json::json!({
+                            "kind": "admissible_check",
+                            "tick": dc.tick, "agent": dc.agent.0, "action": a, "result": r,
+                        }));
+                    }
+                    r
+                },
+                |a, focus| {
+                    let r = Self::satisfices(&dc, &aux, &p.scales, a, focus, h_t, &sc);
+                    if trace::is_enabled() {
+                        trace::emit(serde_json::json!({
+                            "kind": "satisfices_check",
+                            "tick": dc.tick, "agent": dc.agent.0, "action": a,
+                            "focus": format!("{focus:?}"), "h_t": h_t, "result": r,
+                        }));
+                    }
+                    r
+                },
             );
+            if trace::is_enabled() {
+                trace::emit(serde_json::json!({
+                    "kind": "selection",
+                    "tick": dc.tick, "agent": dc.agent.0,
+                    "focus": format!("{:?}", sel.focus), "w_eff": sel.w_eff,
+                    "action": sel.action, "prev_action": prev, "h_t": h_t,
+                    "shortfalls": sc, "scan_order": Focus::scan_order(sel.focus),
+                }));
+            }
 
             let set = |field: &str, value: i64| Delta {
                 target: DeltaTarget::Agent(agent),

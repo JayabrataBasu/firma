@@ -1417,3 +1417,112 @@ detected. Deliberately out of scope for ADR-0049 — would require the
 projection to read `shock.scheduled`'s future schedule, a cross-plugin
 architecture question not yet addressed. Tracked here so it is not lost;
 not yet scheduled for a fix.
+
+**OQ-12 — H3 interim disposition: shaping's scan-order deprioritization,
+ADR-0050 (Accepted).** Four rounds of read-only
+diagnostic tracing on `cfg_arm_b_satisficing` and `cfg_wide_search` (this
+working session, after ADR-0049) found that `decision.satisficing`'s
+fixed-order scan reaches lobby's checklist position in only 75/1484
+decisions (5.1%) in the realistic Arm-B-shaped scenario — the other 94.9%
+never get there because higher-priority market actions exhaust the scan's
+search-width budget first. Of the 75 reaches, the ADR-0048 timing gate
+closed in all 67 `SURVIVAL`-focus evaluations, with `time_to_boundary`
+locked at exactly 1 tick (vs. `lag_min = 2`) in every one — confirmed via
+lag-range and shock-timing shift variants to be scenario arithmetic
+(`time_to_boundary`'s real inputs do not depend on the shaping lag range at
+all), not a computational defect in `time_to_boundary`. The mechanism does
+work when reached under other conditions: `cfg_wide_search`'s 4/400
+non-zero cell shows the gate opening and the payoff comparison winning on
+real numbers, and window-widened variants of `cfg_arm_b_satisficing` show
+the same. ADR-0050 consolidates this, names two model-vs-reality
+simplifications (no standing political/relational capital; single
+action per tick forces shaping to compete one-for-one against market
+actions) as plausible, unverified contributors, and states explicitly:
+**H3 remains open — not descoped, not falsified, not found unviable**,
+per the owner's standing three-condition standard for setting a hypothesis
+aside. **The underlying raw trace output (NDJSON, ~1.2 MB per round) and
+the temporary tracing instrumentation it depends on
+(`firma-plugin-decision/src/lib.rs`, uncommitted) currently exist only in
+this session's scratchpad directory and this conversation's transcript —
+not committed anywhere durable. Flagged for the owner to decide on
+preservation** (e.g. committing a cleaned-up trace module and a
+representative sample of raw output alongside ADR-0050, or archiving the
+transcript separately) before it is lost — **still unresolved**: the trace
+module, the two representative NDJSON evidence files under
+`docs/adr/evidence/adr-0050/`, and this ADR are prepared and staged in the
+working tree, but per the standing no-self-commit rule, actually committing
+them remains the owner's own action, not yet taken. See ADR-0050 for the
+full account, real numbers, and citations.
+
+**OQ-13 — E1 filing-scope decision, ADR-0051 (Accepted).** Executes
+ADR-0044's named-but-unattempted path 2 ("an explicit, documented descope
+of H3 from the initial E1 filing") narrowly, as a **filing-scope** decision
+only: file E1 (§30) now for H1a/H1b/H1c/H2/H4, excluding Arm B's "Shaping
+lag" factor (levels `(1,1)`, `(2,6)`, `(8,16)`) and H3/E3's own predicted
+comparison from this filing's registered design. Computed directly from
+the current §30.4 table: Arm B shrinks from 180 to 60 cells (`β`(5) ×
+Novelty(3) × Shock magnitude(4), dropping the lag(3) factor only H3's own
+§30.7 analysis formula reads); total 315 → 195 cells, 63,000 → 39,000 runs
+at 200 seeds/cell; Arm C confirmed unaffected (its own factor table
+carries no shaping-lag row, and ADR-0044's per-hypothesis table maps H3 to
+Arm B only). **Explicitly not a descoping of H3 as a hypothesis** —
+ADR-0050's disposition (open, not descoped, not falsified, not found
+unviable) is unmodified; the ADR states this repeatedly, by design, so it
+survives being read or quoted out of context. Also explicit: SC-4/SC-5
+remain unsatisfied under `decision.satisficing` full stop — this ADR
+changes what is being filed, not whether those sanity conditions hold. A
+standing anti-tuning constraint is imposed: no future re-inclusion of
+H3/E3 via threshold/cost/success-model tuning — only a literature-checked
+model revision or one of ADR-0050's three named revisit triggers.
+
+**Points 2 and 5 — resolved by explicit owner decision this round, not
+left open:** (1) **§30.9's checklist bullet** ("Sanity conditions SC-1…
+SC-6 satisfied") is read as **scoped to the design actually registered and
+filed** — under this reading the narrowed E1 honestly clears it as
+written, with no manual edit required first; SC-4/SC-5 remaining
+genuinely unsatisfied under `decision.satisficing` is unaffected by this
+reading (Point 2, ADR-0051). (2) **§30.3/§30.8** retain H3, annotated
+"excluded from this filing's registered design; see ADR-0051," rather than
+removed (Point 5, ADR-0051 — the recommendation adopted without
+modification). Neither decision is applied to `docs/MANUAL.md` itself —
+both are logged as manual-PATCH candidates below, per this project's
+convention (code/ADRs proceed under the ADR's documented reading; the
+manual is patched later in a batch — the Stage-0 precedent above).
+
+A manual-internal inconsistency was surfaced while confirming the cell
+counts (still not fixed, and not part of this round's Point 2/5
+resolutions): §28.2's own experiment table names "E1" as testing only
+H1a/H1b/H1c, with H2/H3/H4 as separate experiments E2/E3/E4, while §30's
+actual pre-registration document bundles all six hypotheses and Arm B's
+shared factors under one "E1" filing — still flagged as a candidate for
+its own manual PATCH, still requiring an owner decision. This ADR runs
+nothing, revises no model, and touches no code/config/test file. See
+ADR-0051 for the full account.
+
+**Manual PATCH items queued for the next revision (ADR-0051 Points 2 and
+5, owner-decided, not yet applied to `docs/MANUAL.md` — Stage-0
+precedent above):**
+
+- **§30.9** — reword the "Sanity conditions SC-1…SC-6 satisfied (§16.2)"
+  bullet to state explicitly that it applies to the hypotheses/factors
+  actually registered in a given filing, e.g.: *"Sanity conditions
+  SC-1…SC-6 satisfied for every hypothesis and Arm actually registered in
+  this filing (§16.2). A hypothesis or design factor explicitly excluded
+  from a given filing's registered design (see e.g. ADR-0051) is not
+  required to clear a sanity condition it would otherwise need."* Purpose:
+  so a later, separate H3/E3 filing does not need this same
+  checklist-scoping question re-decided (ADR-0051 Point 6's re-filing
+  path already assumes this reading).
+- **§30.3** — after "H1a, H1b, H1c, H2, H3, H4 exactly as §2.4, with
+  predicted signs," add: *"H3 is excluded from [this filing]'s registered
+  design (Arm B's shaping-lag factor not included) — see ADR-0051. It
+  remains an open hypothesis (ADR-0050), to be filed separately."*
+- **§30.8** — annotate the falsification table's H3 row ("No interaction
+  between shaping lag and time-to-boundary") with a footnote: *"excluded
+  from [this filing]'s registered design; see ADR-0051."*
+
+`[this filing]` above is a placeholder for whatever this project's actual
+filed-document naming convention turns out to be once the narrowed E1 is
+built (Phase 3 work, not this ADR) — left unresolved deliberately, since
+naming it precisely is a Phase 3 build decision, not a Phase 2/3-boundary
+scope decision.
