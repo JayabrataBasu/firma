@@ -37,8 +37,10 @@ use firma_core::{
     PluginId, ResourceKind, RngKey, Rule, View,
 };
 use firma_domain::dynamics::{
-    market_core, shaping_cost_step, ActionParams, EnvParams, MARKET_ACTIONS,
+    market_core, shaping_cost_step, time_to_boundary, ActionParams, EnvParams, MarketAction,
+    MARKET_ACTIONS,
 };
+use firma_domain::shaping::{ContractParams, LobbyParams};
 use firma_domain::{
     keys, margin::standard_margin, Aspirations, ConstraintContext, ConstraintParams, FirmAuxState,
     FirmState, RelationGraph, ScaleFactors,
@@ -285,21 +287,37 @@ fn firm_state(view: &dyn View, agent: AgentId) -> FirmState {
     }
 }
 
+/// The action window `W` (ADR 0014, ADR 0028), parsed. **ADR 0049**: also
+/// the starting point for `time_to_boundary`'s projected window — one
+/// parse, two consumers.
+fn firm_window(view: &dyn View, agent: AgentId) -> Vec<firma_domain::WindowEntry> {
+    view.agent_records(agent, keys::ACTION_WINDOW)
+        .iter()
+        .filter_map(|s| firma_domain::WindowEntry::from_json(s).ok())
+        .collect()
+}
+
 /// `u` (regulated-activity intensity, §9.1 `g_2`) for one firm — derived on
 /// demand from the action window `W` (ADR 0014, ADR 0028), falling back to a
 /// seeded `keys::REGULATED_INTENSITY` while `W` is still empty (tick 0).
 fn firm_u(view: &dyn View, agent: AgentId, l_w: usize) -> f64 {
-    let w = view.agent_records(agent, keys::ACTION_WINDOW);
+    let w = firm_window(view, agent);
     if w.is_empty() {
         view.agent_real(agent, keys::REGULATED_INTENSITY)
             .unwrap_or(0.0)
     } else {
-        let entries: Vec<firma_domain::WindowEntry> = w
-            .iter()
-            .filter_map(|s| firma_domain::WindowEntry::from_json(s).ok())
-            .collect();
-        firma_domain::margin::u_from_window(&entries, l_w)
+        firma_domain::margin::u_from_window(&w, l_w)
     }
+}
+
+/// **ADR 0049.** The firm's real, already-committed `Λ` queue at this tick
+/// (not hypothetical) — `time_to_boundary`'s "already-pending effects"
+/// input, parsed the same way `resolve_lagged`'s real `apply` parses it.
+fn firm_pending_effects(view: &dyn View, agent: AgentId) -> Vec<firma_domain::LaggedRecord> {
+    view.agent_records(agent, keys::LAGGED_EFFECTS)
+        .iter()
+        .filter_map(|s| firma_domain::LaggedRecord::from_json(s).ok())
+        .collect()
 }
 
 /// §8.1 auxiliary state relevant to `g_j`: `λ` and `u` (aspirations are not a
@@ -387,10 +405,43 @@ pub struct ShapingScanParams {
     /// `κ_d` — diversify cost. `None` ⇒ `diversify` not in repertoire.
     #[serde(default)]
     pub diversify_cost: Option<i64>,
+    /// **ADR 0047 (H3 revision).** `lobby`'s own declared success model and
+    /// `δ_θ` payoff — the *same* `LobbyParams` shape
+    /// `action.shaping.rdt_standard.lobby` is configured with (a config
+    /// author sets both to the same values so the firm's belief matches
+    /// what will actually happen). `None` (the default, and every config
+    /// that predates this ADR) ⇒ `satisfices()`'s `SURVIVAL` test for
+    /// `lobby` stays exactly the pre-ADR-0047 cost-only lookahead —
+    /// additive, opt-in, behaviour-preserving by default (§20.5).
+    #[serde(default)]
+    pub lobby_success: Option<LobbyParams>,
+    /// **ADR 0047 (H3 revision).** `contract`'s own declared success model
+    /// and `(δ_Q, q_0)` payoff, mirroring `lobby_success` above. `None` ⇒
+    /// cost-only, unchanged.
+    #[serde(default)]
+    pub contract_success: Option<ContractParams>,
+    /// **ADR 0048 (H3 revision, round 2).** Whether `SURVIVAL`'s shaping
+    /// evaluation must *also* clear a race against `time_to_boundary`
+    /// (§14.3) before its expected-relief calculation (ADR 0047) is used at
+    /// all — `Δ_min ≥ time_to_boundary` (the payoff cannot possibly arrive
+    /// before the projected boundary) falls back to the pre-ADR-0047
+    /// cost-only test, exactly implementing H3's "increases narrowing"
+    /// direction as a real mechanical consequence, not an emergent one.
+    /// **Defaults to `true`** (ADR 0048's Decision explains why the
+    /// time-aware behaviour, not the payoff-only one, is the standard going
+    /// forward). Set `false` to fall back to ADR-0047's payoff-only test
+    /// (an explicit ablation / like-for-like comparison switch) — a config
+    /// change, never a code change.
+    #[serde(default = "default_require_time_margin")]
+    pub require_time_margin: bool,
 }
 
 fn default_lobby_cost() -> i64 {
     25
+}
+
+fn default_require_time_margin() -> bool {
+    true
 }
 
 impl Default for ShapingScanParams {
@@ -399,6 +450,9 @@ impl Default for ShapingScanParams {
             lobby_cost: default_lobby_cost(),
             contract_cost: None,
             diversify_cost: None,
+            lobby_success: None,
+            contract_success: None,
+            require_time_margin: default_require_time_margin(),
         }
     }
 }
@@ -430,6 +484,25 @@ struct DecideCtx {
     action: ActionParams,
     shaping: Option<ShapingScanParams>,
     graph: RelationGraph,
+    /// **ADR 0048.** Last tick's `SELECTED_ACTION` (default `hold`, `0`) —
+    /// `time_to_boundary`'s "current action" for the race check. The same
+    /// value and the same default `select()`'s `NONE`-focus inertia
+    /// fallback already uses (§12.3), not a second definition of "what the
+    /// firm is currently doing."
+    prev_action: u8,
+    /// **ADR 0049.** The real action window `W`, for `time_to_boundary`'s
+    /// projection to advance forward — the same raw entries `firm_u` reads.
+    window: Vec<firma_domain::WindowEntry>,
+    /// **ADR 0049.** `L_W`, so the projection's window trims exactly as
+    /// `constraint.action_window`'s real `apply` would.
+    l_w: usize,
+    /// **ADR 0049.** The firm's real, already-committed `Λ` queue — facts,
+    /// not hypotheticals, for `time_to_boundary` to apply at their real
+    /// `maturity_tick`s.
+    pending: Vec<firma_domain::LaggedRecord>,
+    /// **ADR 0049.** The current tick — `time_to_boundary`'s `start_tick`,
+    /// so a `pending` effect's absolute `maturity_tick` compares correctly.
+    tick: u64,
 }
 
 impl DecideCtx {
@@ -479,12 +552,115 @@ impl DecideCtx {
     /// `u` is held at its current value — §9.3: `u` tracking is not part of the
     /// `FirmState → FirmState` core).
     fn margin_at(&self, s: &FirmState, aux: &FirmAuxState, scales: &ScaleFactors) -> f64 {
+        Self::margin_with_theta(s, aux, &self.theta, scales)
+    }
+
+    fn margin_with_theta(
+        s: &FirmState,
+        aux: &FirmAuxState,
+        theta: &ConstraintParams,
+        scales: &ScaleFactors,
+    ) -> f64 {
         let ctx = ConstraintContext {
             state: s,
             aux,
-            theta: &self.theta,
+            theta,
         };
         standard_margin(&ctx, scales)
+    }
+
+    /// **ADR 0047/0048 (H3 revision).** `SURVIVAL`'s `Expected h_{t+1}` for a
+    /// shaping action `a ∈ {6, 7}` whose success model is configured
+    /// (`ShapingScanParams::lobby_success` / `contract_success`), taken as a
+    /// proper expectation over the Bernoulli success draw — "stochastic
+    /// terms at expectation" (§12.3), applied to shaping specifically:
+    ///
+    /// `E[h_{t+1}] = p_success · h(state_after_payoff, θ_after_payoff)
+    ///             + (1 − p_success) · h(state_after_cost, θ)`
+    ///
+    /// `p_success` is `firma_domain::shaping::SuccessModel::p_success` —
+    /// the exact function `action.shaping.rdt_standard` calls at
+    /// commitment, with the exact same `legitimacy` input (nothing between
+    /// `decide` and `act_shaping` writes it). Cost is paid in both branches
+    /// (§11.3 property 1: "cost paid at commitment, not at success").
+    ///
+    /// **ADR 0048's race check, gating the above** (when
+    /// `ShapingScanParams::require_time_margin`, the default): the payoff is
+    /// evaluated at all only if `Δ_min` (the action's *fastest possible*
+    /// lag draw — H3's "*can* arrive in time", not "is guaranteed to") is
+    /// strictly less than `time_to_boundary` under the firm's current
+    /// action (§14.3, `firma_domain::dynamics::time_to_boundary`). If
+    /// `Δ_min ≥ time_to_boundary`, the payoff cannot possibly arrive before
+    /// the projected boundary — this returns `None` (the caller's cost-only
+    /// fallback), mechanically implementing H3's "increases narrowing"
+    /// direction rather than leaving it to emerge downstream. A `None`
+    /// (uncapped/practically-unbounded) `time_to_boundary` is treated as
+    /// "arrives comfortably" — no finite lag can fail to beat an
+    /// unbounded horizon.
+    ///
+    /// `None` if `a` is not `{6, 7}`, not admissible, has no configured
+    /// success model, or loses the race — callers fall back to the
+    /// cost-only comparison.
+    fn shaping_expected_survival_margin(
+        &self,
+        a: u8,
+        aux: &FirmAuxState,
+        scales: &ScaleFactors,
+    ) -> Option<f64> {
+        let scan = self.shaping.as_ref()?;
+        let cost = scan.cost(a)?;
+        let after_cost = shaping_cost_step(cost, &self.state)?;
+        let (lag_min, p, theta_success, state_success) = match a {
+            6 => {
+                let lp = scan.lobby_success?;
+                let p = lp.success.p_success(aux.legitimacy, cost);
+                let mut theta = self.theta;
+                theta.theta_limit += lp.delta_theta;
+                (lp.lag.min, p, theta, after_cost)
+            }
+            7 => {
+                let cp = scan.contract_success?;
+                let p = cp.success.p_success(aux.legitimacy, cost);
+                let mut theta = self.theta;
+                theta.theta_q += cp.delta_q;
+                let mut state = after_cost;
+                state.obligation += cp.q0;
+                (cp.lag.min, p, theta, state)
+            }
+            _ => return None, // diversify (8): no payoff representable in (FirmState, θ)
+        };
+
+        if scan.require_time_margin {
+            let current_action = if self.prev_action < 6 {
+                MARKET_ACTIONS[self.prev_action as usize]
+            } else {
+                MarketAction::Hold // ADR 0048: prev was shaping ⇒ assume no organic change
+            };
+            let ttb = time_to_boundary(
+                current_action,
+                &self.state,
+                &self.theta,
+                &self.env,
+                aux.legitimacy,
+                aux.regulated_intensity,
+                &self.window,
+                self.l_w,
+                &self.pending,
+                self.tick,
+                &self.action,
+                scales,
+            );
+            if let Some(ttb) = ttb {
+                if lag_min >= ttb {
+                    return None; // cannot possibly arrive in time ⇒ cost-only fallback
+                }
+            }
+            // ttb == None ⇒ unbounded ⇒ arrives comfortably; fall through.
+        }
+
+        let h_success = Self::margin_with_theta(&state_success, aux, &theta_success, scales);
+        let h_failure = Self::margin_with_theta(&after_cost, aux, &self.theta, scales);
+        Some(p * h_success + (1.0 - p) * h_failure)
     }
 }
 
@@ -635,7 +811,19 @@ impl Satisficing {
             return false;
         };
         match focus {
-            Focus::Survival => dc.margin_at(&n, aux, scales) > h_t,
+            // ADR 0047 (H3 revision): a shaping action with a configured
+            // success model gets its *expected* h, not just its cost-only
+            // lookahead — additive; falls through to the pre-ADR-0047
+            // comparison (`n`, cost-only) when unconfigured (`None`), so
+            // every config that predates this ADR is unaffected.
+            Focus::Survival => {
+                if a >= 6 {
+                    if let Some(e_h) = dc.shaping_expected_survival_margin(a, aux, scales) {
+                        return e_h > h_t;
+                    }
+                }
+                dc.margin_at(&n, aux, scales) > h_t
+            }
             Focus::Goal(j) => {
                 let dv = match j {
                     1 => (n.liquid_capital - dc.state.liquid_capital) as f64,
@@ -675,6 +863,16 @@ impl Rule for Satisficing {
         for &agent in view.live_agents() {
             let state = firm_state(view, agent);
             let aux = firm_aux(view, agent, p.l_w as usize);
+            // `prev` (last tick's `SELECTED_ACTION`, defaulting to `hold`) is
+            // needed *before* `dc` this round (ADR 0048): it is also
+            // `time_to_boundary`'s "current action" input, the same default
+            // `NONE`'s inertia fallback already uses — one definition, two
+            // consumers, not invented twice.
+            let prev = view
+                .agent_int(agent, keys::SELECTED_ACTION)
+                .and_then(|v| u8::try_from(v).ok())
+                .filter(|a| *a <= 8)
+                .unwrap_or(0);
             let dc = DecideCtx {
                 agent,
                 state,
@@ -683,6 +881,11 @@ impl Rule for Satisficing {
                 action: p.action,
                 shaping: p.shaping,
                 graph: graph.clone(),
+                prev_action: prev,
+                window: firm_window(view, agent),
+                l_w: p.l_w as usize,
+                pending: firm_pending_effects(view, agent),
+                tick: view.tick().0,
             };
 
             // --- Step 1: Evaluate the two quantities VT-8 must show are
@@ -690,11 +893,6 @@ impl Rule for Satisficing {
             //     `standard_margin`; `sc` only from `A_j − v_j`. ---
             let h_t = dc.margin_at(&dc.state, &aux, &p.scales);
             let sc = Self::shortfalls(view, agent, &dc.state);
-            let prev = view
-                .agent_int(agent, keys::SELECTED_ACTION)
-                .and_then(|v| u8::try_from(v).ok())
-                .filter(|a| *a <= 8)
-                .unwrap_or(0);
 
             // --- Steps 2–5: the pure decision function. `apply` carries no
             //     Step-2–5 logic of its own, so this path and the VT-8 harness
@@ -807,6 +1005,11 @@ impl Rule for DecisionRandom {
                 action: self.params.action,
                 shaping: self.params.shaping,
                 graph: graph.clone(),
+                prev_action: 0, // unused here — `decision.random` never calls `satisfices`
+                window: Vec::new(),
+                l_w: 1,
+                pending: Vec::new(),
+                tick: 0,
             };
 
             // Admissible set, ascending index (deterministic). Never empty:

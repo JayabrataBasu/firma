@@ -218,7 +218,13 @@ fn cfg_wide_search(w_max: u32, beta: f64) -> String {
       "rules": [
         {{ "id": "decision.satisficing", "version": "^1",
            "params": {{ "l_w": 8, "w_max": {w_max}, "beta": {beta},
-             "shaping": {{ "lobby_cost": 25, "contract_cost": 25, "diversify_cost": 25 }} }} }},{MARKET_ACTIONS},
+             "shaping": {{ "lobby_cost": 25, "contract_cost": 25, "diversify_cost": 25,
+               "lobby_success": {{ "lag": {{ "min": 2, "max": 6 }},
+                 "success": {{ "p0": 0.25, "b_lambda": 0.2, "b_kappa": 0.1, "p_max": 0.75, "kappa_min": 25 }},
+                 "delta_theta": 0.10 }},
+               "contract_success": {{ "lag": {{ "min": 2, "max": 6 }},
+                 "success": {{ "p0": 0.30, "b_lambda": 0.20, "b_kappa": 0.10, "p_max": 0.60, "kappa_min": 25 }},
+                 "delta_q": 4, "q0": 3 }} }} }} }},{MARKET_ACTIONS},
         {{ "id": "action.shaping.rdt_standard.lobby", "version": "^1", "params": {{}} }},
         {{ "id": "action.shaping.rdt_standard.contract", "version": "^1",
            "params": {{ "delta_q": 4, "q0": 3,
@@ -257,7 +263,11 @@ fn cfg_input_starved() -> String {
       "environment": {{ "stocks": {{ "capital": 100000000, "input": 100000000 }} }},
       "rules": [
         {{ "id": "decision.satisficing", "version": "^1",
-           "params": {{ "l_w": 8, "w_max": 9, "shaping": {{ "lobby_cost": 25 }} }} }},{MARKET_ACTIONS},
+           "params": {{ "l_w": 8, "w_max": 9,
+             "shaping": {{ "lobby_cost": 25,
+               "lobby_success": {{ "lag": {{ "min": 2, "max": 6 }},
+                 "success": {{ "p0": 0.25, "b_lambda": 0.2, "b_kappa": 0.1, "p_max": 0.75, "kappa_min": 25 }},
+                 "delta_theta": 0.10 }} }} }} }},{MARKET_ACTIONS},
         {{ "id": "action.shaping.rdt_standard.lobby", "version": "^1", "params": {{}} }},{}
       ] }}"#,
         constraint_rules(8)
@@ -553,7 +563,10 @@ fn cfg_arm_b_satisficing() -> String {
            ] }} }},
         {{ "id": "decision.satisficing", "version": "^1",
            "params": {{ "l_w": 4, "w_max": 9,
-             "shaping": {{ "lobby_cost": 25, "diversify_cost": 25 }} }} }},{MARKET_ACTIONS},
+             "shaping": {{ "lobby_cost": 25, "diversify_cost": 25,
+               "lobby_success": {{ "lag": {{ "min": 2, "max": 6 }},
+                 "success": {{ "p0": 0.25, "b_lambda": 0.2, "b_kappa": 0.1, "p_max": 0.75, "kappa_min": 25 }},
+                 "delta_theta": 0.10 }} }} }} }},{MARKET_ACTIONS},
         {{ "id": "action.shaping.rdt_standard.lobby", "version": "^1", "params": {{}} }},
         {{ "id": "action.shaping.rdt_standard.diversify", "version": "^1",
            "params": {{ "success": {{ "p0": 0.30, "b_lambda": 0.20, "b_kappa": 0.10, "p_max": 0.60, "kappa_min": 25 }},
@@ -765,5 +778,67 @@ fn sc16b_arm_scoping() {
     assert_eq!(
         b.sc4_shaping_fraction, 0.0,
         "decision.satisficing selected a shaping action under shock — ADR-0042's structural finding changed"
+    );
+}
+
+// --------------------------------------------------------------------------
+// ADR 0047 (H3 model revision) — Part C: confirm the channel opens in a real
+// `execute_run`, not just the structural unit tests in
+// `firma-plugin-decision`'s own `tests.rs`. Mirrors that unit test's
+// hand-computed scenario (a compliance-bound SURVIVAL firm, seeded
+// `regulated_intensity` so tick 0's decision — the window is still empty —
+// reads the same `u` the unit test used) at full-run scale, through the
+// kernel and the model registry, exactly as a real config would be launched.
+// --------------------------------------------------------------------------
+
+/// One tick is enough: at `t=0` the action window is empty, so `u` falls
+/// back to the seeded `regulated_intensity` real (same as the unit test) —
+/// `h_t = 0.10 < h_crit(0.15)` ⇒ `SURVIVAL`; `lobby_success` configured to
+/// match `action.shaping.rdt_standard.lobby`'s own declared model
+/// (ADR 0047's "same formula, config-duplicated numbers" convention).
+fn cfg_h3_survival_lobby_opens() -> String {
+    format!(
+        r#"{{ "experiment": "h3-survival-lobby", "schema_version": "1.0.0", "engine": ">=0.1.0, <0.2.0",
+      "seeds": {{ "mechanism": 47, "environment": 2, "shock": 3, "init": 4 }},
+      "world": {{ "ticks": 1, "resources": ["capital", "input"],
+        "conflict_resolver": {{ "id": "conflict.additive", "version": "^1" }}, "snapshot_every": 1,
+        "global_reals": {{ "theta_limit": 0.5, "theta_cap": 0.4 }},
+        "global_ints": {{ "theta_q": 100, "input_price": 2, "output_price": 3 }} }},
+      "agents": [
+        {{ "id": 0, "stocks": {{ "capital": 500, "input": 20 }},
+           "reals": {{ "capability": 0.9, "legitimacy": 1.0, "regulated_intensity": 0.4 }},
+           "ints": {{ "obligation": 3 }} }}
+      ],
+      "environment": {{ "stocks": {{ "capital": 100000000, "input": 100000000 }} }},
+      "rules": [
+        {{ "id": "decision.satisficing", "version": "^1",
+           "params": {{ "l_w": 8, "beta": 0.5, "w_max": 9,
+             "shaping": {{ "lobby_cost": 25,
+               "lobby_success": {{ "lag": {{ "min": 2, "max": 6 }},
+                 "success": {{ "p0": 0.25, "b_lambda": 0.2, "b_kappa": 0.1, "p_max": 0.75, "kappa_min": 25 }},
+                 "delta_theta": 0.10 }} }} }} }},{MARKET_ACTIONS},
+        {{ "id": "action.shaping.rdt_standard.lobby", "version": "^1", "params": {{}} }},{}
+      ] }}"#,
+        constraint_rules(8)
+    )
+}
+
+/// **ADR 0047 Part C** — the mechanism opens in a real, kernel-executed run,
+/// not just the isolated `Satisficing::apply` unit tests. `SC-4 > 0` here
+/// means the model-registry-driven, event-logged, offline-reconstructed
+/// pipeline all agree with the structural finding.
+#[test]
+fn h3_channel_opens_in_a_real_run() {
+    let r = run_report("h3-open", &cfg_h3_survival_lobby_opens());
+    eprintln!(
+        "\n--- ADR-0047 full-run probe: {}/{} decisions were shaping ---",
+        (r.sc4_shaping_fraction * r.decisions as f64).round() as i64,
+        r.decisions
+    );
+    assert_eq!(r.decisions, 1, "one firm, one tick, one decision");
+    assert_eq!(
+        r.sc4_shaping_fraction, 1.0,
+        "the one decision this tick should be lobby (action 6) — the ADR-0047 \
+         channel did not open in a real run the way the unit tests predict"
     );
 }

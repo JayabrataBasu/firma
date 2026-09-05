@@ -12,7 +12,7 @@ is a running log, not a spec.
 |---|---|---|
 | 0 — Foundations | §26.2 | Complete (pre-existing). This build adds repo + CI + lint infra, the remaining §26.2 item. |
 | 1 — Kernel | §26.3 | **Gate met.** + ADR-0013 hardening + final Threads A/B pass. |
-| **2 — Model** | §26.4 | **Stage 7 done — awaiting sign-off. This was Phase 2's last Stage.** Gate criterion 8 MET *per-hypothesis* for H1a/H1b/H1c/H2/H4 (ADR-0044); H3 is untestable as built (a named, evidenced, non-kill-criterion finding, not fixed). Stage 7 (ADR-0045, ADR-0046) adds the MVP interface layer: `firma-tui` (ratatui/crossterm live monitor, structurally kernel-free) and `firma_lab` (Python, PyO3 `load`+`metrics`, six Phase-3 modules stubbed) — neither changes the gate status; both are debugging/monitoring aids ("neither produces evidence", §23.2). `Event` relocated `firma-kernel` → `firma-core`; new `firma-analysis` crate promotes Stage-6's `replay.rs` reconstruction for `firma-tui`/`firma-py`/tests to share. Stages 0–5 as below. Stage 6 (ADR-0040): **VT-8 passes** — §12.3 Steps 2–5 extracted to a pure `select(h, ς, …)` function, `r(h, ς) = 0` on the grid, all 4 quadrants populated, both directional greps empty. Stage 6 also found **SC-1…SC-6 cannot be jointly satisfied *under `decision.satisficing`* in a no-shock baseline** — SC-4/SC-5 fail structurally (never selects shaping — R3 by design, §12.3; ADR-0042 confirms width-*independence* across the full §16.1 `β × w_max` sweep), SC-2 is bimodal, SC-3 solvency only binds from a knife-edge seed. This `decision.satisficing`-specific finding **still stands unchanged**. Stage 6b (ADR-0043) asked whether §16.2/§27.3 criterion 8 is scoped to `decision.satisficing` at all, found `decision.random` jointly satisfies all six robustly across 5 seeds, and read the whole gate as met on that basis — **that unqualified framing was challenged and is superseded by ADR-0044** (Stage 6c): Arm C is 10/315 E1 cells; Arms A/B (96.8%) run `decision.satisficing` exclusively. ADR-0044 checked each hypothesis's actual DV dependency and found **H1a/H1b/H1c/H2/H4 need only SC-1/SC-2/SC-3/SC-6 — never SC-4/SC-5 — and are gate-clear**; **H3 (the shaping-lag-vs-narrowing hypothesis, "the distinctive mechanism" per §28.2) needs SC-4/SC-5 and is untestable**: Stage 6b's own Arm-B-shaped, shocked `decision.satisficing` run already showed `SC-4 = 0.0000` at the exact shaping lag H3 parameterises over. This is not a kill-criterion trigger (§2.5 names only H1a/H1b/H1c, all three gate-clear) but is a real, open problem for E3 and for §30.3/§30.9 as currently drafted, flagged for a §2.4/§30 PATCH — not fixed this Stage, per the project's rule that a contribution-shaping model change needs an adversarial literature check first. Also ADR-0041 (a Stage-6-discovered `resolve_lagged` multi-firm bug, fixed), ADR-0042 (the SC-4/SC-5 `β × w_max` re-check), and ADR-0043 Decision 2 (a `constraint.enforce` simultaneous compliance+obligation penalty merge, found and fixed while building Stage 6b's config — untouched by ADR-0044). |
+| **2 — Model** | §26.4 | **Stage 7 done. This was Phase 2's last Stage. Since then: an owner-directed H3 model revision (ADR-0047, round 2 ADR-0048, round 3 ADR-0049) is implemented on branch `h3-satisficing-lookahead`, NOT merged — see the dedicated sections below.** Gate criterion 8 MET *per-hypothesis* for H1a/H1b/H1c/H2/H4 (ADR-0044); H3 is untestable as built (a named, evidenced, non-kill-criterion finding, not fixed). Stage 7 (ADR-0045, ADR-0046) adds the MVP interface layer: `firma-tui` (ratatui/crossterm live monitor, structurally kernel-free) and `firma_lab` (Python, PyO3 `load`+`metrics`, six Phase-3 modules stubbed) — neither changes the gate status; both are debugging/monitoring aids ("neither produces evidence", §23.2). `Event` relocated `firma-kernel` → `firma-core`; new `firma-analysis` crate promotes Stage-6's `replay.rs` reconstruction for `firma-tui`/`firma-py`/tests to share. Stages 0–5 as below. Stage 6 (ADR-0040): **VT-8 passes** — §12.3 Steps 2–5 extracted to a pure `select(h, ς, …)` function, `r(h, ς) = 0` on the grid, all 4 quadrants populated, both directional greps empty. Stage 6 also found **SC-1…SC-6 cannot be jointly satisfied *under `decision.satisficing`* in a no-shock baseline** — SC-4/SC-5 fail structurally (never selects shaping — R3 by design, §12.3; ADR-0042 confirms width-*independence* across the full §16.1 `β × w_max` sweep), SC-2 is bimodal, SC-3 solvency only binds from a knife-edge seed. This `decision.satisficing`-specific finding **still stands unchanged**. Stage 6b (ADR-0043) asked whether §16.2/§27.3 criterion 8 is scoped to `decision.satisficing` at all, found `decision.random` jointly satisfies all six robustly across 5 seeds, and read the whole gate as met on that basis — **that unqualified framing was challenged and is superseded by ADR-0044** (Stage 6c): Arm C is 10/315 E1 cells; Arms A/B (96.8%) run `decision.satisficing` exclusively. ADR-0044 checked each hypothesis's actual DV dependency and found **H1a/H1b/H1c/H2/H4 need only SC-1/SC-2/SC-3/SC-6 — never SC-4/SC-5 — and are gate-clear**; **H3 (the shaping-lag-vs-narrowing hypothesis, "the distinctive mechanism" per §28.2) needs SC-4/SC-5 and is untestable**: Stage 6b's own Arm-B-shaped, shocked `decision.satisficing` run already showed `SC-4 = 0.0000` at the exact shaping lag H3 parameterises over. This is not a kill-criterion trigger (§2.5 names only H1a/H1b/H1c, all three gate-clear) but is a real, open problem for E3 and for §30.3/§30.9 as currently drafted, flagged for a §2.4/§30 PATCH — not fixed this Stage, per the project's rule that a contribution-shaping model change needs an adversarial literature check first. Also ADR-0041 (a Stage-6-discovered `resolve_lagged` multi-firm bug, fixed), ADR-0042 (the SC-4/SC-5 `β × w_max` re-check), and ADR-0043 Decision 2 (a `constraint.enforce` simultaneous compliance+obligation penalty merge, found and fixed while building Stage 6b's config — untouched by ADR-0044). |
 
 ### Phase 2 build stages (owner-gated; instructed one at a time)
 
@@ -1069,6 +1069,201 @@ evidence... A screenshot MUST NOT appear in a results section").
   owner's review of ADR-0044's per-hypothesis reading and the H3
   model-revision-vs-descope decision it names.
 
+### H3 model revision, round 3 (ADR-0049) — same branch, still NOT merged
+
+**Owner-confirmed genuine defect, not an acceptable approximation**: round
+2's `time_to_boundary` only ever advanced cash/input/capability via
+`market_core` — it never advanced the compliance action window, so `u`
+stayed frozen for the whole 50-tick projection, and a firm whose only real
+danger was a compliance violation was told "no danger foreseeable."
+
+- **Part A audit, done first, before any code** (full table in the ADR):
+  of `g_1`'s `r^L`, `g_2`'s `u`/`θ_limit`, `g_3`'s `c`/`θ_cap`, and `g_4`'s
+  `q`/`θ_Q`, two were bugs as named (`u` frozen; `θ_limit` frozen — latent,
+  only wrong when a `lobby` matures) and the audit found **a third,
+  unnamed instance of the identical shape**: `q`/`θ_Q` via an already-
+  pending `contract`'s maturity was also invisible. All three fixed under
+  the same standard. `θ_cap` via a scheduled `Regulatory` shock and `λ`
+  (read by no `g_j`) are **deliberately left frozen**, each with its own
+  stated reasoning, not silence.
+- **`advance_window`** (new, `firma_domain::window`) — extracted verbatim
+  from `ActionWindow::apply`'s real append+trim logic; both the real
+  `constrain` rule and `time_to_boundary`'s projection now call the same
+  function. New explicit `initial_u: f64` parameter (not derived from
+  `window.is_empty()`) so the tick-0 check matches the caller's own `h_t`
+  exactly, including the `REGULATED_INTENSITY` seed fallback.
+- **`apply_maturing`** (new, private, `firma_domain::dynamics`) — at every
+  simulated tick, checks the firm's real `pending: &[LaggedRecord]` against
+  `matures_at(tick)` and applies matured effects via
+  `Effect::deltas_at_maturity` (reused, not re-derived) through a small
+  `apply_projected_delta` dispatch. `time_to_boundary`'s signature grew
+  from 7 to 11 arguments (`legitimacy`, `initial_u`, `window`, `l_w`,
+  `pending`, `start_tick` added; `aux: &FirmAuxState` removed in favour of
+  its two fields individually).
+- **Two new tests, hand-verified**: `time_to_boundary_sees_compliance_
+  danger_the_round_2_projection_missed` (ample cash/input/capability,
+  `u` trending toward `θ_limit`; predicted `Some(2)`, got `Some(2)`) and
+  `time_to_boundary_sees_an_already_pending_rescue` (below `θ_cap` now,
+  `Some(0)` with nothing pending; `None` once a maturing-this-tick
+  `CapabilityGain{delta:0.2}` is supplied — the maturity must apply before
+  the tick-0 boundary check, and it does).
+- **Full backward compatibility, verified not assumed**: all 7 pre-existing
+  `time_to_boundary` tests (rounds 1/2) pass unchanged after the signature
+  change (mechanical argument insertion only); all 6 pre-existing H3
+  `firma-plugin-decision` tests pass with **zero test-code modification**
+  after `DecideCtx` gained 4 new fields, because none of them seed
+  `ACTION_WINDOW`/`LAGGED_EFFECTS`; `ActionWindow`'s 20-test suite
+  unchanged in count and result after switching to `advance_window`.
+- **Full regression, named test-by-test**: VT-1…VT-8 (10/10); `sc16_gate`
+  (ADR-0044's per-hypothesis gate-clear finding for H1a/H1b/H1c/H2/H4
+  re-confirmed), `sc4_wmax_beta_probe`, `sc16b_arm_scoping` (all pass);
+  full workspace `cargo test` green (0 failures across every crate, incl.
+  `firma-domain` 45, `firma-plugin-constraint` 20, `firma-plugin-decision`
+  22); both VT-8 greps re-run fresh (clean); full workspace clippy `-D
+  warnings` clean; `cargo fmt --all --check` clean (one formatting pass
+  applied — two multi-line function signatures rewrapped, no logic
+  change); `lint-architecture.sh` 9/9; `check_deps.py` clean; `cargo tree
+  -p firma-kernel` unchanged (`firma-core`, `firma-rng`, `serde` only).
+- **All four frozen hashes re-confirmed byte-identical**: golden
+  (`run_id f304edd4…`); `phase1-smoke` (`14b9eb59…3f593a0` /
+  `310f636f…a5ae4945`); `phase2-smoke` (`0529c6bb…f017` / `9a476938…eadb`,
+  run via `firma run --model`); `phase2-stage5-smoke` (`5824031c…df59` /
+  `fd3aa4f2…06e1`, likewise) — expected, since neither shipped smoke
+  config configures `shaping`.
+- **Deliberately not fixed, flagged for a future ADR**: whether a firm's
+  forward projection may see a scheduled-but-not-yet-onset `Regulatory`
+  shock moving `θ_cap` — reasoned in the ADR as a separate,
+  Observation-architecture-adjacent design question, not a `time_to_
+  boundary` completeness bug of the same shape as this round's two fixes.
+- **Not done**: no merge, no E3, no further Phase. Comes back for review.
+  ADR-0048 stays Accepted; its Status line now points to this ADR for
+  `time_to_boundary`'s scope specifically, per the project's ADR-immutability
+  house rule (correction = new ADR, never an edit).
+
+### H3 model revision, round 2 (ADR-0048) — same branch, still NOT merged
+
+**Owner-confirmed**: the timing comparison (H3's actual two-sided text) was
+the wanted mechanism, not an optional extra — round 1 (ADR-0047) evaluated a
+shaping payoff's *quality* but never whether it could arrive *in time*.
+
+- **`time_to_boundary`** (§14.3) — new `firma_domain::dynamics` function,
+  repeatedly applying `market_core` (no second copy) under the firm's
+  `prev_action` (the same value/default `NONE`'s inertia fallback already
+  uses) until `h ≤ 0` or a 50-tick cap (comfortably past §16.1's widest
+  lag sweep, Δ_max=16; an eighth of `T=400`). 4 new unit tests: exact
+  crossing, inadmissible-mid-projection, already-past, unbounded/cap.
+- **The race, a real branch**: `Δ_min < time_to_boundary` ⇒ ADR-0047's
+  expected-relief calc runs; `Δ_min ≥ time_to_boundary` ⇒ falls back to
+  cost-only, exactly implementing H3's "increases narrowing" direction
+  mechanically. `Δ_min` chosen over `Δ_max`/mean — H3 asks "can arrive,"
+  an existential claim, reasoned through in the ADR.
+- **Config-only toggle**: `ShapingScanParams::require_time_margin: bool`,
+  **defaults to `true`** (time-aware is now the standard; justified in the
+  ADR — costs nothing for configs that don't set `lobby_success`/
+  `contract_success`, which still default to `None`). `false` reverts
+  exactly to ADR-0047's payoff-only behaviour — genuinely config-only, no
+  code change, demonstrated by a passing test.
+- **Satisficing/optimising re-confirmed**: `select()` untouched; the race
+  is a threshold gate in front of a threshold test for one action at a
+  time, never a cross-option comparison.
+- **The actual race demonstrated** (`firma-plugin-decision` tests, a
+  solvency-eroding scenario with `time_to_boundary=10`): short lag (min=2)
+  wins, lobby satisfices; long lag (min=12) loses, falls back to
+  `produce_ordinary` (not lobby); toggle off + long lag ⇒ lobby satisfices
+  again despite the timing. All three pass.
+- **Round 1's own finding, sharpened not contradicted**: "lag doesn't
+  matter" was true specifically because that scenario's `time_to_boundary`
+  is unbounded (compliance-only bind, `u` held fixed) — verified the
+  original test still passes unchanged under the new default, and the new
+  finite-`time_to_boundary` scenario shows lag deciding the outcome when it
+  actually can.
+- **Full regression**: VT-1…VT-8 (10/10), `sc16_gate`/`sc4_wmax_beta_probe`/
+  `sc16b_arm_scoping` (all pass, unaffected), both VT-8 greps re-run fresh
+  (still empty), full workspace `cargo test` green, clippy/fmt clean,
+  `lint-architecture.sh` 9/9, all four frozen hashes byte-identical
+  (re-confirmed — neither shipped smoke config sets `shaping` at all).
+- **Adversarial-literature-check still applies and is still not done** — no
+  contribution claim about H3 anywhere here or in the ADR.
+- **Not done**: no merge, no E3, no further Phase. Comes back for review.
+
+### H3 model revision, round 1 (ADR-0047) — branch `h3-satisficing-lookahead`, NOT merged
+
+**Owner-directed** (ADR-0044 named this as one of two options for H3;
+descope was the other — the owner chose to attempt the revision, with the
+risk stated up front). **Retractable:** tag `pre-h3-revision` marks the
+exact commit this branch forked from; nothing has been committed on this
+branch (see the working agreement — commits/pushes are the owner's alone,
+including on a dedicated branch); `git checkout main` (or `master`) plus
+discarding this branch's uncommitted working-tree changes fully reverts.
+
+- **The mechanism** (full reasoning in the ADR): `satisfices()`'s
+  `SURVIVAL` branch only, for `lobby`/`contract` specifically, now computes
+  `E[h_{t+1}]` as a proper expectation over the action's declared
+  `p_success` (reusing `firma_domain::shaping::SuccessModel::p_success` —
+  the *same* function `action.shaping.rdt_standard` calls at commitment,
+  same `legitimacy` input) and its declared payoff, instead of a cost-only
+  lookahead. `GOAL(j)` and `diversify` are unchanged (their payoffs don't
+  move `v_1`/`v_2`/`v_3` — reasoned through, not assumed, in the ADR). Two
+  new config fields (`ShapingScanParams::lobby_success` /
+  `contract_success`), both `Option<...>` defaulting to `None` — additive,
+  opt-in, behaviour-preserving for every config that predates this ADR.
+  **No discount by lag** — a deliberate choice (reasoning in the ADR: no
+  manual anchor for a discount rate; matches the existing `invest_capability`
+  §9.3 lag-collapse precedent, also undiscounted).
+- **VT-8 criterion (iii) re-checked, not assumed**: both ADR-0040 directional
+  greps re-run against current code — still empty/unchanged. The new
+  `shaping_expected_survival_margin` method itself greps clean for
+  `aspiration`/`shortfall`/`sc[` and is called only from the `SURVIVAL`
+  match arm — confirmed, not asserted.
+- **The channel opens, and responds to the action's actual economics — not
+  just "reachable somehow now"**: three new structural unit tests in
+  `firma-plugin-decision` (a compliance-bound `SURVIVAL` firm) —
+  `lobby` satisfices when its expected relief clears `h_t` (verified
+  `w_eff=8`, genuinely scanned, not the fallback); does **not** satisfice
+  when its payoff is worthless (`δ_θ=0`, falls back to `produce_ordinary`);
+  and — reported honestly, not glossed over — the decision does **not**
+  vary with lag length (`(1,1)` vs `(8,16)` select identically), because
+  the mechanism deliberately doesn't discount by lag. H3's lag-vs-
+  time-to-boundary comparison is therefore an emergent, downstream property
+  (does the firm survive to reap a matured lagged effect — the existing,
+  unchanged `resolve_lagged` machinery), measured across config-level lag
+  settings (§30.4's own swept-factor design), not built into one decision.
+  A fourth test confirms the channel opens in a real, kernel-executed,
+  single-tick run (`sanity.rs::h3_channel_opens_in_a_real_run`,
+  `1/1` decisions were shaping).
+- **Full regression, named test-by-test**: VT-1…VT-8 (10/10 pass, including
+  `vt8_orthogonal_manipulation_of_h_and_shortfall` and
+  `sc4_shaping_selected_only_as_the_goal_fallback_never_by_the_scan`); the
+  `sc16_gate`/`sc4_wmax_beta_probe`/`sc16b_arm_scoping` sanity harness (all
+  pass, ADR-0042's regression-locked `SC-4 == 0.0` assertions for
+  `decision.satisficing` **still hold** — none of those configs opt into
+  the new fields); full workspace `cargo test` green (0 failures);
+  `cargo clippy --workspace --all-targets -- -D warnings` clean;
+  `cargo fmt --all --check` clean; `lint-architecture.sh` 9/9;
+  `check_deps.py` exit 0; `cargo tree -p firma-kernel` unchanged.
+- **Hashes — confirmed empirically, not assumed**: golden and
+  `phase1-smoke` byte-identical (expected — testkit-only, never touch
+  `decision.satisficing`). **`phase2-smoke` and `phase2-stage5-smoke` are
+  ALSO byte-identical** — checked directly: neither config sets a
+  `shaping` key in `decision.satisficing.params` at all (shaping isn't
+  even in either firm's repertoire), so the new opt-in fields cannot
+  matter regardless. **No golden-trace regeneration and no version bump
+  are needed** — §20.5's MAJOR-bump trigger ("anything altering numerical
+  output for an existing config") did not fire for any existing config.
+- **The adversarial-literature-check house rule applies to any
+  *contribution claim*** about H3 now being testable or reachable — not
+  yet done. Nothing in this section, the ADR, or the tests above should be
+  read as "H3 is confirmed," "H3 is supported," or even "H3 is reliably
+  testable in practice." What is established: the code compiles, is
+  regression-clean, and a hand-constructed scenario demonstrates the
+  mechanism behaves as designed. Whether this mechanism is a *good* model
+  of bounded-rational shaping evaluation, and whether it survives contact
+  with a real multi-config E1/E3 sweep, are separate, larger questions this
+  Stage does not answer.
+- **Not done, per the task's explicit stop instruction**: no merge to
+  `main`/`master`, no E3 drafting, no Phase-3 work. This comes back for
+  review first.
+
 ### Phase 1 gate checklist (§26.3, §27.3)
 
 - [x] `firma-core` — types, ids, `Delta`, `View`, total ordering (§18.2)
@@ -1212,3 +1407,13 @@ under the guard. The manual states the guard unconditionally in §19.4 step 2
 and the §19.5 invariant table. This needs a PATCH-level clarification. Per
 CLAUDE.md the manual is authoritative; flagging the discrepancy rather than
 silently following the narrower reading.
+
+**OQ-11 — `time_to_boundary` does not see a scheduled-but-not-yet-onset
+regulatory shock (ADR-0048/0049).** `time_to_boundary` (ADR-0048) does not
+account for a scheduled but not-yet-onset regulatory shock moving
+`θ_cap`/`θ_limit` during the projection window. A firm approaching a
+boundary that a known future policy change would worsen is not currently
+detected. Deliberately out of scope for ADR-0049 — would require the
+projection to read `shock.scheduled`'s future schedule, a cross-plugin
+architecture question not yet addressed. Tracked here so it is not lost;
+not yet scheduled for a fix.

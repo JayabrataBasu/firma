@@ -20,8 +20,8 @@ use firma_core::{
     PluginId, ResourceKind, RngKey, Rule, View,
 };
 use firma_domain::{
-    keys, margin, Aspirations, Constraint, ConstraintContext, ConstraintParams, Edge, EdgeKind,
-    FirmAuxState, FirmState, ViolationSemantic, WindowEntry,
+    advance_window, keys, margin, Aspirations, Constraint, ConstraintContext, ConstraintParams,
+    Edge, EdgeKind, FirmAuxState, FirmState, ViolationSemantic, WindowEntry,
 };
 use serde::{Deserialize, Serialize};
 
@@ -146,16 +146,15 @@ impl Rule for ActionWindow {
                 .filter(|a| *a <= 8)
                 .unwrap_or(0);
 
-            let mut w: Vec<WindowEntry> = view
+            let w: Vec<WindowEntry> = view
                 .agent_records(agent, keys::ACTION_WINDOW)
                 .iter()
                 .filter_map(|s| WindowEntry::from_json(s).ok())
                 .collect();
-            w.push(WindowEntry::new(tick, action));
-            if w.len() > self.l_w {
-                let drop = w.len() - self.l_w;
-                w.drain(0..drop);
-            }
+            // ADR 0049: the single source of "append + trim to L_W" —
+            // `time_to_boundary`'s forward projection calls the same
+            // function.
+            let w = advance_window(&w, tick, action, self.l_w);
 
             out.push(Delta {
                 target: DeltaTarget::Agent(agent),

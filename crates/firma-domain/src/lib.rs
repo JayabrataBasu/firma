@@ -55,7 +55,7 @@ pub use shock::{
     Persistence, Ramp, RegulatoryTarget, Shock, ShockChannel, ShockObservability, ShockTargets,
 };
 pub use state::{Aspirations, FirmAuxState, FirmState, GOAL_COUNT};
-pub use window::WindowEntry;
+pub use window::{advance_window, WindowEntry};
 
 /// Shared identifier vocabulary, re-exported from `firma-core` (§5) so domain
 /// crates have a single import surface. Stage 1's constraint-instance,
