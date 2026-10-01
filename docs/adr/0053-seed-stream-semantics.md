@@ -1,6 +1,11 @@
 # ADR 0053 — Seed/stream semantics for the narrowed E1 design: `derive_seeds` matches all four `StreamSeeds` fields to the replicate index
 
-**Status:** DRAFT — pending owner review.
+**Status:** Accepted (owner-directed close-out after a stale-evidence finding,
+OQ-15: Part 4's overlap table was re-run in full and Part 5's §30.6
+reasoning extended to every overlap found, *before* acceptance, as DRAFT
+edits — not as a post-acceptance correction). Per the ADR immutability
+house rule, this document's body is now append-only; any further
+correction is a new, superseding ADR, the `Status` line itself excepted.
 **Phase:** Phase 2→3 boundary (tooling for ADR-0051's narrowed E1 design;
 implemented in `firma_lab.spec`/`firma_lab.runner`, this instruction's
 Part C)
@@ -146,7 +151,7 @@ definition, not just its name:
   property (§21.2 property 3) requires identical `StreamSeeds` on *all
   four* fields, not just environment/shock.** `crates/firma-rng/src/
   lib.rs`'s `key()` takes `run_seed: u64` as one undifferentiated
-  parameter; `crates/firma-kernel/src/lib.rs:680` supplies it as
+  parameter; `crates/firma-kernel/src/lib.rs:692` supplies it as
   `world.seeds.for_stream(stream)`, and `crates/firma-kernel/src/
   world.rs:31-34` shows `for_stream` maps `StreamId::Mechanism ->
   self.mechanism`, `::Environment -> self.environment`, `::Shock ->
@@ -269,86 +274,134 @@ genuine per-replicate variation
 collision across the full real 39,000-job space
 (`test_narrowed_e1_spec_no_full_job_id_collision_across_39000_jobs`).
 
-### Part 4 — overlap re-check, real numbers, run fresh for this ADR
+### Part 4 — overlap re-check, real numbers (re-run in full before acceptance)
 
 **No prior "earlier audit" of this kind was found anywhere in this
-repository** — `PROGRESS.md`, every ADR, and this conversation's own
-history were checked (`grep`) and none contains a prior seed-overlap
-analysis. Rather than restate something that could not be located, this
-check was run fresh, against the adopted scheme's actual semantics (every
-`StreamSeeds` field equal to the replicate value).
+repository** before this ADR's first draft, so the check was run fresh.
+**It was then re-run in full immediately before this ADR's acceptance**,
+because the first draft's table had gone stale: a later round (ADR-0054's
+implementation) added a new exact collision, and the first draft had only
+enumerated Rust sources — it missed Python tests that *execute* the
+`firma` binary. The table below supersedes the first draft's.
 
-Every literal `"mechanism"/"environment"/"shock"/"init"` tuple in the
-repository was enumerated (`grep -rn` across `tests/tests/*.rs`,
-`crates/*/src/*.rs`) and checked for an **exact** four-field match against
-some `n ∈ [1, 200]` (i.e., a tuple equal to `(n, n, n, n)`, since that is
-the only tuple the adopted scheme will ever actually assign):
+Method: every literal `"mechanism"/"environment"/"shock"/"init"` tuple in
+`tests/`, `crates/`, `configs/`, and `python/` (regex over `.rs`, `.json`,
+`.py`), plus every Python test that executes jobs through
+`firma_lab.runner` (whose seeds come from `derive_seeds`, not literals),
+checked for an **exact** `(n,n,n,n)` match with `n ∈ [1, 200]` — the only
+tuple shape the adopted scheme ever assigns.
 
-| Location | Test | Tuple | Exact `(n,n,n,n)` match? |
-|---|---|---|---|
-| `determinism.rs:369` | `tick_is_atomic_wrt_event_log_on_invariant_abort` | `(1, 1, 1, 1)` | **Yes — n=1** |
-| `determinism.rs:44` | `dt2_agent_order_irrelevant` | `(4, 4, 4, 4)` | **Yes — n=4** |
-| `determinism.rs:186` | (DT test) | `(31337, 1, 1, 1)` | No (mechanism ≠ 1) |
-| `determinism.rs:257` | (DT test) | `(424242, 1, 1, 1)` | No (mechanism ≠ 1) |
-| `golden.rs:15` | golden trace | `(20260903, 7, 11, 13)` | No |
-| `sanity.rs` (7 configs) | SC-gate sanity configs | `(55\|7\|5\|909\|11\|47, 2, 3, 4)` | No (env/shock/init fixed at 2/3/4 regardless) |
-| `sanity.rs:532` | `cfg_arm_b_satisficing` | `(8080, 41, 97, 13)` | No |
-| `sanity.rs:479`, called with `{4242,1,77,900001,31337}` | `cfg_random_binding_seed` robustness sweep | `(mech, 2, 3, 4)` for each `mech` | No — including `mech=1`: `(1,2,3,4) ≠ (1,1,1,1)` |
-| `tui_live_demo.rs:25` | TUI demo config | `(20260906, 2, 3, 4)` | No |
-| `integration.rs:363` (`%M%` ∈ `{11, 999}`) | `stage5_rng_streams_follow_the_declared_stream` | `(11\|999, 5, 77, 1)` | No |
-| `integration.rs:493` | Stage-5 smoke | `(7, 20260906, 3, 1)` | No |
-| `firma-config/src/lib.rs:293` | config-parsing unit test | `(1, 2, 3, 4)` | No |
-| `orchestrator.rs:561` | CLI unit test | `(11, 22, 33, 44)` | No |
+| Location | What it is | Registry | Tuple(s) | Exact `(n,n,n,n)`? |
+|---|---|---|---|---|
+| `tests/tests/determinism.rs:437` | `tick_is_atomic_wrt_event_log_on_invariant_abort` (DT, Phase 1) | `standard_registry()` | `(1,1,1,1)` | **Yes — n=1** |
+| `tests/tests/determinism.rs:44` | `dt2_agent_order_irrelevant` (DT, Phase 1) | `standard_registry()` | `(4,4,4,4)` | **Yes — n=4** |
+| `tests/tests/integration.rs:624` | `adr0054_pin_persists_and_real_violations_still_kill` (added by ADR-0054's implementation) | **`model_registry()`** | `(1,1,1,1)` | **Yes — n=1** |
+| `python/tests/test_runner.py` (8 tests via `build_synthetic_spec` / `_failing_spec`) | `firma_lab.runner` pipeline tests, real `firma run --model` subprocesses | **`model_registry()`** | `derive_seeds(1..=3)` = `(1,1,1,1)`, `(2,2,2,2)`, `(3,3,3,3)` | **Yes — n=1, 2, 3** |
+| `tests/tests/determinism.rs:254`, `:325` | DT tests | `standard_registry()` | `(31337,1,1,1)`, `(424242,1,1,1)` | No (mechanism ≠ others) |
+| `tests/src/lib.rs:79` | `active_config` (DT-1/4/5, and ADR-0054's RNG-non-interference test) | `standard_registry()` | `(777,12,5,9)` | No |
+| `tests/tests/sanity.rs` (8 configs) | SC-gate / H3 diagnostic configs | `model_registry()` | `(55\|7\|5\|909\|11\|47, 2, 3, 4)`, `(8080,41,97,13)`, and `cfg_random_binding_seed(m)` = `(m,2,3,4)` for `m ∈ {4242,1,77,900001,31337}` | No |
+| `tests/tests/golden.rs:15`, `integration.rs:493`, `tui_live_demo.rs:25` | golden / smoke / TUI demo | mixed | `(20260903,7,11,13)`, `(7,20260906,3,1)`, `(20260906,2,3,4)` | No |
+| `configs/experiments/*.json` | shipped smoke configs | mixed | `(1,2,3,4)`, `(20260904,7,11,13)`, `(20260905,41,97,13)` | No |
+| `crates/firma-config/src/lib.rs:293`, `crates/firma-cli/src/orchestrator.rs:568`, `python/tests/test_spec.py:71` | unit-test fixtures | — | `(1,2,3,4)`, `(11,22,33,44)`, `(1,2,3,4)` | No |
 
-**Exactly two exact collisions found, both at low replicate indices (`n=1`,
-`n=4`) that the real narrowed-E1 design will in fact use.** Both are
-`firma-conformance`'s `tests/tests/determinism.rs` — Phase-1 **kernel**
-determinism tests (DT-1 tick-atomicity, DT-2 agent-order-invariance),
-built against `standard_registry()` (the Phase-1 testkit registry), using
-`testkit.force_adjust`/`testkit.transfer` — rules that do not exist in
-`model_registry()` at all (confirmed directly,
-`crates/firma-cli/src/registry_setup.rs`: `model_registry()`'s rule set is
-`firma_plugin_action_market ∪ firma_plugin_action_shaping ∪
-firma_plugin_decision ∪ firma_plugin_constraint ∪
-firma_plugin_observation ∪ firma_plugin_shock ∪ firma_plugin_resource`,
-no `testkit.*` entries).
+**Also disclosed, because §30.6 says "any Phase 2 run," not "any committed
+test":** during the ADR-0054 implementation round (this conversation's
+transcript; outputs in a session scratchpad, never committed), ad hoc CLI
+runs were executed at seeds `(1,1,1,1)`, including one config generated by
+`build_job_config` from the real narrowed-E1 spec's **Arm A cell 0**
+(`h=0.02, ς=0.0, β=0`, replicate 1) — but on an ad hoc one-firm,
+20-tick smoke-test template, not a registered template (none exists).
+Its `focus` writes were inspected (all `0`, SURVIVAL). This is the closest
+any run in this project's history has come to a registered cell, and it
+is named here rather than left in a transcript.
 
-### Part 5 — §30.6 invalidation reasoning, checked against the actual overlap found
+### Part 5 — §30.6 invalidation reasoning, checked against every overlap found
 
-§30.6: *"Any Phase 2 run touching the registered design grid invalidates
-this registration and requires re-registration with a fresh seed range."*
+§30.6, in full: *"Simulation runs, not human participants. **No runs of
+the registered design have been executed.** Phase 2 exploratory runs,
+executed to establish sanity conditions, MUST be disclosed as exploratory.
+**Any Phase 2 run touching the registered design grid invalidates this
+registration and requires re-registration with a fresh seed range.**"*
 
-**These two overlaps do not constitute "touching the registered design
-grid," for reasons stronger than the general "unrelated mechanics test"
-framing this instruction anticipated, checked against the actual overlap
-rather than assumed:**
+**What "touching the registered design grid" is taken to mean, stated
+as the criterion this ADR applies (the manual does not define it
+further):** a registered run is fully determined by its *entire* resolved
+config — the registered `model_config_template` (agent population,
+environment, world, rule set), the cell's factor levels, and the
+replicate's seeds. The failure §30.6 exists to prevent is data snooping:
+having already seen an outcome that will be part of the confirmatory
+dataset, or enough of it to shape later analysis choices. A run touches
+the grid in that sense **iff** it reproduces (or is outcome-equivalent to)
+a registered run — i.e. its resolved config equals a registered job's
+resolved config. Sharing a seed value, or a factor value, with a
+registered job is not sufficient: FIRMA's trajectory is a deterministic
+function of the whole config, so a run with a different template produces
+a different trajectory at the same seed and factor values, and its
+outcome is not an observation from the registered dataset.
 
-- They are not even Phase 2 model runs — they are Phase 1 **kernel**
-  determinism tests, run under `standard_registry()`, structurally
-  incapable of loading `decision.satisficing`, `shock.scheduled`, or any
-  other E1 rule, because those rules are not registered under
-  `standard_registry()` at all.
-- They never set, read, or could compute any of `h`, `ς`, `β`, novelty,
-  shock magnitude, or decision-plugin identity — the registered design's
-  actual factor levels — nor any of `repertoire_entropy`, `search_width`,
-  or `survival_time` — the registered design's actual DVs. Their own DVs
-  (event-log byte-identity across an aborted tick; output identity across
-  a shuffled internal agent order) share no vocabulary with E1's.
-- This is the same reasoning this project's history already applies to
-  Phase 2 sanity-condition-establishing runs (ADR-0044's own posture: an
-  exploratory run that never inspects the registered grid's factor-level
-  combinations or DVs is not the data-snooping §30.6 exists to prevent) —
-  applied here to an even more clearly unrelated case (Phase 1 engine
-  mechanics, not even Phase 2 model exploration).
+Applied to each overlap:
 
-**Conclusion: no re-registration or fresh-seed-range requirement is
-triggered by these two overlaps.** Seeds 1–200 remain available for the
-real narrowed-E1 filing as currently committed. This conclusion is
-specific to the two overlaps actually found under the adopted scheme —
-it is not a general claim that no future overlap could ever matter, and
-any *new* test fixture added after this ADR that happens to use a
-`(n,n,n,n)` tuple for `n ∈ [1,200]` should be checked against this same
-reasoning before being assumed harmless.
+1. **`determinism.rs:437` (n=1), `determinism.rs:44` (n=4)** — Phase-1
+   kernel tests under `standard_registry()`, structurally incapable of
+   loading any E1 rule. Not touching, by the strongest possible argument
+   (unchanged from this ADR's first draft).
+2. **`integration.rs:624` (n=1)** — runs under `model_registry()` with
+   `decision.satisficing` and the real ADR-0054 pin mechanism, at
+   `h=0.40`, `ς_1=ς_2=ς_3=0.0`, default `β=1.0` — values that coincide
+   with a real Arm-A cell. What it inspects, read directly from the test
+   body: the tick set of `InterventionApplied` events, every `focus` and
+   `selected_action` write for agent 0, and whether `AgentDied` occurs.
+   Correcting a framing that circulated in review: **this is not the RNG
+   non-interference test** — that is `determinism.rs::
+   adr0054_set_agent_real_perturbs_no_rng_stream`, under
+   `standard_registry()` at `(777,12,5,9)`, no collision. This test *does*
+   observe raw ingredients of E1's DVs — the realized action sequence
+   (`H_rep`'s input, §14.2 R1) and a death event (`survival_time`'s
+   input) — so the weaker "it only checked mechanics" argument is **not**
+   available for it. It is nonetheless not touching the grid under the
+   criterion above: its template (one firm, capital/input 5,000, seeded
+   `selected_action = 2`, `θ_limit = 0.40`, 20 ticks, a rule set without
+   `decision.aspiration_update` or any Observation/shock plugin) is not a
+   registered template — none has been fixed — so its trajectory is not a
+   registered run's trajectory. What it demonstrates (a healthy pin with
+   zero shortfall resolves `Focus::None`, and a firm pinned healthy still
+   dies of a real violation) is a property of the mechanism's code,
+   already knowable from reading `select()` and `constraint.enforce`, not
+   an outcome of the registered experiment.
+3. **`python/tests/test_runner.py` (n=1, 2, 3)** — real `model_registry()`
+   runs with `decision.satisficing` (default `β=1.0`, organic `h`/`ς`),
+   varying only `world.ticks ∈ {5,8}` and `l_w ∈ {4,8}` — neither a
+   registered factor — on the synthetic one-firm template. Assertions
+   concern pipeline mechanics (manifests, resumability, failure recording,
+   `event_log_sha256` equality under concurrency), not any outcome value.
+   Not touching.
+4. **Ad hoc scratch runs (disclosed in Part 4)** — including the one
+   generated from Arm A cell 0 with replicate-1 seeds. Same analysis as
+   item 2: a non-registered template, so not a registered run; the only
+   value inspected (`focus = 0`, SURVIVAL, at a pinned `h = 0.02 <
+   h_crit`) is the mechanism's deterministic response, not a registered
+   outcome.
+
+**Conclusion, stated plainly: none of these overlaps constitutes touching
+the registered design grid, and no re-registration is required — with one
+explicit condition.** Every argument in items 2–4 rests on the registered
+template differing from each of these test/scratch templates. That
+condition cannot be verified today (the registered template does not
+exist yet) and **must be verified mechanically when it is fixed**: before
+filing, no executed exploratory run's resolved config (seeds included)
+may equal any registered job's resolved config. This is operationalised
+as a check in `firma_lab.prereg` (built alongside this ADR's acceptance),
+not left to memory. A lower-cost way to remove the question entirely for
+future test additions — moving test fixtures' seeds outside `[1, 200]`,
+the convention most of this codebase's diagnostic configs already follow
+— is recommended but not applied here (out of this ADR's scope).
+
+**A known limitation, recorded rather than implied away:** Part 1 says a
+later H3/E3 filing (ADR-0051 Point 6) "needs a different, non-overlapping
+replicate range from the same function." `derive_seeds` supports that;
+`ExperimentSpec.jobs()` does not yet — it always enumerates replicates
+`1..=num_replicates`. A later filing needs a `first_replicate` (or
+equivalent) field on `ExperimentSpec`; not built.
 
 ## Alternatives
 
@@ -373,19 +426,26 @@ reasoning before being assumed harmless.
   to convention. The registered seed range 1–200 is confirmed still
   clean under the adopted scheme, with real numbers, not restated from an
   untraceable prior claim.
-- **Negative, accepted.** The two found collisions (`n=1`, `n=4`) mean any
-  *future* Phase-1 engine test that happens to reuse a low, all-equal
-  seed tuple should be checked against this ADR's reasoning before being
-  assumed harmless — not a new risk this ADR introduces, but one it makes
-  visible for the first time.
+- **Negative, accepted.** The in-range collisions found (Part 4: `n=1`,
+  `n=4` in Phase-1 DT tests; `n=1` in `integration.rs:624`; `n=1..3` in
+  `python/tests/test_runner.py`; plus disclosed ad hoc scratch runs) are
+  cleared only *conditionally* — on the registered template differing from
+  every one of those test/scratch templates (Part 5). That condition is
+  checked mechanically by `firma_lab.prereg`, not assumed.
 - **Neutral.** One function (`derive_seeds`), integrated into
   `ExperimentSpec.jobs()`; no code outside `firma_lab` is touched by this
   ADR.
 
 ## Compliance
 
-- `python/tests/test_spec.py` — seed-derivation and matched/varying-field
-  tests (11 tests directly on this ADR's subject), run and passing.
+- `python/tests/test_spec.py` — 10 tests directly on this ADR's subject,
+  run and passing: `test_derive_seeds_{deterministic,
+  matched_across_all_four_fields, injective_no_collisions_1_to_200,
+  rejects_zero_and_negative, not_bounded_to_200}`,
+  `test_stream_seeds_to_dict_shape`, `test_jobs_{matched_across_cells_at_the_same_replicate,
+  vary_genuinely_across_replicates, count_matches_total_jobs}`, and
+  `test_narrowed_e1_spec_no_full_job_id_collision_across_39000_jobs`.
+- `firma_lab.prereg`'s template-identity check (Part 5's condition).
 - Any future change to `derive_seeds`'s field-matching design, or to which
   fields the registered E1 design treats as swept vs. matched, MUST cite
   this ADR.
@@ -395,9 +455,13 @@ reasoning before being assumed harmless.
 
 ## Note
 
-The two collisions found in Part 4 (`n=1`, `n=4`) are almost certainly
-coincidental — small integers are an obvious, cheap choice for a
-hand-written kernel test's seed, with no relationship to this experiment
-design's later choice of the same small integers as replicate indices.
-Recorded exactly as what it is: a coincidence checked and found harmless,
-not a coincidence assumed harmless.
+The collisions found in Part 4 are almost certainly coincidental — small
+integers are an obvious, cheap choice for a hand-written test's seed, and
+`derive_seeds(1..=k)` is the natural thing for a pipeline test to use.
+The more useful lesson is the one that forced this ADR's Part 4 to be
+redone before acceptance: an evidence table enumerating "every occurrence
+in the repository" is only true at the moment it was run. The first draft
+went stale within one round, and had also silently scoped itself to Rust
+sources. Recorded exactly as what it is: a coincidence checked and found
+harmless *under a stated, mechanically-checkable condition* — not a
+coincidence assumed harmless.

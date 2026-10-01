@@ -5,6 +5,7 @@
 revision (ADR-0047 was round 1). **Supersedes nothing in ADR-0047** — this
 ADR adds a gating condition in front of ADR-0047's expected-relief
 calculation; every one of ADR-0047's Decisions stands as written.
+**Compliance claim that the `sc4_wmax_beta_probe` harness is "all green" superseded by [ADR-0056](0056-sc4-probe-claims-correction.md) (DRAFT, pending owner review)** — the probe fails at the commit this ADR shipped in.
 **Phase:** 2 (Model), post-Stage-7 (H3 revision, round 2)
 **Relates to:** manual §2.4 (H3 exact text), §11.2/§11.3 (shaping's cost/
 lag/uncertainty properties), §12.3 (the decision procedure), §14.3

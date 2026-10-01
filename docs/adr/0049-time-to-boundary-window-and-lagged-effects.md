@@ -9,6 +9,7 @@ firms being unbounded. **Everything else in ADR-0048 stands as written**:
 the race-branch design (Part B), `Δ_min` vs `Δ_max` (Part B), the
 config-only toggle and its default (Part C), and the satisficing/optimising
 re-confirmation. ADR-0047 is untouched by this round.
+**Compliance claim that the `sc4_wmax_beta_probe` harness "all pass" / workspace "0 failures" superseded by [ADR-0056](0056-sc4-probe-claims-correction.md) (DRAFT, pending owner review)** — the probe fails at the commit this ADR shipped in.
 **Phase:** 2 (Model), post-Stage-7 (H3 revision, round 3)
 **Relates to:** manual §8.1 (the `Λ` queue), §9.1 (`g_2` compliance, `g_3`
 scope, `g_4` obligation), §10.1 phase 6/7 (`resolve_lagged`, `constrain`),

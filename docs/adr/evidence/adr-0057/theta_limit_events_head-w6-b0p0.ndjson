@@ -1,0 +1,3 @@
+{"event":"delta_applied","tick":12,"phase":6,"origin":"action.shaping.rdt_standard.resolve_lagged","target":"Global","kind":{"AdjustGlobalReal":{"field":"theta_limit","delta":0.1}}}
+{"event":"delta_applied","tick":14,"phase":6,"origin":"action.shaping.rdt_standard.resolve_lagged","target":"Global","kind":{"AdjustGlobalReal":{"field":"theta_limit","delta":0.1}}}
+{"event":"delta_applied","tick":19,"phase":6,"origin":"action.shaping.rdt_standard.resolve_lagged","target":"Global","kind":{"AdjustGlobalReal":{"field":"theta_limit","delta":0.1}}}

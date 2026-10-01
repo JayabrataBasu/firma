@@ -9,8 +9,8 @@ date: ""
 ### A Computational Laboratory for Firm Behaviour Under Constraint
 
 **Document ID:** FIRMA-MANUAL
-**Version:** 1.0.1
-**Date:** 2 September 2026 (v1.0.1 PATCH: §28.2 experiment-table relabel, see ADR-0052)
+**Version:** 1.1.0
+**Date:** 30 September 2026 (v1.1.0 MINOR: ADRs 0010–0054 added to the §34.0 index, plus the queued clarification batch — §9.1, §12.3, §16.1, §16.2, §18.1, §18.2, §19.4, §19.5, §26.4, §30.3, §30.8, §30.9, §38; see `PROGRESS.md`, "Manual v1.1.0". v1.0.1 PATCH: §28.2 experiment-table relabel, see ADR-0052)
 **Status:** Authoritative and complete. Single source of truth.
 
 **Supersedes and consolidates:** FIRMA-SPEC-001 v1.1.0 · FIRMA-MODEL-001 v1.0.0 · FIRMA-LIT-001 v1.1.0 · ADR 0001–0009 · TC-001–TC-005 · FIRMA-PREREG-E1 v1.0.0 · FIRMA-SPEC-001-AMD-001.
@@ -634,6 +634,8 @@ $G_t$: edges $(i,j,\ell,w,\text{age})$ with $\ell \in \lbrace \texttt{supply}, \
 
 **`[D]`** The four semantics are deliberately different. Making all lethal would collapse the model to a single survival constraint and destroy the distinction between kinds of pressure. These differences are theoretical assumptions, recorded as such.
 
+*Implementation note (v1.1.0, ADR-0026):* the four $g_j$ formulas above, and the standard margin $h$ of §9.2 built from them, are implemented exactly once, in `firma-domain::margin`; the constraint plugin, the decision plugin, and `firma-analysis` call that single source rather than restating a formula. $P_q$ has no §16.1 default — see the note under §16.1.
+
 ## 9.2 Scale factors and the viability margin
 
 $$h(\mathbf{x}, \boldsymbol{\theta}) = -\max_j \frac{g_j(\mathbf{x}, \boldsymbol{\theta})}{s_j}$$
@@ -800,7 +802,9 @@ $$\psi(h) = \left( \frac{\max(h, 0)}{h_{\text{crit}}} \right)^{\beta} \qquad \te
 
 $$w_{\text{eff}} = \max\big(1, \lceil w_{\max} \cdot \psi(h) \rceil\big)$$
 
-**$\beta$ is the primary independent variable.** $\beta=0$ ⇒ $\psi\equiv1$ ⇒ no narrowing: **the null arm.**
+*Clarification (v1.1.0):* the second case applies to **every** $h < h_{\text{crit}}$, including $h < 0$ (a firm already past the boundary, necessarily under `SURVIVAL` focus) — that is what the $\max(h, 0)$ is for. For $\beta > 0$ and $h \le 0$ it gives $\psi = 0$, so $w_{\text{eff}} = 1$ (the tightest narrowing). For $\beta = 0$ it gives $\psi = 0^0 = 1$ (IEEE 754 `powf(0, 0) = 1`), so $\beta = 0$ is the no-narrowing null at every $h$ with no special case. The reference implementation is `firma-plugin-decision::psi`.
+
+**$\beta$ is the primary independent variable.** $\beta=0$ ⇒ $\psi\equiv1$ ⇒ no narrowing: **the null arm.** The *stronger* null, `decision.random`, runs none of Steps 2–5 (no attention, no $\psi$/$w_{\text{eff}}$, no scan order, no satisficing test) and draws uniformly from the admissible set; its design is ADR-0027.
 
 > **Why this is not question-begging.** $\beta$ makes narrowing *possible*, not rigidity *inevitable*. Narrowing the search does not by itself narrow the *realised* repertoire — a firm scanning three actions may still use all three across ticks. Whether search narrowing (R2) translates into repertoire concentration (R1) and shaping abandonment (R3) is an outcome of the dynamics, not an assumption. **H1b is a claim about that translation and it can fail.**
 
@@ -1115,6 +1119,8 @@ Starting points for Phase 2 exploration, **not calibrated values** (§33.3). All
 | $T$ | Run horizon | 400 | fixed (100 years quarterly) |
 | $n$ | Firms | 12 | {1, 4, 12, 20} |
 
+*Parameters with no default in this table (v1.1.0 note).* Three parameters used elsewhere in the model have **no** value here and are deliberately **not** given a silent default in code: $P_q$, the `obligation` relational penalty (§9.1) — a required parameter of the `obligation` constraint plugin (ADR-0021); and $b_{\lambda}$, $b_{\kappa}$, the shaping success coefficients (§11.2) — required in every shaping `success` config block, a missing field being a configuration error (ADR-0023, as superseded by ADR-0025). The only exception is a bare `lobby` configured with no parameters at all, which builds from explicit, named `[D]`-not-calibrated constants ($b_{\lambda} = 0.2$, $b_{\kappa} = 0.1$) alongside this table's lobby row (ADR-0025). A later version may add them to the table once values are chosen; until then each run's config must state them.
+
 ## 16.2 Sanity conditions
 
 **MVP acceptance criterion 8 (§27.3) requires a regime where constraints genuinely bind.** Run in Phase 2 before any experiment.
@@ -1129,6 +1135,8 @@ Starting points for Phase 2 exploration, **not calibrated values** (§33.3). All
 | SC-6 | Repertoire-entropy variance across firm-ticks | non-degenerate |
 
 **If SC-1…SC-6 cannot be jointly satisfied by any parameter setting, the model is mis-specified and MUST be revised before Phase 3.** A Phase 2 failure condition, not a reason to keep tuning.
+
+*Scope note (v1.1.0).* This section does not itself say which decision plugin or experimental arm the conditions must be met under. How that question was settled for this project is recorded in ADR-0043 (SC-1…SC-6 not tied to a decision plugin), ADR-0044 (gate readiness assessed per hypothesis, superseding ADR-0043 Decision 1's framing), and ADR-0051 together with §30.9 (the pre-registration checklist item applies to the hypotheses and arms actually registered in a filing). Those ADRs, not this note, carry the decision.
 
 ## 16.3 Known ambiguities to resolve in Phase 1
 
@@ -1181,15 +1189,19 @@ Seven principles. Every decision in Part III derives from one. A violation is a 
 firma-core      ← nothing in the workspace
 firma-rng       ← core
 firma-config    ← core
-firma-viability ← core
-firma-kernel    ← core, rng            [MUST NOT depend on any plugin]
+firma-domain    ← core                         [§8 types; kept out of firma-kernel's graph — ADR-0020]
+firma-viability ← domain                       [ADR-0020, ADR-0021]
+firma-kernel    ← core, rng                    [MUST NOT depend on any plugin]
 firma-registry  ← core, config
 firma-io        ← core, config
-plugins         ← core, rng, viability [MUST NOT depend on kernel or each other]
+firma-analysis  ← core, config, domain, io     [offline log reconstruction; never a plugin or the kernel — ADR-0045]
+plugins         ← core, rng, domain, viability [MUST NOT depend on kernel or each other]
 firma-cli       ← everything
-firma-tui       ← core, io
-firma-py        ← core, kernel, registry, io
+firma-tui       ← core, config, io, analysis   [ADR-0045]
+firma-py        ← core, config, io, analysis   [ADR-0045, ADR-0046]
 ```
+
+*v1.1.0:* `firma-domain` (ADR-0020) and `firma-analysis` (ADR-0045) were added after v1.0.0; the rows for `firma-viability`, plugins, `firma-tui` and `firma-py` were updated to match. Each row is an upper bound — a crate MAY depend on fewer workspace crates than listed (as of v1.1.0, for example, `firma-registry` uses only `core`, and no plugin uses `viability`). The dependency lint (§25.6) checks the two hard rules below.
 
 **Two hard rules: the kernel never sees a plugin, and plugins never see each other.** Composition happens through the delta/reconciler mechanism, not direct calls. This is what makes theories independently replaceable.
 
@@ -1216,6 +1228,18 @@ fn in_kernel(&self, k: &KernelSet, x: &State) -> bool;
 fn volume(&self, k: &KernelSet) -> f64;
 ```
 Extension: alternative approximators (sampling-based, Phase 4). Tests: analytic kernels (VT-1, §15.2); monotone decrease (VT-2); margin/kernel agreement (VT-3).
+
+**Constraint plugins (via `firma-domain`, ADR-0021).** A constraint is two traits: the margin term `firma-viability` needs, and the plugin identity and violation semantic `enforce` needs. `firma-viability` sees only `MarginTerm`, never the violation semantic.
+```rust
+trait MarginTerm { fn g(&self, ctx: &ConstraintContext) -> f64;  // g_j (§9.1)
+                   fn scale(&self) -> f64; }                      // s_j > 0 (§9.2)
+trait Constraint: MarginTerm {
+    fn id(&self) -> PluginId;  fn version(&self) -> semver::Version;
+    fn violation(&self) -> ViolationSemantic;                     // §9.1 semantic
+    fn assumption(&self) -> &str;                                 // non-empty (§17 A6)
+}
+```
+Tests: every §9.1 `g_j` against hand-computed values; `assumption()` non-empty.
 
 **firma-registry.** Resolve config plugin references to compiled implementations; verify version and content hash; refuse on mismatch. `resolve(spec) -> Result<Box<dyn Rule>, RegistryError>`. Tests: unknown plugin rejected; version mismatch rejected; hash mismatch rejected; resolution deterministic.
 
@@ -1257,12 +1281,15 @@ pub struct Delta {
 1. Collect all deltas emitted in the phase.
 2. Sort by (target_id, conflict_class, origin_plugin_id, kind_discriminant).
    Total and stable; ties impossible by construction because a plugin emits
-   at most one delta per (target, kind) per phase. Violation panics in debug.
+   at most one delta per (target, kind) per phase (two exceptions, stated
+   below). Violation panics in debug.
 3. Group by conflict_class.
 4. Apply the registered ConflictResolver per group.
 5. Apply resolved deltas.
 6. Check invariants. Violation aborts with a diagnostic — never silently corrected.
 ```
+
+*The two exceptions to "one delta per (target, kind)" (v1.1.0 clarification).* (a) The append kinds (`PushAgentRecord`, `PushGlobalRecord`) may repeat: each adds a record rather than overwriting a value (ADR-0022 Decision 3, carried forward by ADR-0024). (b) A `ResourcePool`-class delta targeting the **environment** may repeat: one rule acting for $N$ firms legitimately makes $N$ claims on the same shared pool, which step 4's resolver aggregates; step 2's sort is stable and the claims are emitted in ascending `AgentId` order, so the result stays deterministic (ADR-0031, narrowed by ADR-0033). An **agent**-targeted `ResourcePool` delta, and every other kind, remains under the rule.
 
 **Conflict resolvers are plugins, deliberately.** How contention over a scarce resource is settled — proportional rationing, priority, first-come, keyed random — is a theoretical assumption about the world, not an implementation detail. It appears in the manifest and can be ablated.
 
@@ -1276,7 +1303,7 @@ Checked every tick, debug and release. Failure aborts; there is no repair-and-co
 | Non-negativity | No stock below zero |
 | ID uniqueness | No duplicate live `AgentId` |
 | Ledger balance | Each agent's ledger sums to its stock |
-| Delta uniqueness | No plugin emits two deltas for one (target, kind) per phase |
+| Delta uniqueness | No plugin emits two deltas for one (target, kind) per phase — except the two cases stated under §19.4 (append kinds; environment-targeted `ResourcePool` claims) |
 | Tick monotonicity | Tick strictly increases |
 
 ## 19.6 The kernel MUST NOT
@@ -1737,7 +1764,7 @@ Build the deterministic substrate. **No domain logic whatsoever.**
 
 ## 26.4 Phase 2 — Model
 
-**Deliverables:** `firma-viability` (margin; grid kernel for $d\le4$; kernel-set representation); constraint plugins (`solvency`, `compliance`, `scope`, `obligation`); `decision.satisficing` and `decision.random`; `action.market.standard`; `action.shaping.rdt_standard`; `shock.scheduled` and `shock.stochastic`; `observation.{full,noisy,delayed}`; `firma-tui`; `firma_lab` loading, offline metrics, basic plots.
+**Deliverables:** `firma-domain` (shared §8 state and parameter types, ADR-0020); `firma-viability` (margin; grid kernel for $d\le4$; kernel-set representation); constraint plugins (`solvency`, `compliance`, `scope`, `obligation`); `decision.satisficing` and `decision.random`; `action.market.standard`; `action.shaping.rdt_standard`; `shock.scheduled` and `shock.stochastic`; `observation.{full,noisy,delayed}`; `locality` and `resource` plugins (ADR-0019 — required by the §27.2 MVP contents, omitted from this list before v1.1.0); `firma-analysis` (offline log reconstruction shared by `firma-tui` and `firma_lab`, ADR-0045); `firma-tui`; `firma_lab` loading, offline metrics, basic plots.
 
 **Gate:** all VT tests pass **including VT-8**; sanity conditions SC-1…SC-6 satisfied (§16.2); a single run is inspectable end-to-end and its behaviour explicable in terms of §12.3.
 
@@ -1951,6 +1978,8 @@ The behavioural theory of the firm predicts that performance below aspiration *i
 
 H1a, H1b, H1c, H2, H3, H4 exactly as §2.4, with predicted signs.
 
+*v1.1.0 annotation (ADR-0051):* H3 is excluded from the first E1 filing's registered design (Arm B's shaping-lag factor is not included) — see ADR-0051. It remains an open hypothesis (ADR-0050), to be filed separately.
+
 ## 30.4 Design
 
 **Arm A — Orthogonal manipulation (H1a, H1b).** $h$ and $\varsigma$ set directly by intervention at each measurement tick, independently, across the full grid including empirically rare quadrants.
@@ -2012,7 +2041,7 @@ Seeds per cell: 200, chosen for survival-analysis power on H4, the most demandin
 | **H1c** | Endogenous relationship monotonic, or quadratic model not preferred |
 | **The dissociation** | H1a and H1b do not both hold |
 | H2 | Novelty and magnitude coefficients statistically equivalent |
-| H3 | No interaction between shaping lag and time-to-boundary |
+| H3 | No interaction between shaping lag and time-to-boundary *(excluded from the first E1 filing's registered design; see ADR-0051)* |
 | H4 | No interaction between narrowing and novelty in survival |
 
 **Joint failure of H1a and H1b would contradict an established model** (March & Shapira), which is a *stronger* result than failing to confirm a conjecture — but it requires distinguishing model defect from genuine boundary condition before publication (§2.5).
@@ -2024,7 +2053,7 @@ Seeds per cell: 200, chosen for survival-analysis power on H4, the most demandin
 **Not to be filed until:**
 
 - [ ] All §25.4 validation tests pass, **including VT-8**, with evidence attached.
-- [ ] Sanity conditions SC-1…SC-6 satisfied (§16.2).
+- [ ] Sanity conditions SC-1…SC-6 satisfied for every hypothesis and Arm actually registered in this filing (§16.2). A hypothesis or design factor explicitly excluded from a given filing's registered design (see e.g. ADR-0051) is not required to clear a sanity condition it would otherwise need. *(v1.1.0 wording, ADR-0051 Point 2.)*
 - [ ] AT-1…AT-5 run and reported.
 - [ ] All DT tests green.
 - [ ] Seed range 1–200 confirmed unused by any exploratory Phase 2 run.
@@ -2181,6 +2210,53 @@ Phases 0–5 involve no human subjects and raise no issues beyond ordinary resea
 | 34.7 | 0007 | Non-spatial by default | Accepted |
 | 34.8 | 0008 | Compile-time plugins; WASM deferred | Accepted |
 | 34.9 | 0009 | Research question revision after Phase 0 | Accepted |
+| — | [0010](adr/0010-tooling-and-dependencies.md) | Phase 1 tooling, lint infrastructure, and dependency set | Accepted |
+| — | [0011](adr/0011-viability-solver-in-phase-1.md) | Include the `firma-viability` backward-iteration solver in Phase 1 | Accepted |
+| — | [0012](adr/0012-phase-1-event-log-format.md) | Phase 1 event-log and snapshot format: deterministic NDJSON | Accepted |
+| — | [0013](adr/0013-plugin-id-numeric-uniqueness.md) | Enforce `PluginId::numeric()` uniqueness at rule registration | Accepted |
+| — | [0014](adr/0014-u-trailing-window-definition.md) | `u` (regulated-activity intensity) is a simple trailing-window mean | Accepted |
+| — | [0015](adr/0015-theta-globality.md) | Constraint parameters θ are global for the Phase 2 MVP | Accepted |
+| — | [0016](adr/0016-simultaneous-lobbying-additive.md) | Simultaneous lobbying is additive; shaping deltas are `Independent` class | Accepted |
+| — | [0017](adr/0017-death-and-relation-edges.md) | At death, all incident relation edges vanish; cascade realism is a Phase 3 AT question | Accepted |
+| — | [0018](adr/0018-capability-no-decay-mvp.md) | Capability `c` has no decay in the Phase 2 MVP; late-game dominance is an SC-6 watch item | Accepted |
+| — | [0019](adr/0019-locality-resource-in-phase-2.md) | `firma-plugin-locality` and `firma-plugin-resource` are in Phase 2 scope | Accepted |
+| — | [0020](adr/0020-firma-domain-crate.md) | Shared §8 state/parameter types live in a new `firma-domain` crate, not `firma-core` | Accepted |
+| — | [0021](adr/0021-constraint-interface-and-deterministic-core.md) | The `Constraint` plugin interface, and where §11's deterministic core lives | Accepted |
+| — | [0022](adr/0022-decide-act-handoff.md) | The decide→act hand-off, and the `DeltaKind` variants Phase 2 adds | Accepted; Decisions 1–3 partially superseded by ADR 0024 |
+| — | [0023](adr/0023-lagged-effect-queue.md) | The `Λ` lagged-effect queue, `Effect`, shaping success timing, and the shaping RNG purpose tags | Accepted; parameter-default note superseded by ADR 0025 |
+| — | [0024](adr/0024-setagentint-supersedes-0022.md) | Generalise `SetSelectedAction` to `SetAgentInt`; put `Delta`'s manual `Eq` on an enforced invariant — supersedes ADR-0022 Decisions 1–3 | Accepted |
+| — | [0025](adr/0025-shaping-b-coefficients-required.md) | `b_λ` / `b_κ` are required shaping config, not serde-defaulted — supersedes ADR-0023's parameter-default note | Accepted |
+| — | [0026](adr/0026-standard-margin-in-firma-domain.md) | The four §9.1 `g_j` formulas and the standard-four margin move to `firma-domain::margin` | Accepted |
+| — | [0027](adr/0027-decision-random-design.md) | `decision.random`'s selection mechanism | Accepted |
+| — | [0028](adr/0028-constrain-phase-and-action-window.md) | `constrain` (phase 7) does not write `θ`; it maintains the action window `W`, and `u` (like `h`) is computed on demand | Accepted |
+| — | [0029](adr/0029-enforce-phase-violation-processing.md) | The `enforce` phase (§10.1 phase 8): violation detection and processing | Accepted; Decision 2's ordering rationale superseded by ADR 0032 |
+| — | [0030](adr/0030-config-seeds-domain-state.md) | A run config can seed global and per-agent domain-state values | Accepted |
+| — | [0031](adr/0031-resourcepool-deltas-exempt-from-uniqueness-guard.md) | `ResourcePool` deltas are exempt from the per-rule delta-uniqueness guard | Accepted; exemption narrowed to the `Environment` target by ADR 0033 |
+| — | [0032](adr/0032-removeagent-applied-last-in-a-phase.md) | `RemoveAgent` is applied in a final sub-pass of a phase, after every value delta | Accepted |
+| — | [0033](adr/0033-resourcepool-uniqueness-exemption-narrowed-to-environment.md) | The `ResourcePool` delta-uniqueness exemption is narrowed to the `Environment` target | Accepted |
+| — | [0034](adr/0034-rule-rng-stream-and-keyedrng-normal.md) | `Rule::rng_stream()`, and `KeyedRng::next_normal` | Accepted; Alternatives extended by ADR 0039 |
+| — | [0035](adr/0035-observation-interface.md) | The `Observation` interface: a phase-2 per-agent env/θ snapshot | Accepted |
+| — | [0036](adr/0036-shock-channels-ramp-persistence.md) | Shock: channel deltas, ramp/persistence formulas, one plugin per config | Accepted |
+| — | [0037](adr/0037-locality-interface.md) | The `Locality` interface: a query service, distinct from `G_t`, no MVP consumer | Accepted |
+| — | [0038](adr/0038-resource-dynamics.md) | `resource.constant` (explicit null) and `resource.patchy` (mean-reverting π^I) | Accepted |
+| — | [0039](adr/0039-rng-stream-registration-metadata-alternative.md) | The registration-metadata alternative to `Rule::rng_stream()`, considered and rejected | Accepted |
+| — | [0040](adr/0040-vt8-orthogonal-manipulation.md) | VT-8: the `h` / `ς` intervention seam, and the SC-1…6 finding | Accepted; SC-4/5 row sharpened by ADR 0042 |
+| — | [0041](adr/0041-resolve-lagged-global-scalar-merge.md) | `resolve_lagged` combines multiple firms' global-scalar effects into one delta | Accepted |
+| — | [0042](adr/0042-sc4-shaping-unreachable-across-wmax-beta.md) | SC-4/SC-5: shaping is unreachable under `decision.satisficing` across the full `w_max × β` sweep | Accepted |
+| — | [0043](adr/0043-sc16-arm-scoping-and-enforce-simultaneous-penalty-merge.md) | SC-1…6 is unscoped to a decision plugin (§16.2/§27.3); and a `constraint.enforce` simultaneous-penalty merge | Accepted; Decision 1's gate-is-met framing superseded by ADR 0044; Decision 2 stands |
+| — | [0044](adr/0044-sc4-sc5-gate-readiness-is-per-hypothesis-h3-untestable.md) | SC-4/SC-5 gate-readiness is per-hypothesis: H1a/H1b/H1c/H2/H4 are gate-clear; H3 is untestable as built — supersedes ADR-0043 Decision 1's framing | Accepted — flagged for owner review (research-design decision) |
+| — | [0045](adr/0045-firma-analysis-and-event-relocation.md) | `firma-analysis`: promoting the log-reconstruction logic, and relocating `Event` to `firma-core` | Accepted |
+| — | [0046](adr/0046-firma-tui-and-firma-lab-toolchain.md) | `firma-tui` (ratatui/crossterm) and `firma_lab` (PyO3/maturin) toolchain choices | Accepted |
+| — | [0047](adr/0047-h3-satisficing-expected-shaping-lookahead.md) | H3 model revision: `satisfices()`'s SURVIVAL branch evaluates a shaping action's expected effect on `h`, not just its cost | Accepted — flagged for owner review before merge |
+| — | [0048](adr/0048-h3-time-to-boundary-race-check.md) | H3 revision, round 2: a real decision-time race against `time_to_boundary`, with a config-only toggle | Accepted — flagged for owner review before merge; `time_to_boundary`'s scope superseded by ADR 0049 |
+| — | [0049](adr/0049-time-to-boundary-window-and-lagged-effects.md) | H3 revision, round 3: `time_to_boundary` must advance the compliance window and apply already-pending lagged effects | Accepted — flagged for owner review before merge |
+| — | [0050](adr/0050-h3-interim-disposition-scan-order-deprioritization.md) | H3 interim disposition: `decision.satisficing`'s fixed-order scan structurally deprioritizes shaping; investigation remains open, not descoped | Accepted |
+| — | [0051](adr/0051-e1-filing-scope-exclude-h3-e3.md) | E1 filing-scope decision: file the H1a/H1b/H1c/H2/H4 sweep now, excluding the Arm-B shaping-lag factor and H3/E3 | Accepted |
+| — | [0052](adr/0052-manual-e1-label-collision-fix.md) | Manual naming patch: §28.2's experiment table relabeled to resolve the "E1" collision with §30, applied directly as an owner-directed exception | Accepted |
+| — | [0053](adr/0053-seed-stream-semantics.md) | Seed/stream semantics for the narrowed E1 design: `derive_seeds` matches all four `StreamSeeds` fields to the replicate index | Accepted |
+| — | [0054](adr/0054-arm-a-direct-manipulation-intervention.md) | Arm A direct manipulation: `Intervention::SetAgentReal` (generic, kernel-pure) plus four `decision.satisficing` pin-read keys | Accepted |
+
+*v1.1.0:* ADRs 0010–0054 are separate files in `docs/adr/` (not reproduced in §34.1ff.); the rows above list each with its status as of v1.1.0. ADRs still in DRAFT (at v1.1.0: ADR-0055) are not indexed until accepted. `docs/adr/README.md` carries the live index between manual versions.
 
 ---
 
@@ -2592,12 +2668,15 @@ firma/
 ├── crates/
 │   ├── firma-core/            # types, traits, IDs. NO logic, NO sibling deps
 │   ├── firma-rng/             # counter-based RNG, key derivation
+│   ├── firma-domain/          # §8 firm state/parameter types, g_j (ADR-0020, ADR-0026)
 │   ├── firma-kernel/          # state store, scheduler, reconciler, invariants
 │   ├── firma-viability/       # kernel computation, margin proxy
 │   ├── firma-registry/        # plugin registration and resolution
 │   ├── firma-io/              # event log, snapshots, manifests
 │   ├── firma-config/          # schema, validation, hashing
+│   ├── firma-analysis/        # offline log reconstruction (ADR-0045)
 │   ├── firma-plugins/
+│   │   ├── firma-plugin-testkit/   # Phase-1 test rules; not part of the model
 │   │   ├── firma-plugin-locality/
 │   │   ├── firma-plugin-resource/
 │   │   ├── firma-plugin-constraint/
@@ -2616,9 +2695,13 @@ firma/
 ├── docs/
 │   ├── MANUAL.md              # this document
 │   └── adr/                   # new ADRs from 0010 onward
-└── tests/
-    ├── determinism/  ├── validation/  └── integration/
+└── tests/                     # package `firma-conformance` (PROGRESS.md OQ-6)
+    ├── src/                   # shared harness
+    └── tests/                 # determinism.rs, validation.rs, integration.rs,
+                               # golden.rs, sanity.rs, …
 ```
+
+*v1.1.0:* `firma-domain`, `firma-analysis` and `firma-plugin-testkit` added, and `tests/` shown as the Cargo package it is, to match the workspace.
 
 **New ADRs from 0010 onward live in `docs/adr/` as separate files and are indexed in §34.0 at the next manual version bump.**
 
@@ -2652,4 +2735,4 @@ Cyert & March (1963) · Simon (1947) · Morgan, *Images of Organization* · Nels
 
 ---
 
-*End of FIRMA Project Manual v1.0.1*
+*End of FIRMA Project Manual v1.1.0*

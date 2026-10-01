@@ -1,0 +1,298 @@
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+test constraints::tests::builds_four_in_canonical_order ... ok
+test registry_setup::tests::registry_has_the_phase1_plugins ... ok
+test registry_setup::tests::model_registry_assembles_every_phase2_rule ... ok
+test orchestrator::tests::run_then_replay_is_byte_identical ... ok
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.06s
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+test tests::rejects_unknown_key ... ok
+test tests::rejects_engine_mismatch ... ok
+test tests::parses_normalises_validates ... ok
+test tests::rejects_unknown_resource_in_stock ... ok
+test tests::content_hash_is_stable_and_order_independent ... ok
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+test tick_is_atomic_wrt_event_log_on_invariant_abort ... ok
+test dt4_null_fork_equals_continuation ... ok
+test adr0054_set_agent_real_perturbs_no_rng_stream ... ok
+test dt6_stream_isolation ... ok
+test dt2_agent_order_irrelevant ... ok
+test dt5_snapshot_restore_continue ... ok
+test dt2b_per_agent_keyed_draw_order_irrelevant ... ok
+test dt3_sequential_vs_parallel_identical ... ok
+test dt1_same_manifest_byte_identical_log ... ok
+test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.12s
+test golden_trace_unchanged ... ok
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s
+test locality_plugins_construct_and_answer_neighbours ... ok
+test config_without_seed_maps_is_unchanged ... ok
+test config_seeds_domain_state_into_the_world ... ok
+test every_manifest_plugin_has_a_nonempty_assumption ... ok
+test adr0054_pin_persists_and_real_violations_still_kill ... ok
+test phase2_smoke_runs_a_realistic_tick_and_conserves ... ok
+test observation_noisy_changes_a_decision_versus_the_true_value_baseline ... ok
+test manifest_run_id_is_stable ... ok
+test phase2_stage5_smoke_exercises_shocks_observation_and_resource_dynamics ... ok
+test stage5_rng_streams_follow_the_declared_stream ... ok
+test run_and_verify_end_to_end ... ok
+test result: ok. 11 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.10s
+test sc16_search ... ignored, exploratory: cargo test -p firma-conformance --test sanity sc16_search -- --ignored --nocapture
+thread 'h3_channel_opens_in_a_real_run' (237851) panicked at tests/tests/sanity.rs:839:5:
+test h3_channel_opens_in_a_real_run ... FAILED
+test sc16_gate ... ok
+test sc4_wmax_beta_probe ... ok
+test sc16b_arm_scoping ... ok
+test result: FAILED. 3 passed; 1 failed; 1 ignored; 0 measured; 0 filtered out; finished in 7.13s
+test tui_tails_a_run_that_is_still_being_written ... ok
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 7.12s
+test vt1_kernel_analytic_1d_and_2d ...     GOAL(2): order=[4, 1, 3, 2, 6, 5, 0, 8, 7]  → picks = {6}  (expected fallback = 6)
+test margin_matches_section_15_1 ... ok
+test vt2_backward_iteration_monotone_to_fixed_point ... ok
+test sc4_shaping_selected_only_as_the_goal_fallback_never_by_the_scan ... ok
+test vt8_orthogonal_manipulation_of_h_and_shortfall ... ok
+test vt4_beta_zero_no_shortfall_action_never_changes ... ok
+test vt3_margin_vs_exact_kernel_membership ... ok
+test vt7_shaping_actions_are_costly_lagged_and_uncertain ... ok
+test vt5_decision_random_establishes_the_null ... ok
+test vt6_conservation_over_10k_ticks ... ok
+test result: ok. 10 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 4.18s
+test delta::tests::allows_repeat_only_for_the_append_kinds ... ok
+test delta::tests::nan_payload_breaks_partialeq_reflexivity_but_ordering_is_immune ... ok
+test delta::tests::order_is_a_strict_weak_ordering ... ok
+test delta::tests::adjuststock_sorts_before_setagentint_by_discriminant ... ok
+test delta::tests::slot_distinguishes_two_adjuststock_to_one_agent ... ok
+test delta::tests::f64_payload_equality_is_reflexive_for_finite_values ... ok
+test delta::tests::discriminants_are_the_documented_range_and_unique ... ok
+test delta::tests::phase1_pair_order_is_unchanged ... ok
+test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+test dynamics::tests::hold_is_identity_and_always_admissible ... ok
+test dynamics::tests::produce_regulated_gated_by_scope ... ok
+test dynamics::tests::invest_capability_clamps_at_one ... ok
+test dynamics::tests::shaping_cost_step_is_cost_only_and_gated_by_affordability ... ok
+test dynamics::tests::time_to_boundary_counts_an_exact_crossing ... ok
+test dynamics::tests::time_to_boundary_is_none_under_hold_when_margin_never_moves ... ok
+test dynamics::tests::time_to_boundary_counts_ticks_when_action_becomes_inadmissible ... ok
+test dynamics::tests::yields_match_section_11_1_formula ... ok
+test dynamics::tests::time_to_boundary_sees_an_already_pending_rescue ... ok
+test effect::tests::successful_lobby_shifts_theta_limit ... ok
+test margin::tests::positive_margin_means_all_satisfied ... ok
+test dynamics::tests::time_to_boundary_sees_compliance_danger_the_round_2_projection_missed ... ok
+test margin::tests::u_from_window_matches_adr_0014 ... ok
+test params::tests::constraint_params_json_roundtrip ... ok
+test effect::tests::capability_gain_clamps_at_one ... ok
+test params::tests::deny_unknown_fields_is_enforced ... ok
+test params::tests::state_bound_defaults_match_section_16_1 ... ok
+test params::tests::scale_factor_defaults_match_section_9_2 ... ok
+test dynamics::tests::time_to_boundary_zero_when_already_past ... ok
+test effect::tests::contract_is_double_edged ... ok
+test relation::tests::bad_record_is_an_error ... ok
+test relation::tests::supply_queries ... ok
+test relation::tests::record_roundtrip ... ok
+test shaping::tests::lag_min_zero_is_rejected ... ok
+test shaping::tests::contract_params_are_all_required ... ok
+test shaping::tests::lobby_defaults_match_section_16_1 ... ok
+test effect::tests::failed_shaping_applies_nothing ... ok
+test env::tests::unknown_field_is_rejected ... ok
+test shock::tests::instant_permanent_is_a_single_step ... ok
+test shaping::tests::success_model_b_coefficients_have_no_serde_default ... ok
+test margin::tests::matches_section_15_1 ... ok
+test shock::tests::linear_ramp_reaches_full_at_onset_plus_duration ... ok
+test shock::tests::recurring_is_a_staircase ... ok
+test shaping::tests::p_max_ge_one_is_rejected ... ok
+test shock::tests::transient_closes_and_leaves_sigma ... ok
+test shaping::tests::p_success_is_clipped_to_p_max ... ok
+test shock::tests::validation_rejects_the_bad_cases ... ok
+test env::tests::roundtrip ... ok
+test shock::tests::roundtrip ... ok
+test effect::tests::record_json_roundtrip ... ok
+test state::tests::firm_state_json_roundtrip ... ok
+test window::tests::advance_window_appends_and_trims ... ok
+test state::tests::aspirations_array_roundtrip ... ok
+test state::tests::dim_is_four ... ok
+test window::tests::roundtrip ... ok
+test result: ok. 45 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+test eventlog::tests::same_events_same_bytes ... ok
+test eventlog::tests::roundtrip ... ok
+test snapshot::tests::put_get_ticks ... ok
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+test tests::a_repeated_push_record_is_allowed_but_a_repeated_set_is_not ... ok
+test tests::domain_state_survives_a_snapshot_round_trip ... ok
+test tests::non_finite_real_delta_is_rejected_atomically ... ok
+test tests::new_delta_kinds_round_trip_through_the_reconciler ... ok
+test tests::non_negativity_aborts_the_run ... ok
+test tests::same_agent_duplicate_resourcepool_delta_is_rejected ... ok
+test tests::widened_uniqueness_check_distinguishes_by_slot ... ok
+test tests::resourcepool_transfers_then_removeagent_conserves ... ok
+test tests::freeze_rule_intervention_silences_a_rule ... ok
+test tests::dt4_null_fork_equals_continuation ... ok
+test tests::conserves_over_a_run ... ok
+test tests::dt2_agent_storage_order_does_not_matter ... ok
+test tests::dt5_snapshot_restore_continue_equals_uninterrupted ... ok
+test tests::dt3_sequential_and_parallel_agree ... ok
+test tests::dt6_adding_a_keyed_rule_does_not_perturb_another_rules_deltas ... ok
+test result: ok. 15 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
+test tests::every_rule_has_a_nonempty_assumption ... ok
+test tests::deliver_reduces_obligation_unpaired ... ok
+test tests::only_the_selected_action_fires ... ok
+test tests::produce_regulated_respects_the_scope_gate ... ok
+test tests::ids_have_distinct_numeric_projections ... ok
+test tests::produce_ordinary_pairs_with_env_and_conserves ... ok
+test tests::none_from_market_core_is_a_silent_noop ... ok
+test tests::invest_capability_is_lagged_not_immediate ... ok
+test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+test tests::affordability_precondition_blocks_a_poor_firm ... ok
+test tests::bad_params_are_rejected_at_construction ... ok
+test tests::cost_is_paid_at_commitment_and_conserves ... ok
+test tests::b_coefficients_are_required_when_a_success_block_is_given ... ok
+test tests::failed_effect_matures_to_nothing_but_still_drains ... ok
+test tests::diversify_uses_a_synthetic_source ... ok
+test tests::every_registered_rule_has_a_nonempty_assumption ... ok
+test tests::contract_needs_a_supply_partner ... ok
+test tests::resolver_phase_is_resolve_lagged ... ok
+test tests::resolver_is_a_noop_when_nothing_matures ... ok
+test tests::the_two_draws_are_independent_streams ... ok
+test tests::resolver_applies_matured_and_drains_only_those ... ok
+test tests::two_firms_maturing_lobby_combine_into_one_theta_delta ... ok
+test tests::lag_is_at_least_one_tick_and_drawn ... ok
+test tests::cost_is_paid_even_when_the_attempt_fails ... ok
+test result: ok. 15 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+test phase_rules::tests::action_window_no_decision_records_hold ... ok
+test phase_rules::tests::action_window_appends_and_trims_to_l_w ... ok
+test phase_rules::tests::enforce_p_q_is_required_and_params_validated ... ok
+test phase_rules::tests::compliance_second_strike_within_tc_is_death ... ok
+test phase_rules::tests::compliance_restrike_after_tc_is_a_fresh_first_strike ... ok
+test phase_rules::tests::positive_capital_is_not_a_solvency_death ... ok
+test phase_rules::tests::obligation_severs_supply_edges_and_fines_but_survives ... ok
+test phase_rules::tests::phase_rules_register_and_have_the_right_phases ... ok
+test phase_rules::tests::scope_violation_does_nothing_in_enforce ... ok
+test phase_rules::tests::u_moves_from_produce_regulated_then_ages_out ... ok
+test phase_rules::tests::solvency_death_at_zero_capital ... ok
+test phase_rules::tests::simultaneous_compliance_first_strike_and_obligation_violation_is_one_capital_delta ... ok
+test phase_rules::tests::simultaneous_solvency_and_compliance_death_is_one_removal_no_penalty ... ok
+test tests::assumptions_non_empty ... ok
+test phase_rules::tests::two_agents_dying_share_one_replace_global_list ... ok
+test tests::bad_params_rejected ... ok
+test tests::each_g_matches_section_15_1 ... ok
+test tests::violation_semantics_match_section_9_1 ... ok
+test tests::obligation_penalty_is_required ... ok
+test result: ok. 20 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+thread 'tests::adr0054_partial_pin_panics' (268389) panicked at crates/firma-plugins/firma-plugin-decision/src/lib.rs:946:17:
+thread 'tests::adr0054_single_pin_panics' (268393) panicked at crates/firma-plugins/firma-plugin-decision/src/lib.rs:946:17:
+test tests::adr0054_pins_override_real_state_totally ... ok
+test tests::adr0054_partial_pin_panics - should panic ... ok
+test tests::aspiration_update_rejects_bad_alpha ... ok
+test tests::aspiration_update_moves_toward_realised_value ... ok
+test tests::adr0054_shortfall_mapping_matches_vt8_construction ... ok
+test tests::adr0054_rare_quadrant_healthy_margin_high_shortfall_is_constructible ... ok
+thread 'tests::h3_lobby_satisfices_survival_when_expected_relief_clears_h_t' (268403) panicked at crates/firma-plugins/firma-plugin-decision/src/tests.rs:493:5:
+test tests::adr0054_single_pin_panics - should panic ... ok
+test tests::attend_none_when_no_shortfall_and_margin_fat ... 
+thread 'tests::h3_race_short_lag_wins_lobby_satisfices' (268405) panicked at crates/firma-plugins/firma-plugin-decision/src/tests.rs:627:5:
+thread 'tests::h3_the_survival_test_is_not_lag_sensitive_by_design' (268406) panicked at crates/firma-plugins/firma-plugin-decision/src/tests.rs:572:5:
+test tests::bad_satisficing_params_rejected ... ok
+test tests::attend_goal_argmax_ties_to_lowest_j ... ok
+thread 'tests::h3_toggle_off_reverts_to_payoff_only_despite_long_lag' (268407) panicked at crates/firma-plugins/firma-plugin-decision/src/tests.rs:692:5:
+test tests::attend_survival_when_margin_thin ... ok
+test tests::every_registered_rule_has_a_nonempty_assumption_and_right_phase ... ok
+test tests::goal1_first_satisficing_is_not_argmax ... ok
+test tests::h3_lobby_does_not_satisfice_when_its_payoff_is_worthless ... ok
+test tests::h3_race_long_lag_loses_falls_back_to_cost_only ... ok
+test tests::h3_lobby_satisfices_survival_when_expected_relief_clears_h_t ... FAILED
+test tests::h3_race_short_lag_wins_lobby_satisfices ... FAILED
+test tests::h3_the_survival_test_is_not_lag_sensitive_by_design ... FAILED
+test tests::h3_toggle_off_reverts_to_payoff_only_despite_long_lag ... FAILED
+test tests::inadmissible_actions_do_not_consume_scan_budget ... ok
+test tests::psi_matches_section_12_3_piecewise ... ok
+test tests::narrowing_shrinks_the_scanned_window ... ok
+test tests::scan_orders_are_the_section_12_3_table ... ok
+test tests::w_eff_is_bounded_1_to_wmax ... ok
+test tests::rng_is_used_only_by_decision_random ... ok
+test tests::random_draws_only_from_the_admissible_set ... ok
+test tests::random_covers_the_admissible_set_across_seeds ... ok
+test result: FAILED. 23 passed; 4 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+test tests::network_is_configured_adjacency_intersected_with_live ... ok
+test tests::wellmixed_is_everyone_else ... ok
+test tests::catalogue_constructs_and_has_assumptions ... ok
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+test tests::delayed_early_ticks_see_the_oldest_available ... ok
+test tests::full_is_lossless_and_per_agent ... ok
+test tests::delayed_reaches_back_k_ticks_and_maintains_the_ring ... ok
+test tests::noisy_sigma_is_required_and_validated ... ok
+test tests::registered_ids_and_phases ... ok
+test tests::noisy_perturbs_each_field_and_is_deterministic ... ok
+test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+test tests::constant_emits_nothing ... ok
+test tests::patchy_at_baseline_with_no_noise_is_silent ... ok
+test tests::params_required_and_validated ... ok
+test tests::patchy_reverts_toward_baseline ... ok
+test tests::patchy_respects_the_floor_and_is_deterministic ... ok
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+test tests::reputational_hits_only_targeted_live_agents ... ok
+test tests::stochastic_draws_within_window_and_is_deterministic ... ok
+test tests::params_validated ... ok
+test tests::resource_channel_rounds_the_cumulative_target ... ok
+test tests::instant_permanent_regulatory_is_one_step_then_silent ... ok
+test tests::linear_ramp_spreads_the_shift_over_duration ... ok
+test tests::transient_reverses_when_the_window_closes ... ok
+test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+test tests::assumptions_non_empty ... ok
+test tests::transfer_rejects_bad_params ... ok
+test tests::endpoint_serde_shapes ... ok
+test tests::select_action_emits_set_deltas_for_live_agents_only ... ok
+test tests::force_adjust_rejects_bad_params ... ok
+test tests::keyed_per_agent_rejects_bad_modulus ... ok
+test tests::select_action_rejects_bad_params ... ok
+test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+thread 'tests::duplicate_string_id_still_rejected_by_the_original_check' (268452) panicked at crates/firma-registry/src/lib.rs:134:9:
+thread 'tests::numeric_collision_rejected' (268454) panicked at crates/firma-registry/src/lib.rs:126:13:
+test tests::distinct_ids_register_without_collision ... ok
+test tests::hash_mismatch_rejected ... ok
+test tests::duplicate_string_id_still_rejected_by_the_original_check - should panic ... ok
+test tests::numeric_collision_rejected - should panic ... ok
+test tests::resolution_is_deterministic ... ok
+test tests::resolves_matching ... ok
+test tests::version_mismatch_rejected ... ok
+test tests::unknown_rejected ... ok
+test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+test philox::tests::kat_all_ones ... ok
+test philox::tests::kat_pi_digits ... ok
+test philox::tests::kat_zero ... ok
+test tests::property_2_changing_agent_changes_draw ... ok
+test tests::different_purpose_is_a_different_stream ... ok
+test tests::property_1_same_tuple_same_draw ... ok
+test tests::property_3_fork_reusing_tuple_is_identical ... ok
+test tests::property_4_independent_streams_do_not_perturb_each_other ... ok
+test tests::f64_unit_in_range ... ok
+test tests::uniform_inclusive_covers_and_stays_in_bounds ... ok
+test tests::next_normal_is_deterministic_and_roughly_standard ... ok
+test result: ok. 11 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
+test tail::tests::missing_file_polls_empty_not_err ... ok
+test tail::tests::corrupt_complete_line_is_reported_not_fatal ... ok
+test tail::tests::partial_final_line_is_carried_not_surfaced ... ok
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+test domain::tests::margin_is_negative_max_of_scaled_g ... ok
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s

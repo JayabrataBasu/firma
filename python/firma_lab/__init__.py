@@ -1,10 +1,10 @@
 """firma_lab -- FIRMA offline orchestration and analysis (manual Sec 23.1).
 
-Stage 7 (Phase 2 MVP, manual Sec 27.2) builds two of the eight modules the
-manual's Sec 23.1 table lists -- `load` and `metrics` -- plus explicit
-Phase-3 stubs for the rest (`spec`, `runner`, `stats`, `sensitivity`, `plot`,
-`prereg`): the E1-sweep tooling that has nothing to compute against yet
-until Phase 3 actually runs the sweep.
+All eight modules of the manual's Sec 23.1 table exist: `load` and
+`metrics` (Stage 7, Phase 2 MVP), `spec` and `runner` (ADR-0053/0054 round),
+and `stats`, `sensitivity`, `plot`, `prereg` (the Phase-3 analysis
+pipeline, built and tested on synthetic data only -- no registered-design
+output exists yet).
 
 `metrics` does not reimplement any FIRMA formula in Python. It calls
 straight into `firma_lab._native`, the PyO3 extension built from

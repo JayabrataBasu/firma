@@ -1,0 +1,6 @@
+lw6_both head gate_open/gate_evals 3 / 75 ttb {'1': 72, '40': 2, 'None': 1} shaping_selected 3 / 1834
+lw6_both proto gate_open/gate_evals 0 / 27 ttb {'1': 27} shaping_selected 0 / 1834
+lw8_both head gate_open/gate_evals 12 / 363 ttb {'1': 351, '40': 4, 'None': 8} shaping_selected 12 / 3242
+lw8_both proto gate_open/gate_evals 12 / 51 ttb {'1': 39, '40': 4, 'None': 8} shaping_selected 12 / 3242
+wmax15 head gate_open/gate_evals 9 / 44 ttb {'1': 35, '4': 5, 'None': 4} shaping_selected 9 / 1562
+wmax15 proto gate_open/gate_evals 5 / 14 ttb {'1': 9, '4': 5} shaping_selected 5 / 1512

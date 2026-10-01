@@ -1906,3 +1906,553 @@ defaults" standard) that Arm A's template has exactly one agent, at
 `ExperimentSpec` construction or `build_job_config` time. `ADR-0054` is
 Accepted and therefore not edited to record this — logged here per the
 project's minor-open-question convention instead.
+
+**OQ-15 — ADR-0053 stays DRAFT: real drift found in its Part 4 overlap
+table, not accepted this round.** A status-close instruction asked to
+verify `derive_seeds` still matches ADR-0053's description exactly before
+moving its Status line to Accepted. The function itself matches precisely
+— read `python/firma_lab/spec.py`'s `derive_seeds` (all four `StreamSeeds`
+fields set to `replicate`, `ValueError` below 1, no internal `1..=200`
+bound) and `ExperimentSpec.jobs()` (the sole call site, once per
+replicate, reused across every cell) directly against the ADR's Part 1/3
+text — no discrepancy. **But ADR-0053's Part 4 overlap table has gone
+stale**: it enumerates seed tuples "in the repository" as of when it was
+written and found exactly two exact `(n,n,n,n)` collisions (`n=1`, `n=4`),
+both `standard_registry()` Phase-1 kernel tests structurally incapable of
+loading `decision.satisficing` or any E1 rule. **A third exact collision
+now exists, introduced by the subsequent ADR-0054 implementation round,
+not reflected anywhere in ADR-0053's text**: `tests/tests/
+integration.rs:624`, `adr0054_pin_persists_and_real_violations_still_kill`,
+seeds `(1, 1, 1, 1)` — but unlike the first two, this test runs under
+`model_registry()`, explicitly configures `decision.satisficing` with the
+real `Intervention::SetAgentReal`/`PINNED_MARGIN` mechanism, and uses
+`h=0.40`/`ς_1=0.0` — **both literal factor levels from Arm A's real
+registered grid** (`h ∈ {0.02,0.05,0.10,0.20,0.40}`,
+`ς ∈ {0.0,0.25,0.50,0.75,1.0}`). ADR-0053 Part 5's existing reasoning
+("structurally incapable of loading E1's rules") does **not** transfer to
+this case — it can and does load them. Argued both ways, not resolved
+unilaterally: it predates any real Arm-A `model_config_template` (none
+exists yet) so its specific run cannot literally be one of the 39,000
+registered runs, and it checks `focus`/`selected_action` directly, not
+E1's actual DVs (`repertoire_entropy` etc.) — but it is a materially
+weaker form of immunity than the first two collisions', since nothing
+structurally prevents it from resembling a real future cell. A trivial,
+low-risk fix exists (change this one test's seed values to something
+outside `[1,200]`, matching the convention several other diagnostic
+configs in this codebase already use) but was not applied — implementing
+it was out of this investigation's scope. **ADR-0053's Status line was
+left at DRAFT, not moved to Accepted, and its body was not edited** —
+per the instruction's own standard, this is reported for owner review,
+not silently patched or force-accepted.
+
+**OQ-16 — Arm C's cell count (10, as currently implemented) conflicts
+with ADR-0027's own already-Accepted text; the correct count is likely 6,
+not 10 (investigated, not fixed).** The immediate `KeyError`
+(`no rule with id='decision.satisficing'...`) traces exactly to
+`python/firma_lab/spec.py`'s `arm_c`'s `"beta"` `Factor`, which
+hardcodes `rule_id="decision.satisficing"` unconditionally — it is
+applied to every Arm-C cell regardless of that cell's own
+`decision_plugin` factor value, so for the 5 cells where
+`decision_plugin` has already swapped in `decision.random`,
+`runner.py`'s `_find_rule` (`python/firma_lab/runner.py:46`) cannot find
+`decision.satisficing` any more and raises. This is a real, direct,
+hardcoded assumption, not a mysterious symptom — but investigating *why*
+it's there surfaced a much larger question.
+
+Re-read §30.4's Arm C row and factor table fresh: *"Arm C — Null.
+β = 0 and `decision.random`. Both must show no relationship,"* alongside
+the factor table's `"Narrowing β | 0, 0.5, 1, 2, 4 | A, B, C"` row and
+the stated total `"Arm C: 10 cells... Total 315 cells."` Read literally
+and alone, the factor table's cross-product (`5 β-levels × 2 plugins`)
+is exactly how the current implementation (and the manual's own stated
+"10") is built.
+
+**But `decision.random`'s design ADR (ADR-0027, Accepted, read in full)
+directly contradicts crossing β with it**, in its own words: *"Arm C
+pairs `decision.random` with `β = 0`."* — singular, one pairing, not a
+5-level sweep. This is not just a phrasing preference: ADR-0027 Decision
+2 states `decision.random` "runs **none** of §12.3 Steps 2–5... does not
+compute `ψ(h)` / `w_eff`... does not consult the scan-order table," and
+its own Compliance section requires (and presumably still passes) a grep
+proving `DecisionRandom` contains no `psi`/`w_eff`/`satisfic` symbols at
+all. **β has no code path through which it could ever affect
+`decision.random`'s behaviour** — sweeping it across 5 "different"
+`decision.random` cells would produce five statistically identical
+outcomes, not five genuine experimental conditions. `RandomParams`
+(`firma-plugin-decision/src/lib.rs`) has no `beta` field at all, which
+is exactly what this reasoning predicts, not an oversight to patch.
+
+**Cross-checked against ADR-0044 (Accepted), which itself only ever
+*cites* "Arm C is 10 of 315... cells (§30.4)" without independently
+re-deriving that number from the factor table or checking it against
+ADR-0027** — it neither confirms nor contradicts this finding; it
+inherited the same unexamined total ADR-0051's 195-cell narrowed design
+also inherited.
+
+**Conclusion: the evidence supports (b), not (a).** Giving `RandomParams`
+a `beta` field (option (a)) would be a field with no mechanism to attach
+to — incoherent, not a real fix, exactly the case this investigation's
+own instruction anticipated flagging rather than papering over. The
+*correct* Arm C, per ADR-0027's own already-Accepted text, is **5
+`decision.satisficing` cells (β swept) + 1 `decision.random` cell (no
+beta factor, none needed) = 6 cells, not 10** — computed directly, not
+estimated. This is a **cell-count correction**, not a config field
+addition, and it changes totals already cited elsewhere:
+
+| | Arm A | Arm B | Arm C | Total | × 200 seeds |
+|---|---|---|---|---|---|
+| Manual's original (unmodified) figures | 125 | 180 | 10 | 315 | 63,000 |
+| Manual's figures, Arm C corrected | 125 | 180 | **6** | **311** | **62,200** |
+| ADR-0051's narrowed E1 (as currently implemented) | 125 | 60 | 10 | 195 | 39,000 |
+| ADR-0051's narrowed E1, Arm C corrected | 125 | 60 | **6** | **191** | **38,200** |
+
+**Not implemented, per this investigation's explicit scope.** A real
+structural implication worth naming for whoever picks this up: `Factor`/
+`ArmDesign`'s current model always takes a full cartesian product of an
+arm's factors — Arm C's corrected design (β swept *only* under
+satisficing, not crossed with the plugin choice at all) does not fit
+that model directly; representing it needs either a conditional-factor
+mechanism or restructuring Arm C as the union of two differently-shaped
+sub-designs rather than one crossed `ArmDesign`, not just changing two
+numbers. **This will likely need its own ADR** (superseding nothing
+directly, since no prior ADR actually decided Arm C = 10 independently —
+it names a correction to how the manual's own factor table and stated
+total should be read, consistent with ADR-0027) — not drafted here, per
+this instruction's explicit scope; reported for owner review first.
+
+**OQ-15 — resolution (later session).** ADR-0053 is now **Accepted**. Before
+acceptance, and as DRAFT edits (not a post-acceptance correction), its
+Part 4 overlap table was re-run in full across both Rust and Python
+fixtures (exact `(n,n,n,n)` collisions at `n = 1, 2, 3, 4`, including the
+`model_registry()` test `tests/tests/integration.rs:624`), and its Part 5
+§30.6 reasoning was extended to every overlap found. Conclusion recorded
+in the ADR: none of the overlaps touches the registered grid, **conditional
+on** the registered Arm templates differing from every test/scratch
+template — a condition operationalised as the template-identity check in
+`firma_lab.prereg`. The optional "move test seeds outside `[1,200]`"
+change was recommended in the ADR but not applied.
+
+**OQ-16 — update (later session).** Superseded by **ADR-0055 (DRAFT)**. A
+closer read than OQ-16's own found that the correct Arm C is *not*
+unambiguously 6 cells: ADR-0055 settles only that the `decision.random`
+side is 1 cell (not 5), and leaves the `decision.satisficing` side as an
+explicit owner choice between Reading S5 (Arm C = 6; narrowed E1 = 191
+cells / 38,200 runs) and Reading S1 (Arm C = 2, exactly §28.4's two nulls;
+187 / 37,400), with S1 argued to have the stronger textual support. OQ-16's
+"superseding nothing directly" is also revised there: ADR-0055 narrowly
+supersedes ADR-0051 Point 4's Arm C row and the totals derived from it.
+Nothing implemented; the narrowed spec still builds the 10-cell Arm C.
+
+**OQ-17 — ⚠ DECISION-LEVEL: ADR-0042's "shaping unreachable at every
+`(w_max, β)`" no longer holds on this branch, and ADR-0048/0049's "all
+pass" regression claims were false as committed.** Found by the
+ADR-0040–0054 drift audit. Evidence, all run this session:
+
+- `cargo test -p firma-conformance --test sanity sc4_wmax_beta_probe`
+  **fails** at HEAD (`c5eb8cd`): part (a) reports `4/400` shaping decisions
+  at `w_max=6, β=0.0` and `w_max=9, β=0.0` (all other 13 cells `0/400`),
+  then panics at `tests/tests/sanity.rs:300` ("the SC-4 finding needs
+  revising"). ADR-0042 (Accepted) states **"`0 / 400` shaping decisions at
+  *every* one of the 15 `(w_max, β)` cells, including `w_max = 9,
+  β = 0`"**.
+- Bisected against three commits in scratch worktrees (removed after):
+  `9c49c34` (before ADR-0047–0049) — **passes**, `0/400` at every cell;
+  `17ba7bb` (the first commit containing ADR-0047, 0048, 0049 and their
+  code) — **fails**, same `4/400`; `89a4648` — fails, same. So the change
+  comes from the ADR-0047–0049 model revision, as intended by it.
+- ADR-0048 (line ~251) and ADR-0049 (lines ~260–263) each state the
+  `sc16_gate`/`sc4_wmax_beta_probe`/`sc16b_arm_scoping` harness "all pass"
+  / workspace "green, 0 failures". Against the code as committed in
+  `17ba7bb`, `sc4_wmax_beta_probe` fails. Whether it passed against some
+  intermediate uncommitted state cannot be determined from the repository;
+  ADR-0054 and PROGRESS.md later record it as "the one pre-existing
+  failure".
+- The preserved ADR-0050 trace (`docs/adr/evidence/adr-0050/
+  trace_cfg_wide_search_wmax6_beta0.0.ndjson`) shows the 4 lobby
+  selections are `SURVIVAL`-branch picks via ADR-0047's expected-payoff
+  path (4 `shaping_payoff_comparison` records, 4 `selection` records with
+  `action = 6`), so the probe's premise — "a healthy `GOAL(1)` firm … `h`
+  stays well above `h_crit`" — does not hold at those ticks either.
+
+**Why this is decision-level, not a stale number:** ADR-0042's Decision is
+that shaping is *structurally* unreachable and the effect is
+*width-independent*. Its mechanism step 4 ("Under `SURVIVAL`, `hold` …
+precedes every shaping action … so `SURVIVAL` can never fall back to
+shaping") assumed a shaping action can never be a satisficing pick, which
+ADR-0047 deliberately changed for the `SURVIVAL` branch. At HEAD shaping is
+reachable at `w_max ∈ {6,9}` but not `3` — i.e. *not* width-independent.
+ADR-0042's `GOAL`-branch reasoning (step 1–3) still holds and its select-
+level test (`validation::sc4_shaping_selected_only_as_the_goal_fallback_
+never_by_the_scan`) still passes. ADR-0040's Status-line summary inherits
+the same claim.
+
+**What still holds:** SC-4 remains unsatisfied under `decision.satisficing`
+(4/400 = 1% < 5%; `cfg_arm_b_satisficing` 0%), so ADR-0044's and
+ADR-0051's decisions, which rest on "SC-4/SC-5 unsatisfied", are not
+affected. ADR-0050 already reports the 4/400 cell correctly.
+
+**Not done (owner decisions):** no ADR edited (ADR-0042's Status line has
+already been set once and is not touched); the failing test's assertion
+not changed (that would be tuning-to-pass). Recommended: a new ADR that
+narrowly supersedes ADR-0042's Decision as a description of the current
+model (scoping it to the pre-ADR-0047 model / the `GOAL` branch), plus an
+owner decision on what `sc4_wmax_beta_probe` part (a) should assert. Part
+(b) (`3/600` input-starved) could not be re-verified at HEAD: the test
+panics in part (a) before reaching it. The passing `sc16_gate` also prints
+a hard-coded summary line "SC-4 NOT achievable under decision.satisficing
+(0.0000) — incl. full §16.1 β×w_max sweep" (`tests/tests/sanity.rs`) that
+is now inaccurate about the sweep.
+
+**OQ-18 — minor citation drift found by the ADR-0040–0054 audit (no
+decision affected).**
+
+- ADR-0054 cites `crates/firma-kernel/src/lib.rs:619-657` for
+  `apply_intervention`; it currently spans `619–669` (the `SetAgentReal`
+  arm it added).
+- ADR-0047/0048/0049 Status lines say "NOT merged to `main`"; the
+  repository's default branch is `master` (no `main` exists). Meaning
+  unaffected.
+- ADR-0044's Context figures ("Arm C is 10 of 315 cells … Arms A and B —
+  305 cells, 96.8%") are true of the manual's text today but become stale
+  if ADR-0055 is accepted (98.1% under S5, 99.3% under S1); its decision
+  holds more strongly. Already noted in ADR-0055.
+
+Verified clean in the same audit (re-run, not assumed): ADR-0040's VT-8
+figures (`r(h,ς) = +0.000000`, quadrants `9/12/12/16`, `r(h,w_eff) =
++0.356`), Arm-C `decision.random` SC-4 `0.3050` / SC-5 `0.492`; ADR-0043's
+five-seed Path-1 table (all 30 values match) and `20 passed`
+(`firma-plugin-constraint`); ADR-0050's trace figures recomputed from the
+preserved NDJSON (`75/1484` reaches, `0` inadmissible, `67` `SURVIVAL` /
+`8` `GOAL(1)`, `4/400` lobby selections); ADR-0054's `27`-test decision
+crate; ADR-0051's 195/39,000 (as implemented); all four frozen hashes
+(`phase1-smoke` `14b9eb59…3f593a0`/`310f636f…`, `phase2-smoke`
+`0529c6bb…`/`9a476938…`, `phase2-stage5-smoke` `5824031c…`/`fd3aa4f2…`,
+golden test green); every code symbol named by ADRs 0045–0054 exists.
+
+### Manual v1.1.0 — queued PATCH batch applied (later session)
+
+Bump **1.0.1 → 1.1.0 (MINOR)**: §0.6's table puts "Adding … ADR" at MINOR,
+and the §34.0 index gained ADRs 0010–0054; every other item in the batch is
+PATCH-level clarification and would not have needed more than PATCH alone.
+Each item was re-checked against the code and the ADR-0040–0054 audit
+(OQ-17/OQ-18) before being applied.
+
+Applied: §34.0 (ADRs 0010–0054 indexed with statuses from
+`docs/adr/README.md`; DRAFT ADR-0055 deliberately not indexed); §9.1 (`g_j`
+single-sourced in `firma-domain::margin`, ADR-0026 — re-verified: the
+constraint plugin, decision plugin and `firma-analysis` call it,
+`firma-viability` does not, so the originally queued wording was narrowed);
+§12.3 (`ψ` covers `h < 0`; `0^0 = 1` makes β = 0 the null at every `h`;
+pointer to ADR-0027 for `decision.random`); §16.1 (`P_q`, `b_λ`, `b_κ` have
+no table default and are required config — ADR-0021/0023/0025); §16.2
+(scope pointer to ADR-0043/0044/0051 — a pointer, not a new decision);
+§18.1 (graph updated to the actual workspace, re-derived with `cargo
+metadata`: `firma-domain`, `firma-analysis` added, viability/plugins/tui/py
+rows updated, rows stated as upper bounds; no new MUST added); §18.2
+(`MarginTerm`/`Constraint` trait sketch, ADR-0021, copied from
+`firma-domain/src/constraint.rs`); §19.4/§19.5 (OQ-10 — re-verification
+found **two** exemptions, not one: the append kinds `PushAgentRecord`/
+`PushGlobalRecord` via `DeltaKind::allows_repeat` (ADR-0022 D3) as well as
+environment-targeted `ResourcePool` claims (ADR-0031/0033); both stated);
+§26.4 (`firma-domain`, `locality`/`resource`, `firma-analysis`); §30.3,
+§30.8, §30.9 (ADR-0051 Points 2 and 5, owner-decided text; "[this filing]"
+rendered as "the first E1 filing"); §38 (`firma-domain`, `firma-analysis`,
+`firma-plugin-testkit`, `tests/` as the `firma-conformance` package).
+
+Not applied, with reasons: **§30.4 Arm C row/total** — ADR-0055 is DRAFT
+and the S5/S1 choice is the owner's. **§12.3 "one-step lookahead" reading
+(ADR-0047) and §14.3 `time_to_boundary` scope (ADR-0048/0049)** — those
+ADRs are "flagged for owner review before merge" on an unmerged branch, and
+OQ-17 has just found a decision-level inconsistency in the same area;
+encoding their reading in the manual now would get ahead of that review.
+**§15.3 / §16.4 "optional" clarifications (ADR-0014/0018)** — the queue
+entry never stated their content, and inventing it would be a new
+decision. **§16.3 items 1–5** are all now settled by ADRs 0014–0018; a
+"resolved by" annotation is a reasonable next PATCH but was never queued.
+**`firma-core::MANUAL_VERSION` stays `"1.0.0"`** — it feeds the run
+manifest and therefore every `run_id`/frozen hash; ADR-0052 already
+flagged that lag as needing an owner decision (bump and regenerate
+golden traces, or stop hashing the manual version). Not changed here.
+
+### Phase-3 analysis pipeline: `firma_lab.stats` / `.sensitivity` / `.plot` / `.prereg` (later session)
+
+Built and tested on **synthetic, generated data only** (group labels
+≥ 1001); no registered-design run was executed, and no real result exists
+for these modules to analyse yet. Every module is generic over the
+`ExperimentSpec`/DataFrame it is given; no cell count, arm name or factor
+list is hard-coded.
+
+- **`stats`** — `analyse_h1a_h1b` (§30.7 `ΔH_rep ~ ς + h + ς:h + β +
+  (1|seed)`, `statsmodels` MixedLM), `analyse_h1c` (linear vs quadratic,
+  seed-grouped CV), `analyse_h2` (standardised novelty − magnitude
+  contrast, TOST ±0.1), `analyse_h3` (raises `NotImplementedError`, citing
+  ADR-0051), `analyse_h4` (Cox PH, `PHReg`, stratified by seed);
+  `cluster_bootstrap` (seeded `PCG64`, 10,000 resamples by default per
+  §30.7); `apply_multiplicity` (primary uncorrected, one BH family for all
+  secondary outcomes); `invariant_exclusions`, `analysis_table`,
+  `missing_jobs` (from `JobRecord`s, generic). Missing columns/values, <2
+  seeds, constant outcome or predictor, rank-deficient designs and
+  unfittable mixed models raise `InsufficientDataError`.
+- **`sensitivity`** — `robustness` (R1/R2/R3 and N1/N2 variants, verdicts
+  side by side, unestimable variants reported, never dropped);
+  `factorial_sobol_indices` (exact first-order/total indices of the
+  cell-mean response on a complete factorial).
+- **`plot`** — seed bands (refuses <2 seeds), paired fork bands,
+  labelled illustrative trajectories, parameter-space maps, ECDFs.
+- **`prereg`** — each §30.9 bullet as a `ChecklistItem`
+  (`PASS`/`FAIL`/`NEEDS_OWNER`/`NOT_EVALUATED`) with raw evidence;
+  `check_seed_range` is ADR-0053's template-identity check; `render_prereg`
+  drafts the §30 document from the spec.
+- **Rust:** one new PyO3 function, `firma_lab._native.config_identity_hash`
+  (`crates/firma-py/src/lib.rs`): parses a config with the engine's own
+  `RunConfig::from_json`, normalises, returns `content_hash`. Needed
+  because a run manifest's `resolved_config` differs textually from its
+  input config (`"params": null`, `"interventions": []` filled in —
+  checked on all three shipped smoke configs), so a Python-side JSON
+  comparison would silently never match. Verified: input config and
+  manifest `resolved_config` give the same hash, equal to the manifest's
+  own `config_hash`. No ADR: not a primitive, `Delta` variant or new
+  dependency category.
+- **Dependencies added** (`pyproject.toml`): `statsmodels>=0.14`,
+  `scipy>=1.11`, `matplotlib>=3.8` (installed in `.venv`: statsmodels
+  0.15.0, scipy 1.18.1, matplotlib 3.11.2). Reasons in each module's
+  docstring.
+- **Tests:** 63 new (`test_stats.py` 30, `test_sensitivity.py` 10,
+  `test_plot.py` 7, `test_prereg.py` 16); whole Python suite 119 passed.
+  CI (`.github/workflows/ci.yml`) does not run the Python suite at all —
+  pre-existing, unchanged.
+
+**OQ-19 — ADR-0053's Part 4 table (Accepted this session) misses two exact
+in-range seed literals.** Running the new `prereg.scan_seed_literals` over
+`crates/ tests/ python/ configs/` reproduces all three Rust collisions in
+ADR-0053's table and finds two it does not list:
+`python/tests/test_spec.py:32–33`, `derive_seeds(1)` and
+`derive_seeds(200)`. Both are pure-function equality assertions — no
+config is built, nothing runs — so ADR-0053's §30.6 conclusion is
+unaffected; but the table's "full enumeration" claim is not literally
+true. ADR-0053 is Accepted and not edited; logged here. Conversely the
+scanner cannot see `python/tests/test_runner.py`'s runs (seeds computed by
+`spec.jobs()`, not written as literals); those remain covered by
+ADR-0053's own row for them.
+
+**OQ-20 — analysis-plan choices §30.7 leaves open; implemented with an
+explicit, documented choice, but they should be fixed in the filed
+`analysis_plan` by the owner before filing** (details in `stats.py`'s
+module docstring):
+
+1. **Centering for H1a/H1b — the one that can flip a verdict.** With the
+   `ς:h` term, the `ς` coefficient is the slope at `h = 0`, outside Arm A's
+   grid (`h ≥ 0.02`). The code makes `centers` a required argument (no
+   default); `grid_centers` gives registered-level means. A test
+   demonstrates the uncentered and centered estimates differ materially
+   when an interaction exists.
+2. "Falsified if coefficient zero or negative" (§30.8) read as "CI not
+   entirely above zero".
+3. H1c's regressor (§30.7 does not name it), CV folds (grouped by seed,
+   deterministic), and whether covariates (e.g. β) enter.
+4. H2: "at matched h" as adjustment for named covariate(s); standardised
+   coefficients; §30.4's shock magnitude "4 levels" still has no numeric
+   values (the narrowed spec uses placeholders `level_1…level_4`) — H2
+   cannot be run on real data until they are chosen.
+5. H4: which column is "narrowing" (β, or a measured R2), stratification by
+   seed, Efron ties; verdict on the interaction only (the crossover is
+   reported as detail).
+6. Bootstrap unit (cluster by seed) and CI type (percentile).
+7. Multiplicity: every non-primary-outcome result forms one BH family;
+   whether H4 (DV `survival_time`, a *secondary* outcome in §30.7's list)
+   is FDR-corrected follows from that literal reading.
+8. **Pipeline gap, not a choice:** the primary outcome `ΔH_rep` is a
+   paired difference against a CRN-matched **no-shock fork** (§14.6). No
+   component builds that fork run or computes `ΔH_rep` yet — neither
+   `firma_lab.runner` (no fork jobs) nor `firma-analysis` (no per-run
+   `ΔH_rep`/R2/R3/N1/N2 function exposed to Python). The analyses take
+   these as columns; producing them must be done in Rust
+   (`firma-analysis`) and exposed via `_native`, never reimplemented in
+   Python.
+9. **Manual vs this build's instruction:** §23.1 assigns `sensitivity`
+   "Sobol' indices, Morris screening"; the instruction for this build
+   asked for R1/R2/R3 and N1/N2 robustness. Both are in the module
+   (robustness; exact factorial Sobol'). **Morris screening is not built**:
+   it needs its own trajectory sample, i.e. runs outside the registered
+   grid — a separate exploratory experiment.
+10. Cost: a 10,000-resample MixedLM bootstrap is roughly 60 ms per refit on
+    2,500 rows (measured); on Arm A's 25,000 runs expect hours per
+    outcome, not minutes.
+
+**OQ-17 — update (2026-10-01): record corrected, root cause found, fixes
+proposed; nothing implemented.**
+- **ADR-0056 (DRAFT)** corrects the record. ADR-0042's evidence (a)
+  (`0/400` everywhere, "`h` stays well above `h_crit`") and ADR-0048/0049's
+  "all pass" claims are superseded. Their Status lines now point there
+  (metadata only; bodies untouched). New facts it records:
+  - the probe's premise was false **when ADR-0042 was written** — at
+    `9c49c34` the "healthy `GOAL(1)`" firm is in `SURVIVAL` on 44 of 200
+    ticks;
+  - `17ba7bb` also edited the probe configs to opt into ADR-0047's
+    mechanism, which none of ADR-0047/0048/0049 disclosed. With the
+    pre-`17ba7bb` config, HEAD gives 0/400 in all 15 cells.
+  SC-4 is still unmet (≤ 1%), so ADR-0044/0051 are unaffected. Part (b)
+  reproduced outside the test at **3/600**; inside the test it remains
+  unreachable (part (a)'s `assert!` panics first).
+- **ADR-0057 (DRAFT)** gives the root cause, from traces:
+  - All 4 selections are `SURVIVAL`-focus. The `GOAL(1)`-leak hypothesis
+    is refuted (the expected-relief path is reachable only from the
+    `Survival` arm, and it was observed not to fire under `GOAL(1)`).
+  - In a compliance-bound `SURVIVAL` scan the one-step lookahead freezes
+    `u` for market actions, so none can satisfice, while `lobby`'s
+    `E[h] = h_t + p·δθ` (= `h_t + 0.045`) always does. `lobby` therefore
+    wins whenever reached (`w_eff ≥ 5` ⇒ only `β = 0`, `w_max ∈ {6,9}`)
+    with the ADR-0048 gate open.
+  - The gate is open because `time_to_boundary`, which *does* track `u`
+    (ADR-0049), correctly sees continued ordinary production relieving the
+    threat. Within one decision, the gate and the satisficing test disagree
+    about `u`.
+  - Options: **A** (u-aware `SURVIVAL` lookahead for market actions —
+    mechanism fix; reopens ADR-0049's Context judgement on one-step
+    freezing; impact unmeasured) and **B** (split the probe into a
+    `GOAL`-focus claim and a formula-predicted `SURVIVAL` claim, plus a
+    premise check). **Recommendation: A, prototyped and measured first,
+    then B against A's results.** Not a decision.
+- Not done, for the owner: ADR-0040's Status line paraphrases the same
+  superseded claim. Its Status line was already updated once and the
+  instruction named only 0042/0048/0049, so it is not annotated.
+
+**OQ-21 — `θ_limit` has no upper bound; global additive lobbying can make
+compliance vacuous for the whole population (ADR-0057 F6).** In the probe's
+`(6, 0.0)` run, three lobby successes take the global `θ_limit` 0.90 →
+1.20 within 19 ticks. Above 1.0, `u ∈ [0, 1]` can never violate it, so
+compliance stops binding for every firm, permanently. This is not the cause
+of the 4/400, but it is relevant to Arm B realism (ADR-0015 global θ,
+ADR-0016 additive lobbying). No manual text bounding `θ_limit` was found
+in this investigation (not exhaustively searched). Open question, no change
+proposed.
+
+**OQ-17 — update 2 (2026-10-01): ADR-0057 Option A prototyped and measured
+(not adopted); Option B test hygiene applied on this branch.**
+
+- **Option A prototype.** Branch `adr0057-survival-lookahead-u-fix`, tag
+  `pre-adr0057-fix` (= `c5eb8cd`). The code lives *uncommitted* in the
+  worktree `/home/jayabratabasu/firma-adr0057-proto`. The change is 20
+  lines in `Satisficing::satisfices`' `SURVIVAL` arm. Full measurements:
+  `docs/adr/evidence/adr-0057/prototype-option-a/README.md`. In short:
+  - probe 4/400 → 0/400 (the firm now picks `produce_ordinary` by
+    satisficing at ticks 8/17);
+  - part (b) runs inside the old test: 3/600;
+  - ADR-0050's `cfg_arm_b_satisficing`: event log byte-identical; lobby
+    reaches 75 → 42; SURVIVAL gate evaluations 67 → 34 (all still closed,
+    `time_to_boundary = 1`); 0 selections either way;
+  - window variants: `l_w = 6` 3 → 0 selections, `l_w = 8` 12 → 12,
+    `w_max = 15` 9 → 5;
+  - `sc16_gate`/`sc16b_arm_scoping`: identical; all four frozen hashes
+    unchanged;
+  - **5 new test failures**: `h3_channel_opens_in_a_real_run` and four
+    ADR-0047/0048 unit tests, all built on an empty-window, seeded-`u`
+    fixture that depends on the frozen lookahead.
+  - Shaping selection is nowhere higher under the prototype and is lower in
+    several scenarios. **Whether this bears on ADR-0050's third revisit
+    trigger is left to the owner/review partner — not concluded here.**
+  - Two design points the prototype surfaced, not resolved:
+    1. Shaping's own `E[h]` still holds `u` fixed (the instruction scoped
+       the change to market actions), so the asymmetry is now reversed in
+       sign for `lobby` (choosing it also lowers next-tick `u`).
+    2. At an empty window the engine itself discards a seeded
+       `regulated_intensity` after tick 0, and the prototype faithfully
+       exposes that ADR-0014/0028 behaviour.
+- **Option B (this branch, `tests/tests/sanity.rs` only).**
+  `sc4_wmax_beta_probe` now:
+  - classifies every decision by its logged `focus`;
+  - asserts (a1) no shaping outside `SURVIVAL` (0 in all 15 cells);
+  - asserts (a2) `SURVIVAL` shaping exactly in the formula-predicted cells
+    `(6,0.0)`/`(9,0.0)` (observed 4/6 there, 0 elsewhere);
+  - checks the scenario's state: focus set, non-vacuous counts, and logged
+    `SURVIVAL` `w_eff` equal to the formula;
+  - collects failures so part (b) always runs (3/600).
+  
+  On its first run the state check found a **second false premise** in the
+  probe: aspiration adaptation (α = 0.10) drives `ς_1 ≤ 0` around tick 118,
+  so most cells also have 110 `NONE`-focus decisions. The documented state
+  was corrected to include `NONE`, and (a1) was widened to cover it at zero
+  tolerance. (a2) is documented in code as a **known current model property
+  pending ADR-0057 Option A, not an accepted design**; it fails, with a
+  "re-derive" message, when run against the prototype (checked).
+  `cargo test --workspace` is now green on this branch. Not touched: the
+  hard-coded `sc16_gate` summary line ("incl. full §16.1 β×w_max sweep"),
+  which is still stale (OQ-17).
+
+**OQ-22 — a symmetric fix to the `SURVIVAL` lookahead's `u` freeze would
+still leave `lobby`/`contract`'s `θ` benefit credited at the wrong timescale
+relative to its real lag.** Found while predeclaring criteria for an
+ADR-0057 Option-A-symmetric prototype (`docs/adr/evidence/adr-0057/
+prototype-symmetric/PREDECLARED.md` §3). Every probed config draws `lobby`'s
+and `contract`'s maturity lag uniformly from `{2, …, 6}` ticks. A `u`-aware
+`SURVIVAL` lookahead (Option A, or its symmetric extension) correctly
+projects a market action's `u` effect exactly one tick ahead, matching
+`constrain`'s own timing. But `shaping_expected_survival_margin`'s
+`h_success` still folds `δ_θ`/`δ_q` into the *same* one-step comparison,
+i.e. as if it lands at `t+1` — the one tick `u`'s effect now also lands at —
+even though the earliest `θ`/`θ_Q` could actually move is `t+2`, and the
+ADR-0048 gate's own `lag_min` can be as late as `t+6`. So a `u`-aware market
+lookahead and a still-one-step `θ` credit for shaping are not measuring the
+two action classes on a timing-equal footing, even once the `u`-freeze
+asymmetry (ADR-0057 F3) is fixed. Not fixed here — ADR-0047's lag semantics
+were explicitly left as-is for this prototype, per instruction. Open
+question for whichever ADR eventually resolves ADR-0057's fix options.
+
+**OQ-17 — update 3 (2026-10-01): ADR-0057 Option-A-symmetric prototyped and
+measured against Option A and HEAD; zero behavioural difference found
+anywhere in the existing scenario set.** Branch
+`adr0057-survival-lookahead-u-fix`, same worktree
+(`/home/jayabratabasu/firma-adr0057-proto`), code still uncommitted.
+Predeclared criteria: `docs/adr/evidence/adr-0057/prototype-symmetric/
+PREDECLARED.md`. Full results: `.../prototype-symmetric/RESULTS.md`.
+- The symmetric diff extends Option A's `u`-aware `SURVIVAL` lookahead to
+  every action class (lobby/contract's `h_success`/`h_failure`, the
+  unconfigured/gate-closed shaping fallthrough, and `diversify`), via one
+  new `DecideCtx::aux_after(a, aux)` method.
+- **Across all 35 existing-scenario runs measured (the 15-cell probe × 2
+  configs, `cfg_arm_b_satisficing`, and 3 window variants), A and
+  A-symmetric produced byte-identical `event_log_sha256` in every single
+  one.** The two ADR-0050 reference hashes reproduced exactly on HEAD
+  first. Primary criteria (probe selection counts, `cfg_arm_b_satisficing`
+  lobby-reached count = 42) were exact matches, as predicted structurally in
+  PREDECLARED.md (every `a<6` decision is bit-identical between A and
+  A-symmetric by construction, so divergence could only come from a
+  gate-open/configured shaping evaluation or an unconfigured/`diversify`
+  fallthrough actually flipping an outcome — this never happened in the
+  measured set).
+- `cargo test --workspace` under A-symmetric: identical 5-test failing set
+  to A's (`h3_channel_opens_in_a_real_run` + 4 `firma-plugin-decision` unit
+  tests, same `left: Some(1), right: Some(6)` pattern — the empty-window,
+  seeded-`u` fixture construction `prototype-option-a/README.md` already
+  diagnosed). `sc4_wmax_beta_probe` itself now passes. clippy/fmt/
+  architecture-lint/`check_deps.py` all clean.
+- **The diagnostic against E1's registered configs (requested this round)
+  was not run — no such config exists.** `build_narrowed_e1_spec`'s
+  `model_config_template` parameter has no default by design (its own
+  docstring: inventing one "would be exactly the kind of silent default
+  this project's discipline forbids"); ADR-0051 Point 7 defers the actual
+  E1 base config to Phase 3 build work; manual §30.6 confirms "no runs of
+  the registered design have been executed." Flagged for the owner rather
+  than substituted silently.
+
+**OQ-23 — manual §30.4's Design table (315 cells / Arm B 180 / 63,000 runs)
+is not on ADR-0051's own queued manual-PATCH list, unlike §30.3/§30.8/§30.9.**
+Found while confirming ADR-0051's cell counts for an unrelated diagnostic.
+ADR-0051's Decision text computes, directly: "New cell count... Total 315 →
+195... 63,000 → 39,000 runs" (its own table), and its Consequences say the
+Point 2/5 manual edits are "logged as PATCH candidates in `PROGRESS.md`" —
+but the three candidates actually listed there (above, this OQ's
+predecessor entry) reword §30.9's checklist bullet and annotate §30.3/§30.8's
+H3 text; none touches §30.4's own printed cell-count table, which today
+still reads 315/180/63,000 verbatim. Two readings are both consistent with
+ADR-0051's text and neither is confirmed by it: (a) §30.4 intentionally
+still describes the *full* eventual design (of which the narrowed filing is
+a first subset, with H3's 120 cells filed "separately, later" under the
+same total), so no edit is owed; or (b) a fourth PATCH candidate for §30.4's
+numbers was simply not queued alongside the other three, since ADR-0051's
+own Point 6 has H3/E3 getting "a new pre-registration document" — i.e. a
+different, separately-numbered filing, not a second instalment of E1 — in
+which case the thing titled "Experiment E1" in §30 will concretely be the
+195-cell/39,000-run design, and §30.4's literal 315/63,000 no longer
+describes it. Not resolved here; flagged for the owner, since it turns on
+which reading of "filed separately" was intended.

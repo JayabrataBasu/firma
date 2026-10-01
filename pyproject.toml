@@ -5,9 +5,12 @@ build-backend = "maturin"
 [project]
 name = "firma-lab"
 version = "0.1.0"
-description = "FIRMA offline orchestration and metrics (manual §23.1). MVP scope (Stage 7): load, metrics. spec/runner/stats/sensitivity/plot/prereg are Phase-3 stubs."
+description = "FIRMA offline orchestration, metrics and pre-registered analysis (manual §23.1): load, metrics, spec, runner, stats, sensitivity, plot, prereg."
 requires-python = ">=3.10"
-dependencies = ["pandas>=2.0"]
+# pandas: load/metrics/stats tables. statsmodels (+ its scipy/patsy): MixedLM,
+# PHReg (Cox) and Benjamini-Hochberg for firma_lab.stats. matplotlib:
+# firma_lab.plot. See each module's docstring for why these and not others.
+dependencies = ["pandas>=2.0", "statsmodels>=0.14", "scipy>=1.11", "matplotlib>=3.8"]
 
 [tool.maturin]
 # The Rust crate lives under crates/firma-py (workspace member, ADR 0046),

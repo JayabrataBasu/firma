@@ -122,6 +122,31 @@ fn final_margins(py: Python<'_>, config_json: &str, run_dir: &str) -> PyResult<V
         .collect()
 }
 
+/// The identity hash of a run config: parse it exactly as `firma run` does
+/// ([`RunConfig::from_json`]), apply the same [`RunConfig::normalise`] the
+/// orchestrator applies before hashing, and return
+/// [`RunConfig::content_hash`]. Two configs get the same hash iff they are
+/// the same `RunConfig` after Rust-side parsing, so a Python-built job
+/// config and a run manifest's `resolved_config` (which carries serde-filled
+/// defaults such as `"params": null`, `"interventions": []`) compare equal
+/// when they describe the same run. Used by `firma_lab.prereg`'s
+/// ADR-0053 template-identity check; Python never re-implements the serde
+/// defaults itself.
+///
+/// Plugin `params` objects are compared as written: a config that spells
+/// out a plugin default and one that omits it hash differently (the
+/// plugin, not `RunConfig`, applies those defaults).
+///
+/// # Errors
+/// A `ValueError` if `config_json` does not parse or cannot be hashed.
+#[pyfunction]
+fn config_identity_hash(config_json: &str) -> PyResult<String> {
+    let mut cfg = load_config(config_json)?;
+    cfg.normalise();
+    cfg.content_hash()
+        .map_err(|e| PyValueError::new_err(format!("cannot hash RunConfig: {e}")))
+}
+
 /// The `firma_lab._native` extension module.
 ///
 /// # Errors
@@ -132,5 +157,6 @@ fn final_margins(py: Python<'_>, config_json: &str, run_dir: &str) -> PyResult<V
 fn _native(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(sanity_report, m)?)?;
     m.add_function(wrap_pyfunction!(final_margins, m)?)?;
+    m.add_function(wrap_pyfunction!(config_identity_hash, m)?)?;
     Ok(())
 }

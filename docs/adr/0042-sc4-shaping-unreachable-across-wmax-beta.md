@@ -1,6 +1,6 @@
 # ADR 0042 — SC-4/SC-5: shaping is unreachable under `decision.satisficing` across the full `w_max × β` sweep
 
-**Status:** Accepted (2026-09-06)
+**Status:** Accepted (2026-09-06). **Evidence (a) — the `0 / 400` claim and its "`h` stays well above `h_crit`" premise — superseded by [ADR-0056](0056-sc4-probe-claims-correction.md) (DRAFT, pending owner review).** The Decision's `GOAL`-branch reasoning is not superseded.
 **Phase:** 2 (Model), Stage 6 (follow-up)
 **Relates to:** **ADR-0040** (VT-8 + the SC-1…6 finding — this supplements its
 SC-4/SC-5 row), manual §12.3 Step 5 (satisficing selection, the fallback),
