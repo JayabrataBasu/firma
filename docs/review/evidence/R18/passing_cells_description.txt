@@ -1,0 +1,32 @@
+== Stage-2 survivors (of 12) per run, all 18 rows ==
+  magnitude 0.10:  12 runs end with 1 survivors
+  magnitude 0.10: 108 runs end with 10 survivors
+  magnitude 0.20:  60 runs end with 1 survivors
+  magnitude 0.20:  60 runs end with 10 survivors
+  magnitude 0.30:  54 runs end with 1 survivors
+  magnitude 0.30:  66 runs end with 10 survivors
+  runs by (survivors, matched DeltaH non-zero): {(1, False): 18, (1, True): 108, (10, True): 234}
+  per-run (survivors, DeltaH) lists identical across the six cells, per magnitude: {0.1: True, 0.2: True, 0.3: True}
+
+== death records (tick, firm id, cause) ==
+cell 79: types by id LOOOOOOOOOOO; seeded ids [1, 2]
+   baseline: [(40, 1, 'solvency'), (40, 2, 'solvency')]
+cell 87: types by id LOOOOOOOOOOO; seeded ids [1, 2]
+   baseline: [(40, 1, 'solvency'), (40, 2, 'solvency')]
+cell 103: types by id LTTOOOOOOOOO; seeded ids [3, 4]
+   baseline: [(40, 3, 'solvency'), (40, 4, 'solvency')]
+cell 111: types by id LTTOOOOOOOOO; seeded ids [3, 4]
+   baseline: [(40, 3, 'solvency'), (40, 4, 'solvency')]
+cell 127: types by id LTTTTOOOOOOO; seeded ids [5, 6]
+   baseline: [(40, 5, 'solvency'), (40, 6, 'solvency')]
+cell 135: types by id LTTTTOOOOOOO; seeded ids [5, 6]
+   baseline: [(40, 5, 'solvency'), (40, 6, 'solvency')]
+cell 79 magnitude 0.10 shock seed 910001: drawn onset 52, drawn magnitude 0.1097, survivors 10; deaths [(40, 1, 'solvency'), (40, 2, 'solvency')]
+cell 79 magnitude 0.10 shock seed 910002: drawn onset 68, drawn magnitude 0.1430, survivors 10; deaths [(40, 1, 'solvency'), (40, 2, 'solvency')]
+cell 79 magnitude 0.10 shock seed 910015: drawn onset 18, drawn magnitude 0.1524, survivors 1; deaths [(40, 1, 'solvency'), (40, 2, 'solvency'), (48, 3, 'compliance'), (48, 4, 'compliance'), (48, 5, 'compliance'), (48, 6, 'compliance'), (48, 7, 'compliance'), (48, 8, 'compliance'), (48, 9, 'compliance'), (48, 10, 'compliance'), (48, 11, 'compliance')]
+cell 79 magnitude 0.20 shock seed 910001: drawn onset 52, drawn magnitude 0.2194, survivors 1; deaths [(40, 1, 'solvency'), (40, 2, 'solvency'), (56, 3, 'compliance'), (56, 4, 'compliance'), (56, 5, 'compliance'), (56, 6, 'compliance'), (56, 7, 'compliance'), (56, 8, 'compliance'), (56, 9, 'compliance'), (56, 10, 'compliance'), (56, 11, 'compliance')]
+cell 79 magnitude 0.20 shock seed 910002: drawn onset 68, drawn magnitude 0.2861, survivors 10; deaths [(40, 1, 'solvency'), (40, 2, 'solvency')]
+cell 79 magnitude 0.20 shock seed 910015: drawn onset 18, drawn magnitude 0.3049, survivors 10; deaths [(40, 1, 'solvency'), (40, 2, 'solvency')]
+cell 79 magnitude 0.30 shock seed 910001: drawn onset 52, drawn magnitude 0.3291, survivors 10; deaths [(40, 1, 'solvency'), (40, 2, 'solvency')]
+cell 79 magnitude 0.30 shock seed 910002: drawn onset 68, drawn magnitude 0.4291, survivors 1; deaths [(40, 1, 'solvency'), (40, 2, 'solvency'), (69, 3, 'compliance'), (69, 4, 'compliance'), (69, 5, 'compliance'), (69, 6, 'compliance'), (69, 7, 'compliance'), (69, 8, 'compliance'), (69, 9, 'compliance'), (69, 10, 'compliance'), (69, 11, 'compliance')]
+cell 79 magnitude 0.30 shock seed 910015: drawn onset 18, drawn magnitude 0.4573, survivors 1; deaths [(40, 1, 'solvency'), (40, 2, 'solvency'), (44, 3, 'compliance'), (44, 4, 'compliance'), (44, 5, 'compliance'), (44, 6, 'compliance'), (44, 7, 'compliance'), (44, 8, 'compliance'), (44, 9, 'compliance'), (44, 10, 'compliance'), (44, 11, 'compliance')]

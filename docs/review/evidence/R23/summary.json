@@ -1,0 +1,1602 @@
+{
+ "spec_sha256": "b9ec62b6a30243ead96eeb5bb3adb3627daa15a6b28d2fdb92f8dbe3bedaf03b",
+ "P4": {
+  "struck_firms": [
+   {
+    "agent": 0,
+    "strike_tick": 45,
+    "margin_at_T": 0.19999999999999996,
+    "focus_at_T": 1,
+    "action_at_T": 2,
+    "u_at_T": 0.5,
+    "h_t_at_T": 0.19999999999999996,
+    "ok": true,
+    "margin_at_T_minus_1": 0.19999999999999996,
+    "focus_at_T_minus_1": 1
+   },
+   {
+    "agent": 1,
+    "strike_tick": 45,
+    "margin_at_T": 0.19999999999999996,
+    "focus_at_T": 1,
+    "action_at_T": 2,
+    "u_at_T": 0.5,
+    "h_t_at_T": 0.19999999999999996,
+    "ok": true,
+    "margin_at_T_minus_1": 0.19999999999999996,
+    "focus_at_T_minus_1": 1
+   },
+   {
+    "agent": 2,
+    "strike_tick": 45,
+    "margin_at_T": 0.19999999999999996,
+    "focus_at_T": 1,
+    "action_at_T": 2,
+    "u_at_T": 0.5,
+    "h_t_at_T": 0.19999999999999996,
+    "ok": true,
+    "margin_at_T_minus_1": 0.19999999999999996,
+    "focus_at_T_minus_1": 1
+   },
+   {
+    "agent": 4,
+    "strike_tick": 45,
+    "margin_at_T": 0.19999999999999996,
+    "focus_at_T": 1,
+    "action_at_T": 2,
+    "u_at_T": 0.5,
+    "h_t_at_T": 0.19999999999999996,
+    "ok": true,
+    "margin_at_T_minus_1": 0.19999999999999996,
+    "focus_at_T_minus_1": 1
+   },
+   {
+    "agent": 5,
+    "strike_tick": 45,
+    "margin_at_T": 0.19999999999999996,
+    "focus_at_T": 1,
+    "action_at_T": 2,
+    "u_at_T": 0.5,
+    "h_t_at_T": 0.19999999999999996,
+    "ok": true,
+    "margin_at_T_minus_1": 0.19999999999999996,
+    "focus_at_T_minus_1": 1
+   },
+   {
+    "agent": 6,
+    "strike_tick": 45,
+    "margin_at_T": 0.19999999999999996,
+    "focus_at_T": 1,
+    "action_at_T": 2,
+    "u_at_T": 0.5,
+    "h_t_at_T": 0.19999999999999996,
+    "ok": true,
+    "margin_at_T_minus_1": 0.19999999999999996,
+    "focus_at_T_minus_1": 1
+   },
+   {
+    "agent": 7,
+    "strike_tick": 45,
+    "margin_at_T": 0.19999999999999996,
+    "focus_at_T": 1,
+    "action_at_T": 2,
+    "u_at_T": 0.5,
+    "h_t_at_T": 0.19999999999999996,
+    "ok": true,
+    "margin_at_T_minus_1": 0.19999999999999996,
+    "focus_at_T_minus_1": 1
+   },
+   {
+    "agent": 8,
+    "strike_tick": 45,
+    "margin_at_T": 0.19999999999999996,
+    "focus_at_T": 1,
+    "action_at_T": 2,
+    "u_at_T": 0.5,
+    "h_t_at_T": 0.19999999999999996,
+    "ok": true,
+    "margin_at_T_minus_1": 0.19999999999999996,
+    "focus_at_T_minus_1": 1
+   },
+   {
+    "agent": 10,
+    "strike_tick": 47,
+    "margin_at_T": 0.19999999999999996,
+    "focus_at_T": 1,
+    "action_at_T": 2,
+    "u_at_T": 0.5,
+    "h_t_at_T": 0.19999999999999996,
+    "ok": true,
+    "margin_at_T_minus_1": 0.19999999999999996,
+    "focus_at_T_minus_1": 1
+   },
+   {
+    "agent": 11,
+    "strike_tick": 45,
+    "margin_at_T": 0.19999999999999996,
+    "focus_at_T": 1,
+    "action_at_T": 2,
+    "u_at_T": 0.5,
+    "h_t_at_T": 0.19999999999999996,
+    "ok": true,
+    "margin_at_T_minus_1": 0.19999999999999996,
+    "focus_at_T_minus_1": 1
+   }
+  ],
+  "verdict": "HOLDS"
+ },
+ "P5": {
+  "changed": {
+   "cfg_threaded": [],
+   "cfg_healthy": [
+    "sc2_survival_attention",
+    "sc2_reconstructed_h_below_crit",
+    "sc3_binds",
+    "sc6_entropy_variance"
+   ]
+  },
+  "verdict": "HOLDS"
+ },
+ "P6": {
+  "verdict": "FALSIFIED",
+  "levels": {
+   "0.5": {
+    "best_cell_share": 0.0,
+    "pooled_share": 0.0
+   },
+   "0.6": {
+    "best_cell_share": 0.0,
+    "pooled_share": 0.0
+   },
+   "0.7": {
+    "best_cell_share": 0.0,
+    "pooled_share": 0.0
+   },
+   "0.8": {
+    "best_cell_share": 0.0,
+    "pooled_share": 0.0
+   },
+   "0.9": {
+    "best_cell_share": 0.0,
+    "pooled_share": 0.0
+   }
+  }
+ },
+ "part2": [
+  {
+   "config": "cfg_healthy",
+   "l_w": 4,
+   "mechanism_seed": 910001,
+   "events_sha256": "4cf68b03066d28f297232fdfc20e90c34309ad4e38dd66d773794d9c05e3c9fb",
+   "focus_counts": "GOAL shaping 0/8 | NONE shaping 0/1588 | SURVIVAL shaping 0/4",
+   "report": {
+    "initial_firms": 4,
+    "survivors": 4,
+    "sc1_survival": 1.0,
+    "sc1_pass": false,
+    "sc2_survival_attention": 0.0025,
+    "sc2_reconstructed_h_below_crit": 0.0025,
+    "sc2_pass": false,
+    "sc3_binds": [
+     false,
+     true,
+     false,
+     false
+    ],
+    "sc3_first_bind_tick": [
+     null,
+     3,
+     null,
+     null
+    ],
+    "sc3_pass": false,
+    "sc4_shaping_fraction": 0.0,
+    "sc4_pass": false,
+    "sc5_shaping_success": null,
+    "sc5_pass": false,
+    "sc6_entropy_variance": 0.005747874718136775,
+    "sc6_entropy_mean": 0.006556390622295663,
+    "sc6_pass": false,
+    "decisions": 1600,
+    "shaping_commits": 0,
+    "all_pass": false
+   }
+  },
+  {
+   "config": "cfg_healthy",
+   "l_w": 8,
+   "mechanism_seed": 910001,
+   "events_sha256": "e4ad4dfb1ade474eb36c07c6bfb526d20b7d43e6f23546175f7981c7c3f8734d",
+   "focus_counts": "GOAL shaping 0/8 | NONE shaping 0/1584 | SURVIVAL shaping 0/8",
+   "report": {
+    "initial_firms": 4,
+    "survivors": 4,
+    "sc1_survival": 1.0,
+    "sc1_pass": false,
+    "sc2_survival_attention": 0.005,
+    "sc2_reconstructed_h_below_crit": 0.005,
+    "sc2_pass": false,
+    "sc3_binds": [
+     false,
+     false,
+     false,
+     false
+    ],
+    "sc3_first_bind_tick": [
+     null,
+     null,
+     null,
+     null
+    ],
+    "sc3_pass": false,
+    "sc4_shaping_fraction": 0.0,
+    "sc4_pass": false,
+    "sc5_shaping_success": null,
+    "sc5_pass": false,
+    "sc6_entropy_variance": 0.011625592954129148,
+    "sc6_entropy_mean": 0.014046382852918468,
+    "sc6_pass": true,
+    "decisions": 1600,
+    "shaping_commits": 0,
+    "all_pass": false
+   }
+  },
+  {
+   "config": "cfg_threaded",
+   "l_w": 4,
+   "mechanism_seed": 910001,
+   "events_sha256": "8037ebdacc753e929a932d1a87659812a7552540c0d0ee916f5458f37d732aa2",
+   "focus_counts": "GOAL shaping 0/0 | NONE shaping 0/0 | SURVIVAL shaping 0/3202",
+   "report": {
+    "initial_firms": 10,
+    "survivors": 8,
+    "sc1_survival": 0.8,
+    "sc1_pass": true,
+    "sc2_survival_attention": 1.0,
+    "sc2_reconstructed_h_below_crit": 1.0,
+    "sc2_pass": false,
+    "sc3_binds": [
+     true,
+     false,
+     true,
+     true
+    ],
+    "sc3_first_bind_tick": [
+     0,
+     null,
+     0,
+     0
+    ],
+    "sc3_pass": false,
+    "sc4_shaping_fraction": 0.0,
+    "sc4_pass": false,
+    "sc5_shaping_success": null,
+    "sc5_pass": false,
+    "sc6_entropy_variance": 0.0,
+    "sc6_entropy_mean": -0.0,
+    "sc6_pass": false,
+    "decisions": 3202,
+    "shaping_commits": 0,
+    "all_pass": false
+   }
+  },
+  {
+   "config": "cfg_threaded",
+   "l_w": 8,
+   "mechanism_seed": 910001,
+   "events_sha256": "6fcaa68da91d19f78c86d67ca87158456228179872f7ba18944b811721fd534d",
+   "focus_counts": "GOAL shaping 0/0 | NONE shaping 0/0 | SURVIVAL shaping 0/3202",
+   "report": {
+    "initial_firms": 10,
+    "survivors": 8,
+    "sc1_survival": 0.8,
+    "sc1_pass": true,
+    "sc2_survival_attention": 1.0,
+    "sc2_reconstructed_h_below_crit": 1.0,
+    "sc2_pass": false,
+    "sc3_binds": [
+     true,
+     false,
+     true,
+     true
+    ],
+    "sc3_first_bind_tick": [
+     0,
+     null,
+     0,
+     0
+    ],
+    "sc3_pass": false,
+    "sc4_shaping_fraction": 0.0,
+    "sc4_pass": false,
+    "sc5_shaping_success": null,
+    "sc5_pass": false,
+    "sc6_entropy_variance": 0.0,
+    "sc6_entropy_mean": -0.0,
+    "sc6_pass": false,
+    "decisions": 3202,
+    "shaping_commits": 0,
+    "all_pass": false
+   }
+  },
+  {
+   "config": "cfg_wide_search",
+   "l_w": 4,
+   "mechanism_seed": 910001,
+   "events_sha256": "d6b5b5a36612a0d985fe553178b9a1151dd7a4202969627d02cd06346bed2e80",
+   "focus_counts": "GOAL shaping 0/153 | NONE shaping 0/208 | SURVIVAL shaping 0/39",
+   "report": {
+    "initial_firms": 2,
+    "survivors": 2,
+    "sc1_survival": 1.0,
+    "sc1_pass": false,
+    "sc2_survival_attention": 0.0975,
+    "sc2_reconstructed_h_below_crit": 0.0975,
+    "sc2_pass": true,
+    "sc3_binds": [
+     false,
+     true,
+     false,
+     false
+    ],
+    "sc3_first_bind_tick": [
+     null,
+     3,
+     null,
+     null
+    ],
+    "sc3_pass": false,
+    "sc4_shaping_fraction": 0.0,
+    "sc4_pass": false,
+    "sc5_shaping_success": null,
+    "sc5_pass": false,
+    "sc6_entropy_variance": 0.15695751232228514,
+    "sc6_entropy_mean": 0.31328568729447137,
+    "sc6_pass": true,
+    "decisions": 400,
+    "shaping_commits": 0,
+    "all_pass": false
+   }
+  },
+  {
+   "config": "cfg_wide_search",
+   "l_w": 8,
+   "mechanism_seed": 910001,
+   "events_sha256": "b5cc7c17588610d5b1706a6809171cf1400f5c9559ca982a3e8d27f05be14728",
+   "focus_counts": "GOAL shaping 0/202 | NONE shaping 0/110 | SURVIVAL shaping 0/88",
+   "report": {
+    "initial_firms": 2,
+    "survivors": 2,
+    "sc1_survival": 1.0,
+    "sc1_pass": false,
+    "sc2_survival_attention": 0.22,
+    "sc2_reconstructed_h_below_crit": 0.22,
+    "sc2_pass": true,
+    "sc3_binds": [
+     false,
+     false,
+     false,
+     false
+    ],
+    "sc3_first_bind_tick": [
+     null,
+     null,
+     null,
+     null
+    ],
+    "sc3_pass": false,
+    "sc4_shaping_fraction": 0.0,
+    "sc4_pass": false,
+    "sc5_shaping_success": null,
+    "sc5_pass": false,
+    "sc6_entropy_variance": 0.03105726065189191,
+    "sc6_entropy_mean": 0.7253249486322646,
+    "sc6_pass": true,
+    "decisions": 400,
+    "shaping_commits": 0,
+    "all_pass": false
+   }
+  },
+  {
+   "config": "cfg_healthy",
+   "l_w": 8,
+   "mechanism_seed": 911001,
+   "events_sha256": "e4ad4dfb1ade474eb36c07c6bfb526d20b7d43e6f23546175f7981c7c3f8734d",
+   "focus_counts": "GOAL shaping 0/8 | NONE shaping 0/1584 | SURVIVAL shaping 0/8",
+   "report": {
+    "initial_firms": 4,
+    "survivors": 4,
+    "sc1_survival": 1.0,
+    "sc1_pass": false,
+    "sc2_survival_attention": 0.005,
+    "sc2_reconstructed_h_below_crit": 0.005,
+    "sc2_pass": false,
+    "sc3_binds": [
+     false,
+     false,
+     false,
+     false
+    ],
+    "sc3_first_bind_tick": [
+     null,
+     null,
+     null,
+     null
+    ],
+    "sc3_pass": false,
+    "sc4_shaping_fraction": 0.0,
+    "sc4_pass": false,
+    "sc5_shaping_success": null,
+    "sc5_pass": false,
+    "sc6_entropy_variance": 0.011625592954129148,
+    "sc6_entropy_mean": 0.014046382852918468,
+    "sc6_pass": true,
+    "decisions": 1600,
+    "shaping_commits": 0,
+    "all_pass": false
+   }
+  },
+  {
+   "config": "cfg_threaded",
+   "l_w": 4,
+   "mechanism_seed": 911001,
+   "events_sha256": "8037ebdacc753e929a932d1a87659812a7552540c0d0ee916f5458f37d732aa2",
+   "focus_counts": "GOAL shaping 0/0 | NONE shaping 0/0 | SURVIVAL shaping 0/3202",
+   "report": {
+    "initial_firms": 10,
+    "survivors": 8,
+    "sc1_survival": 0.8,
+    "sc1_pass": true,
+    "sc2_survival_attention": 1.0,
+    "sc2_reconstructed_h_below_crit": 1.0,
+    "sc2_pass": false,
+    "sc3_binds": [
+     true,
+     false,
+     true,
+     true
+    ],
+    "sc3_first_bind_tick": [
+     0,
+     null,
+     0,
+     0
+    ],
+    "sc3_pass": false,
+    "sc4_shaping_fraction": 0.0,
+    "sc4_pass": false,
+    "sc5_shaping_success": null,
+    "sc5_pass": false,
+    "sc6_entropy_variance": 0.0,
+    "sc6_entropy_mean": -0.0,
+    "sc6_pass": false,
+    "decisions": 3202,
+    "shaping_commits": 0,
+    "all_pass": false
+   }
+  },
+  {
+   "config": "cfg_wide_search",
+   "l_w": 8,
+   "mechanism_seed": 911001,
+   "events_sha256": "b5cc7c17588610d5b1706a6809171cf1400f5c9559ca982a3e8d27f05be14728",
+   "focus_counts": "GOAL shaping 0/202 | NONE shaping 0/110 | SURVIVAL shaping 0/88",
+   "report": {
+    "initial_firms": 2,
+    "survivors": 2,
+    "sc1_survival": 1.0,
+    "sc1_pass": false,
+    "sc2_survival_attention": 0.22,
+    "sc2_reconstructed_h_below_crit": 0.22,
+    "sc2_pass": true,
+    "sc3_binds": [
+     false,
+     false,
+     false,
+     false
+    ],
+    "sc3_first_bind_tick": [
+     null,
+     null,
+     null,
+     null
+    ],
+    "sc3_pass": false,
+    "sc4_shaping_fraction": 0.0,
+    "sc4_pass": false,
+    "sc5_shaping_success": null,
+    "sc5_pass": false,
+    "sc6_entropy_variance": 0.03105726065189191,
+    "sc6_entropy_mean": 0.7253249486322646,
+    "sc6_pass": true,
+    "decisions": 400,
+    "shaping_commits": 0,
+    "all_pass": false
+   }
+  }
+ ],
+ "part3_cells": [
+  {
+   "cell": 0,
+   "theta_limit": 0.5,
+   "obligation_probability": 0.0,
+   "thin_fraction": 0.0,
+   "output_price": 2,
+   "sc1_share": 0.0,
+   "sc2_share": 0.0,
+   "sc3_share": 0.0,
+   "sc6_share": 1.0,
+   "t1_share": 0.0,
+   "sc1_mean": 1.0,
+   "sc2_mean": 0.5498958333333334,
+   "sc2_min": 0.4673611111111111,
+   "sc2_max": 0.65,
+   "binds": [
+    0,
+    0,
+    12,
+    0
+   ],
+   "survivors": {
+    "12": 20
+   }
+  },
+  {
+   "cell": 1,
+   "theta_limit": 0.5,
+   "obligation_probability": 0.0,
+   "thin_fraction": 0.0,
+   "output_price": 3,
+   "sc1_share": 0.0,
+   "sc2_share": 0.0,
+   "sc3_share": 0.0,
+   "sc6_share": 1.0,
+   "t1_share": 0.0,
+   "sc1_mean": 1.0,
+   "sc2_mean": 0.5432986111111111,
+   "sc2_min": 0.4673611111111111,
+   "sc2_max": 0.65,
+   "binds": [
+    0,
+    0,
+    12,
+    0
+   ],
+   "survivors": {
+    "12": 20
+   }
+  },
+  {
+   "cell": 2,
+   "theta_limit": 0.5,
+   "obligation_probability": 0.0,
+   "thin_fraction": 0.16666666666666666,
+   "output_price": 2,
+   "sc1_share": 0.0,
+   "sc2_share": 0.0,
+   "sc3_share": 0.0,
+   "sc6_share": 1.0,
+   "t1_share": 0.0,
+   "sc1_mean": 1.0,
+   "sc2_mean": 0.5507638888888888,
+   "sc2_min": 0.46875,
+   "sc2_max": 0.65,
+   "binds": [
+    0,
+    0,
+    12,
+    0
+   ],
+   "survivors": {
+    "12": 20
+   }
+  },
+  {
+   "cell": 3,
+   "theta_limit": 0.5,
+   "obligation_probability": 0.0,
+   "thin_fraction": 0.16666666666666666,
+   "output_price": 3,
+   "sc1_share": 0.0,
+   "sc2_share": 0.0,
+   "sc3_share": 0.0,
+   "sc6_share": 1.0,
+   "t1_share": 0.0,
+   "sc1_mean": 1.0,
+   "sc2_mean": 0.5434027777777778,
+   "sc2_min": 0.46875,
+   "sc2_max": 0.65,
+   "binds": [
+    0,
+    0,
+    12,
+    0
+   ],
+   "survivors": {
+    "12": 20
+   }
+  },
+  {
+   "cell": 4,
+   "theta_limit": 0.5,
+   "obligation_probability": 0.16666666666666666,
+   "thin_fraction": 0.0,
+   "output_price": 2,
+   "sc1_share": 0.55,
+   "sc2_share": 0.0,
+   "sc3_share": 0.0,
+   "sc6_share": 1.0,
+   "t1_share": 0.0,
+   "sc1_mean": 0.8208333333333334,
+   "sc2_mean": 0.5884231004901961,
+   "sc2_min": 0.48541666666666666,
+   "sc2_max": 0.6625,
+   "binds": [
+    18,
+    0,
+    12,
+    18
+   ],
+   "survivors": {
+    "8": 5,
+    "9": 4,
+    "10": 2,
+    "11": 7,
+    "12": 2
+   }
+  },
+  {
+   "cell": 5,
+   "theta_limit": 0.5,
+   "obligation_probability": 0.16666666666666666,
+   "thin_fraction": 0.0,
+   "output_price": 3,
+   "sc1_share": 0.55,
+   "sc2_share": 0.0,
+   "sc3_share": 0.0,
+   "sc6_share": 1.0,
+   "t1_share": 0.0,
+   "sc1_mean": 0.8208333333333334,
+   "sc2_mean": 0.5835569899461437,
+   "sc2_min": 0.4708333333333333,
+   "sc2_max": 0.6692913385826772,
+   "binds": [
+    18,
+    0,
+    12,
+    18
+   ],
+   "survivors": {
+    "8": 5,
+    "9": 4,
+    "10": 2,
+    "11": 7,
+    "12": 2
+   }
+  },
+  {
+   "cell": 6,
+   "theta_limit": 0.5,
+   "obligation_probability": 0.16666666666666666,
+   "thin_fraction": 0.16666666666666666,
+   "output_price": 2,
+   "sc1_share": 0.55,
+   "sc2_share": 0.0,
+   "sc3_share": 0.0,
+   "sc6_share": 1.0,
+   "t1_share": 0.0,
+   "sc1_mean": 0.8208333333333334,
+   "sc2_mean": 0.5891199448529412,
+   "sc2_min": 0.48541666666666666,
+   "sc2_max": 0.6625,
+   "binds": [
+    18,
+    0,
+    12,
+    18
+   ],
+   "survivors": {
+    "8": 5,
+    "9": 4,
+    "10": 2,
+    "11": 7,
+    "12": 2
+   }
+  },
+  {
+   "cell": 7,
+   "theta_limit": 0.5,
+   "obligation_probability": 0.16666666666666666,
+   "thin_fraction": 0.16666666666666666,
+   "output_price": 3,
+   "sc1_share": 0.55,
+   "sc2_share": 0.0,
+   "sc3_share": 0.0,
+   "sc6_share": 1.0,
+   "t1_share": 0.0,
+   "sc1_mean": 0.8208333333333334,
+   "sc2_mean": 0.5834876223376335,
+   "sc2_min": 0.4708333333333333,
+   "sc2_max": 0.6692913385826772,
+   "binds": [
+    18,
+    0,
+    12,
+    18
+   ],
+   "survivors": {
+    "8": 5,
+    "9": 4,
+    "10": 2,
+    "11": 7,
+    "12": 2
+   }
+  },
+  {
+   "cell": 8,
+   "theta_limit": 0.6,
+   "obligation_probability": 0.0,
+   "thin_fraction": 0.0,
+   "output_price": 2,
+   "sc1_share": 0.0,
+   "sc2_share": 0.0,
+   "sc3_share": 0.0,
+   "sc6_share": 1.0,
+   "t1_share": 0.0,
+   "sc1_mean": 1.0,
+   "sc2_mean": 0.39857638888888886,
+   "sc2_min": 0.3013888888888889,
+   "sc2_max": 0.5465277777777777,
+   "binds": [
+    0,
+    0,
+    12,
+    0
+   ],
+   "survivors": {
+    "12": 20
+   }
+  },
+  {
+   "cell": 9,
+   "theta_limit": 0.6,
+   "obligation_probability": 0.0,
+   "thin_fraction": 0.0,
+   "output_price": 3,
+   "sc1_share": 0.0,
+   "sc2_share": 0.0,
+   "sc3_share": 0.0,
+   "sc6_share": 1.0,
+   "t1_share": 0.0,
+   "sc1_mean": 1.0,
+   "sc2_mean": 0.3715277777777778,
+   "sc2_min": 0.27361111111111114,
+   "sc2_max": 0.51875,
+   "binds": [
+    0,
+    0,
+    12,
+    0
+   ],
+   "survivors": {
+    "12": 20
+   }
+  },
+  {
+   "cell": 10,
+   "theta_limit": 0.6,
+   "obligation_probability": 0.0,
+   "thin_fraction": 0.16666666666666666,
+   "output_price": 2,
+   "sc1_share": 0.0,
+   "sc2_share": 0.0,
+   "sc3_share": 0.0,
+   "sc6_share": 1.0,
+   "t1_share": 0.0,
+   "sc1_mean": 1.0,
+   "sc2_mean": 0.39993055555555557,
+   "sc2_min": 0.3,
+   "sc2_max": 0.5465277777777777,
+   "binds": [
+    0,
+    0,
+    12,
+    0
+   ],
+   "survivors": {
+    "12": 20
+   }
+  },
+  {
+   "cell": 11,
+   "theta_limit": 0.6,
+   "obligation_probability": 0.0,
+   "thin_fraction": 0.16666666666666666,
+   "output_price": 3,
+   "sc1_share": 0.0,
+   "sc2_share": 0.0,
+   "sc3_share": 0.0,
+   "sc6_share": 1.0,
+   "t1_share": 0.0,
+   "sc1_mean": 1.0,
+   "sc2_mean": 0.37149305555555556,
+   "sc2_min": 0.2722222222222222,
+   "sc2_max": 0.51875,
+   "binds": [
+    0,
+    0,
+    12,
+    0
+   ],
+   "survivors": {
+    "12": 20
+   }
+  },
+  {
+   "cell": 12,
+   "theta_limit": 0.6,
+   "obligation_probability": 0.16666666666666666,
+   "thin_fraction": 0.0,
+   "output_price": 2,
+   "sc1_share": 0.55,
+   "sc2_share": 0.0,
+   "sc3_share": 0.0,
+   "sc6_share": 1.0,
+   "t1_share": 0.0,
+   "sc1_mean": 0.8208333333333334,
+   "sc2_mean": 0.44907394520308125,
+   "sc2_min": 0.3013888888888889,
+   "sc2_max": 0.5517857142857143,
+   "binds": [
+    18,
+    0,
+    12,
+    18
+   ],
+   "survivors": {
+    "8": 5,
+    "9": 4,
+    "10": 2,
+    "11": 7,
+    "12": 2
+   }
+  },
+  {
+   "cell": 13,
+   "theta_limit": 0.6,
+   "obligation_probability": 0.16666666666666666,
+   "thin_fraction": 0.0,
+   "output_price": 3,
+   "sc1_share": 0.55,
+   "sc2_share": 0.0,
+   "sc3_share": 0.0,
+   "sc6_share": 1.0,
+   "t1_share": 0.0,
+   "sc1_mean": 0.8208333333333334,
+   "sc2_mean": 0.42682019625546913,
+   "sc2_min": 0.27361111111111114,
+   "sc2_max": 0.5433070866141733,
+   "binds": [
+    18,
+    0,
+    12,
+    18
+   ],
+   "survivors": {
+    "8": 5,
+    "9": 4,
+    "10": 2,
+    "11": 7,
+    "12": 2
+   }
+  },
+  {
+   "cell": 14,
+   "theta_limit": 0.6,
+   "obligation_probability": 0.16666666666666666,
+   "thin_fraction": 0.16666666666666666,
+   "output_price": 2,
+   "sc1_share": 0.55,
+   "sc2_share": 0.0,
+   "sc3_share": 0.0,
+   "sc6_share": 1.0,
+   "t1_share": 0.0,
+   "sc1_mean": 0.8208333333333334,
+   "sc2_mean": 0.45041539740896364,
+   "sc2_min": 0.3013888888888889,
+   "sc2_max": 0.5517857142857143,
+   "binds": [
+    18,
+    0,
+    12,
+    18
+   ],
+   "survivors": {
+    "8": 5,
+    "9": 4,
+    "10": 2,
+    "11": 7,
+    "12": 2
+   }
+  },
+  {
+   "cell": 15,
+   "theta_limit": 0.6,
+   "obligation_probability": 0.16666666666666666,
+   "thin_fraction": 0.16666666666666666,
+   "output_price": 3,
+   "sc1_share": 0.55,
+   "sc2_share": 0.0,
+   "sc3_share": 0.0,
+   "sc6_share": 1.0,
+   "t1_share": 0.0,
+   "sc1_mean": 0.8208333333333334,
+   "sc2_mean": 0.4266409650378898,
+   "sc2_min": 0.27361111111111114,
+   "sc2_max": 0.5433070866141733,
+   "binds": [
+    18,
+    0,
+    12,
+    18
+   ],
+   "survivors": {
+    "8": 5,
+    "9": 4,
+    "10": 2,
+    "11": 7,
+    "12": 2
+   }
+  },
+  {
+   "cell": 16,
+   "theta_limit": 0.7,
+   "obligation_probability": 0.0,
+   "thin_fraction": 0.0,
+   "output_price": 2,
+   "sc1_share": 0.0,
+   "sc2_share": 0.3,
+   "sc3_share": 0.0,
+   "sc6_share": 1.0,
+   "t1_share": 0.0,
+   "sc1_mean": 1.0,
+   "sc2_mean": 0.30118055555555556,
+   "sc2_min": 0.1798611111111111,
+   "sc2_max": 0.4875,
+   "binds": [
+    0,
+    0,
+    12,
+    0
+   ],
+   "survivors": {
+    "12": 20
+   }
+  },
+  {
+   "cell": 17,
+   "theta_limit": 0.7,
+   "obligation_probability": 0.0,
+   "thin_fraction": 0.0,
+   "output_price": 3,
+   "sc1_share": 0.0,
+   "sc2_share": 0.5,
+   "sc3_share": 0.0,
+   "sc6_share": 1.0,
+   "t1_share": 0.0,
+   "sc1_mean": 1.0,
+   "sc2_mean": 0.2626736111111111,
+   "sc2_min": 0.14930555555555555,
+   "sc2_max": 0.4354166666666667,
+   "binds": [
+    0,
+    0,
+    12,
+    0
+   ],
+   "survivors": {
+    "12": 20
+   }
+  },
+  {
+   "cell": 18,
+   "theta_limit": 0.7,
+   "obligation_probability": 0.0,
+   "thin_fraction": 0.16666666666666666,
+   "output_price": 2,
+   "sc1_share": 0.0,
+   "sc2_share": 0.3,
+   "sc3_share": 0.0,
+   "sc6_share": 1.0,
+   "t1_share": 0.0,
+   "sc1_mean": 1.0,
+   "sc2_mean": 0.30440972222222223,
+   "sc2_min": 0.18333333333333332,
+   "sc2_max": 0.4875,
+   "binds": [
+    0,
+    0,
+    12,
+    0
+   ],
+   "survivors": {
+    "12": 20
+   }
+  },
+  {
+   "cell": 19,
+   "theta_limit": 0.7,
+   "obligation_probability": 0.0,
+   "thin_fraction": 0.16666666666666666,
+   "output_price": 3,
+   "sc1_share": 0.0,
+   "sc2_share": 0.5,
+   "sc3_share": 0.0,
+   "sc6_share": 1.0,
+   "t1_share": 0.0,
+   "sc1_mean": 1.0,
+   "sc2_mean": 0.2627083333333333,
+   "sc2_min": 0.1486111111111111,
+   "sc2_max": 0.4354166666666667,
+   "binds": [
+    0,
+    0,
+    12,
+    0
+   ],
+   "survivors": {
+    "12": 20
+   }
+  },
+  {
+   "cell": 20,
+   "theta_limit": 0.7,
+   "obligation_probability": 0.16666666666666666,
+   "thin_fraction": 0.0,
+   "output_price": 2,
+   "sc1_share": 0.55,
+   "sc2_share": 0.2,
+   "sc3_share": 0.0,
+   "sc6_share": 1.0,
+   "t1_share": 0.0,
+   "sc1_mean": 0.8208333333333334,
+   "sc2_mean": 0.3599320363562092,
+   "sc2_min": 0.1909722222222222,
+   "sc2_max": 0.4875,
+   "binds": [
+    18,
+    0,
+    12,
+    18
+   ],
+   "survivors": {
+    "8": 5,
+    "9": 4,
+    "10": 2,
+    "11": 7,
+    "12": 2
+   }
+  },
+  {
+   "cell": 21,
+   "theta_limit": 0.7,
+   "obligation_probability": 0.16666666666666666,
+   "thin_fraction": 0.0,
+   "output_price": 3,
+   "sc1_share": 0.55,
+   "sc2_share": 0.3,
+   "sc3_share": 0.0,
+   "sc6_share": 1.0,
+   "t1_share": 0.0,
+   "sc1_mean": 0.8208333333333334,
+   "sc2_mean": 0.32749321221279903,
+   "sc2_min": 0.14930555555555555,
+   "sc2_max": 0.4645669291338583,
+   "binds": [
+    18,
+    0,
+    12,
+    18
+   ],
+   "survivors": {
+    "8": 5,
+    "9": 4,
+    "10": 2,
+    "11": 7,
+    "12": 2
+   }
+  },
+  {
+   "cell": 22,
+   "theta_limit": 0.7,
+   "obligation_probability": 0.16666666666666666,
+   "thin_fraction": 0.16666666666666666,
+   "output_price": 2,
+   "sc1_share": 0.55,
+   "sc2_share": 0.25,
+   "sc3_share": 0.0,
+   "sc6_share": 1.0,
+   "t1_share": 0.0,
+   "sc1_mean": 0.8208333333333334,
+   "sc2_mean": 0.36327946282679735,
+   "sc2_min": 0.2013888888888889,
+   "sc2_max": 0.4875,
+   "binds": [
+    18,
+    0,
+    12,
+    18
+   ],
+   "survivors": {
+    "8": 5,
+    "9": 4,
+    "10": 2,
+    "11": 7,
+    "12": 2
+   }
+  },
+  {
+   "cell": 23,
+   "theta_limit": 0.7,
+   "obligation_probability": 0.16666666666666666,
+   "thin_fraction": 0.16666666666666666,
+   "output_price": 3,
+   "sc1_share": 0.55,
+   "sc2_share": 0.3,
+   "sc3_share": 0.0,
+   "sc6_share": 1.0,
+   "t1_share": 0.0,
+   "sc1_mean": 0.8208333333333334,
+   "sc2_mean": 0.3273948444366469,
+   "sc2_min": 0.14930555555555555,
+   "sc2_max": 0.4645669291338583,
+   "binds": [
+    18,
+    0,
+    12,
+    18
+   ],
+   "survivors": {
+    "8": 5,
+    "9": 4,
+    "10": 2,
+    "11": 7,
+    "12": 2
+   }
+  },
+  {
+   "cell": 24,
+   "theta_limit": 0.8,
+   "obligation_probability": 0.0,
+   "thin_fraction": 0.0,
+   "output_price": 2,
+   "sc1_share": 0.0,
+   "sc2_share": 0.0,
+   "sc3_share": 0.0,
+   "sc6_share": 1.0,
+   "t1_share": 0.0,
+   "sc1_mean": 1.0,
+   "sc2_mean": 0.37124999999999997,
+   "sc2_min": 0.2590277777777778,
+   "sc2_max": 0.5263888888888889,
+   "binds": [
+    0,
+    0,
+    12,
+    0
+   ],
+   "survivors": {
+    "12": 20
+   }
+  },
+  {
+   "cell": 25,
+   "theta_limit": 0.8,
+   "obligation_probability": 0.0,
+   "thin_fraction": 0.0,
+   "output_price": 3,
+   "sc1_share": 0.0,
+   "sc2_share": 0.3,
+   "sc3_share": 0.0,
+   "sc6_share": 1.0,
+   "t1_share": 0.0,
+   "sc1_mean": 1.0,
+   "sc2_mean": 0.3299652777777778,
+   "sc2_min": 0.22430555555555556,
+   "sc2_max": 0.4847222222222222,
+   "binds": [
+    0,
+    0,
+    12,
+    0
+   ],
+   "survivors": {
+    "12": 20
+   }
+  },
+  {
+   "cell": 26,
+   "theta_limit": 0.8,
+   "obligation_probability": 0.0,
+   "thin_fraction": 0.16666666666666666,
+   "output_price": 2,
+   "sc1_share": 0.0,
+   "sc2_share": 0.0,
+   "sc3_share": 0.0,
+   "sc6_share": 1.0,
+   "t1_share": 0.0,
+   "sc1_mean": 1.0,
+   "sc2_mean": 0.37322916666666667,
+   "sc2_min": 0.2611111111111111,
+   "sc2_max": 0.5326388888888889,
+   "binds": [
+    0,
+    0,
+    12,
+    0
+   ],
+   "survivors": {
+    "12": 20
+   }
+  },
+  {
+   "cell": 27,
+   "theta_limit": 0.8,
+   "obligation_probability": 0.0,
+   "thin_fraction": 0.16666666666666666,
+   "output_price": 3,
+   "sc1_share": 0.0,
+   "sc2_share": 0.3,
+   "sc3_share": 0.0,
+   "sc6_share": 1.0,
+   "t1_share": 0.0,
+   "sc1_mean": 1.0,
+   "sc2_mean": 0.33038194444444446,
+   "sc2_min": 0.22430555555555556,
+   "sc2_max": 0.4847222222222222,
+   "binds": [
+    0,
+    0,
+    12,
+    0
+   ],
+   "survivors": {
+    "12": 20
+   }
+  },
+  {
+   "cell": 28,
+   "theta_limit": 0.8,
+   "obligation_probability": 0.16666666666666666,
+   "thin_fraction": 0.0,
+   "output_price": 2,
+   "sc1_share": 0.55,
+   "sc2_share": 0.0,
+   "sc3_share": 0.0,
+   "sc6_share": 1.0,
+   "t1_share": 0.0,
+   "sc1_mean": 0.8208333333333334,
+   "sc2_mean": 0.4246495608660131,
+   "sc2_min": 0.28541666666666665,
+   "sc2_max": 0.5357142857142857,
+   "binds": [
+    18,
+    0,
+    12,
+    18
+   ],
+   "survivors": {
+    "8": 5,
+    "9": 4,
+    "10": 2,
+    "11": 7,
+    "12": 2
+   }
+  },
+  {
+   "cell": 29,
+   "theta_limit": 0.8,
+   "obligation_probability": 0.16666666666666666,
+   "thin_fraction": 0.0,
+   "output_price": 3,
+   "sc1_share": 0.55,
+   "sc2_share": 0.05,
+   "sc3_share": 0.0,
+   "sc6_share": 1.0,
+   "t1_share": 0.0,
+   "sc1_mean": 0.8208333333333334,
+   "sc2_mean": 0.3889047560224529,
+   "sc2_min": 0.22430555555555556,
+   "sc2_max": 0.5118110236220472,
+   "binds": [
+    18,
+    0,
+    12,
+    18
+   ],
+   "survivors": {
+    "8": 5,
+    "9": 4,
+    "10": 2,
+    "11": 7,
+    "12": 2
+   }
+  },
+  {
+   "cell": 30,
+   "theta_limit": 0.8,
+   "obligation_probability": 0.16666666666666666,
+   "thin_fraction": 0.16666666666666666,
+   "output_price": 2,
+   "sc1_share": 0.55,
+   "sc2_share": 0.0,
+   "sc3_share": 0.0,
+   "sc6_share": 1.0,
+   "t1_share": 0.0,
+   "sc1_mean": 0.8208333333333334,
+   "sc2_mean": 0.42657036356209155,
+   "sc2_min": 0.28541666666666665,
+   "sc2_max": 0.5357142857142857,
+   "binds": [
+    18,
+    0,
+    12,
+    18
+   ],
+   "survivors": {
+    "8": 5,
+    "9": 4,
+    "10": 2,
+    "11": 7,
+    "12": 2
+   }
+  },
+  {
+   "cell": 31,
+   "theta_limit": 0.8,
+   "obligation_probability": 0.16666666666666666,
+   "thin_fraction": 0.16666666666666666,
+   "output_price": 3,
+   "sc1_share": 0.55,
+   "sc2_share": 0.1,
+   "sc3_share": 0.0,
+   "sc6_share": 1.0,
+   "t1_share": 0.0,
+   "sc1_mean": 0.8208333333333334,
+   "sc2_mean": 0.3892622516877279,
+   "sc2_min": 0.22430555555555556,
+   "sc2_max": 0.5118110236220472,
+   "binds": [
+    18,
+    0,
+    12,
+    18
+   ],
+   "survivors": {
+    "8": 5,
+    "9": 4,
+    "10": 2,
+    "11": 7,
+    "12": 2
+   }
+  },
+  {
+   "cell": 32,
+   "theta_limit": 0.9,
+   "obligation_probability": 0.0,
+   "thin_fraction": 0.0,
+   "output_price": 2,
+   "sc1_share": 0.0,
+   "sc2_share": 0.7,
+   "sc3_share": 0.0,
+   "sc6_share": 1.0,
+   "t1_share": 0.0,
+   "sc1_mean": 1.0,
+   "sc2_mean": 0.18684027777777776,
+   "sc2_min": 0.049305555555555554,
+   "sc2_max": 0.38055555555555554,
+   "binds": [
+    0,
+    0,
+    12,
+    0
+   ],
+   "survivors": {
+    "12": 20
+   }
+  },
+  {
+   "cell": 33,
+   "theta_limit": 0.9,
+   "obligation_probability": 0.0,
+   "thin_fraction": 0.0,
+   "output_price": 3,
+   "sc1_share": 0.0,
+   "sc2_share": 0.45,
+   "sc3_share": 0.0,
+   "sc6_share": 1.0,
+   "t1_share": 0.0,
+   "sc1_mean": 1.0,
+   "sc2_mean": 0.16260416666666666,
+   "sc2_min": 0.02847222222222222,
+   "sc2_max": 0.3659722222222222,
+   "binds": [
+    0,
+    0,
+    12,
+    0
+   ],
+   "survivors": {
+    "12": 20
+   }
+  },
+  {
+   "cell": 34,
+   "theta_limit": 0.9,
+   "obligation_probability": 0.0,
+   "thin_fraction": 0.16666666666666666,
+   "output_price": 2,
+   "sc1_share": 0.0,
+   "sc2_share": 0.75,
+   "sc3_share": 0.0,
+   "sc6_share": 1.0,
+   "t1_share": 0.0,
+   "sc1_mean": 1.0,
+   "sc2_mean": 0.18743055555555554,
+   "sc2_min": 0.05138888888888889,
+   "sc2_max": 0.3798611111111111,
+   "binds": [
+    0,
+    0,
+    12,
+    0
+   ],
+   "survivors": {
+    "12": 20
+   }
+  },
+  {
+   "cell": 35,
+   "theta_limit": 0.9,
+   "obligation_probability": 0.0,
+   "thin_fraction": 0.16666666666666666,
+   "output_price": 3,
+   "sc1_share": 0.0,
+   "sc2_share": 0.45,
+   "sc3_share": 0.0,
+   "sc6_share": 1.0,
+   "t1_share": 0.0,
+   "sc1_mean": 1.0,
+   "sc2_mean": 0.16461805555555556,
+   "sc2_min": 0.03263888888888889,
+   "sc2_max": 0.3701388888888889,
+   "binds": [
+    0,
+    0,
+    12,
+    0
+   ],
+   "survivors": {
+    "12": 20
+   }
+  },
+  {
+   "cell": 36,
+   "theta_limit": 0.9,
+   "obligation_probability": 0.16666666666666666,
+   "thin_fraction": 0.0,
+   "output_price": 2,
+   "sc1_share": 0.55,
+   "sc2_share": 0.4,
+   "sc3_share": 0.0,
+   "sc6_share": 1.0,
+   "t1_share": 0.0,
+   "sc1_mean": 0.8208333333333334,
+   "sc2_mean": 0.25718374328898225,
+   "sc2_min": 0.07083333333333333,
+   "sc2_max": 0.40535714285714286,
+   "binds": [
+    18,
+    0,
+    12,
+    18
+   ],
+   "survivors": {
+    "8": 5,
+    "9": 4,
+    "10": 2,
+    "11": 7,
+    "12": 2
+   }
+  },
+  {
+   "cell": 37,
+   "theta_limit": 0.9,
+   "obligation_probability": 0.16666666666666666,
+   "thin_fraction": 0.0,
+   "output_price": 3,
+   "sc1_share": 0.55,
+   "sc2_share": 0.45,
+   "sc3_share": 0.0,
+   "sc6_share": 1.0,
+   "t1_share": 0.0,
+   "sc1_mean": 0.8208333333333334,
+   "sc2_mean": 0.23548440163846002,
+   "sc2_min": 0.03680555555555556,
+   "sc2_max": 0.39282589676290464,
+   "binds": [
+    18,
+    0,
+    12,
+    18
+   ],
+   "survivors": {
+    "8": 5,
+    "9": 4,
+    "10": 2,
+    "11": 7,
+    "12": 2
+   }
+  },
+  {
+   "cell": 38,
+   "theta_limit": 0.9,
+   "obligation_probability": 0.16666666666666666,
+   "thin_fraction": 0.16666666666666666,
+   "output_price": 2,
+   "sc1_share": 0.55,
+   "sc2_share": 0.4,
+   "sc3_share": 0.0,
+   "sc6_share": 1.0,
+   "t1_share": 0.0,
+   "sc1_mean": 0.8208333333333334,
+   "sc2_mean": 0.2576391150210084,
+   "sc2_min": 0.07013888888888889,
+   "sc2_max": 0.40535714285714286,
+   "binds": [
+    18,
+    0,
+    12,
+    18
+   ],
+   "survivors": {
+    "8": 5,
+    "9": 4,
+    "10": 2,
+    "11": 7,
+    "12": 2
+   }
+  },
+  {
+   "cell": 39,
+   "theta_limit": 0.9,
+   "obligation_probability": 0.16666666666666666,
+   "thin_fraction": 0.16666666666666666,
+   "output_price": 3,
+   "sc1_share": 0.55,
+   "sc2_share": 0.45,
+   "sc3_share": 0.0,
+   "sc6_share": 1.0,
+   "t1_share": 0.0,
+   "sc1_mean": 0.8208333333333334,
+   "sc2_mean": 0.23755340299041353,
+   "sc2_min": 0.04097222222222222,
+   "sc2_max": 0.39282589676290464,
+   "binds": [
+    18,
+    0,
+    12,
+    18
+   ],
+   "survivors": {
+    "8": 5,
+    "9": 4,
+    "10": 2,
+    "11": 7,
+    "12": 2
+   }
+  }
+ ],
+ "part3_stage2": [],
+ "problems": []
+}

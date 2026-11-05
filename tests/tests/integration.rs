@@ -621,7 +621,7 @@ fn adr0054_pin_persists_and_real_violations_still_kill() {
     let cfg = config(
         r#"{
       "experiment": "adr0054-item3-4", "schema_version": "1.0.0", "engine": ">=0.1.0, <0.2.0",
-      "seeds": { "mechanism": 1, "environment": 1, "shock": 1, "init": 1 },
+      "seeds": { "mechanism": 10001, "environment": 10001, "shock": 10001, "init": 10001 },
       "world": { "ticks": 20, "resources": ["capital", "input"],
         "conflict_resolver": { "id": "conflict.additive", "version": "^1" },
         "global_reals": { "theta_limit": 0.40, "theta_cap": 0.20 },

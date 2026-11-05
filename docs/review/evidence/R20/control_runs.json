@@ -1,0 +1,2932 @@
+[
+ {
+  "label": "ctl_smoke_910001",
+  "failed": null,
+  "n_firms": 4,
+  "sc1_survival": 0.75,
+  "sc1_ok": true,
+  "sc2_h_below_crit": 0.5913978494623656,
+  "sc2_ok": false,
+  "sc3_binds": [
+   true,
+   false,
+   true,
+   false
+  ],
+  "sc3_ok": false,
+  "sc6_entropy_variance": 0.3679443941353591,
+  "sc6_ok": true,
+  "T1": false,
+  "baseline_survivors": 3,
+  "baseline_collapse": false,
+  "baseline_distinct_compliance_death_ticks": 0,
+  "baseline_compliance_deaths": 0,
+  "baseline_max_deaths_in_one_tick": 1,
+  "baseline_mass_death_tick": false,
+  "shocked_survivors": 1,
+  "shocked_collapse": false,
+  "shocked_distinct_compliance_death_ticks": 1,
+  "shocked_compliance_deaths": 2,
+  "shocked_max_deaths_in_one_tick": 2,
+  "shocked_mass_death_tick": false,
+  "baseline_death_records": [
+   [
+    12,
+    2,
+    "solvency"
+   ]
+  ],
+  "shocked_death_records": [
+   [
+    12,
+    2,
+    "solvency"
+   ],
+   [
+    53,
+    0,
+    "compliance"
+   ],
+   [
+    53,
+    1,
+    "compliance"
+   ]
+  ],
+  "delta_h_rep_matched": 0.0,
+  "nonzero_matched_delta_h": false,
+  "n_matched_firm_ticks": 238,
+  "drawn_onset": 52,
+  "drawn_magnitude": 0.32911546249328144,
+  "baseline_events_sha256": "7fcb9374939c19e66d8e453835cb809d09beb6cf73cf989688901fcd5ec72450",
+  "shocked_events_sha256": "05777f56553f0f30a33a49f8ea911d3b1d9a5ab455ecbd9e5eef410709dc3103",
+  "control": "smoke",
+  "shock_seed": 910001
+ },
+ {
+  "label": "ctl_smoke_910002",
+  "failed": null,
+  "n_firms": 4,
+  "sc1_survival": 0.75,
+  "sc1_ok": true,
+  "sc2_h_below_crit": 0.5913978494623656,
+  "sc2_ok": false,
+  "sc3_binds": [
+   true,
+   false,
+   true,
+   false
+  ],
+  "sc3_ok": false,
+  "sc6_entropy_variance": 0.3679443941353591,
+  "sc6_ok": true,
+  "T1": false,
+  "baseline_survivors": 3,
+  "baseline_collapse": false,
+  "baseline_distinct_compliance_death_ticks": 0,
+  "baseline_compliance_deaths": 0,
+  "baseline_max_deaths_in_one_tick": 1,
+  "baseline_mass_death_tick": false,
+  "shocked_survivors": 1,
+  "shocked_collapse": false,
+  "shocked_distinct_compliance_death_ticks": 1,
+  "shocked_compliance_deaths": 2,
+  "shocked_max_deaths_in_one_tick": 2,
+  "shocked_mass_death_tick": false,
+  "baseline_death_records": [
+   [
+    12,
+    2,
+    "solvency"
+   ]
+  ],
+  "shocked_death_records": [
+   [
+    12,
+    2,
+    "solvency"
+   ],
+   [
+    69,
+    0,
+    "compliance"
+   ],
+   [
+    69,
+    1,
+    "compliance"
+   ]
+  ],
+  "delta_h_rep_matched": 0.0,
+  "nonzero_matched_delta_h": false,
+  "n_matched_firm_ticks": 270,
+  "drawn_onset": 68,
+  "drawn_magnitude": 0.4290768512039589,
+  "baseline_events_sha256": "7fcb9374939c19e66d8e453835cb809d09beb6cf73cf989688901fcd5ec72450",
+  "shocked_events_sha256": "38d3be7fc4e1896e60446474a4d328c1ae059e277a14a34f40db6169758e19b8",
+  "control": "smoke",
+  "shock_seed": 910002
+ },
+ {
+  "label": "ctl_smoke_910003",
+  "failed": null,
+  "n_firms": 4,
+  "sc1_survival": 0.75,
+  "sc1_ok": true,
+  "sc2_h_below_crit": 0.5913978494623656,
+  "sc2_ok": false,
+  "sc3_binds": [
+   true,
+   false,
+   true,
+   false
+  ],
+  "sc3_ok": false,
+  "sc6_entropy_variance": 0.3679443941353591,
+  "sc6_ok": true,
+  "T1": false,
+  "baseline_survivors": 3,
+  "baseline_collapse": false,
+  "baseline_distinct_compliance_death_ticks": 0,
+  "baseline_compliance_deaths": 0,
+  "baseline_max_deaths_in_one_tick": 1,
+  "baseline_mass_death_tick": false,
+  "shocked_survivors": 1,
+  "shocked_collapse": false,
+  "shocked_distinct_compliance_death_ticks": 1,
+  "shocked_compliance_deaths": 2,
+  "shocked_max_deaths_in_one_tick": 2,
+  "shocked_mass_death_tick": false,
+  "baseline_death_records": [
+   [
+    12,
+    2,
+    "solvency"
+   ]
+  ],
+  "shocked_death_records": [
+   [
+    12,
+    2,
+    "solvency"
+   ],
+   [
+    75,
+    0,
+    "compliance"
+   ],
+   [
+    75,
+    1,
+    "compliance"
+   ]
+  ],
+  "delta_h_rep_matched": 0.0,
+  "nonzero_matched_delta_h": false,
+  "n_matched_firm_ticks": 282,
+  "drawn_onset": 74,
+  "drawn_magnitude": 0.0975023738874907,
+  "baseline_events_sha256": "7fcb9374939c19e66d8e453835cb809d09beb6cf73cf989688901fcd5ec72450",
+  "shocked_events_sha256": "58c9da4a93ce20cb6c7517347a621f3c456c28f1c6070e7ae6661cb18cbc8bad",
+  "control": "smoke",
+  "shock_seed": 910003
+ },
+ {
+  "label": "ctl_smoke_910004",
+  "failed": null,
+  "n_firms": 4,
+  "sc1_survival": 0.75,
+  "sc1_ok": true,
+  "sc2_h_below_crit": 0.5913978494623656,
+  "sc2_ok": false,
+  "sc3_binds": [
+   true,
+   false,
+   true,
+   false
+  ],
+  "sc3_ok": false,
+  "sc6_entropy_variance": 0.3679443941353591,
+  "sc6_ok": true,
+  "T1": false,
+  "baseline_survivors": 3,
+  "baseline_collapse": false,
+  "baseline_distinct_compliance_death_ticks": 0,
+  "baseline_compliance_deaths": 0,
+  "baseline_max_deaths_in_one_tick": 1,
+  "baseline_mass_death_tick": false,
+  "shocked_survivors": 3,
+  "shocked_collapse": false,
+  "shocked_distinct_compliance_death_ticks": 0,
+  "shocked_compliance_deaths": 0,
+  "shocked_max_deaths_in_one_tick": 1,
+  "shocked_mass_death_tick": false,
+  "baseline_death_records": [
+   [
+    12,
+    2,
+    "solvency"
+   ]
+  ],
+  "shocked_death_records": [
+   [
+    12,
+    2,
+    "solvency"
+   ]
+  ],
+  "delta_h_rep_matched": -0.019057338784261947,
+  "nonzero_matched_delta_h": true,
+  "n_matched_firm_ticks": 372,
+  "drawn_onset": 37,
+  "drawn_magnitude": 0.24524387960460245,
+  "baseline_events_sha256": "7fcb9374939c19e66d8e453835cb809d09beb6cf73cf989688901fcd5ec72450",
+  "shocked_events_sha256": "25bb31ed90ee1d2693e9ad42e382c094b454d15617d1cb011b53452e4cf0e340",
+  "control": "smoke",
+  "shock_seed": 910004
+ },
+ {
+  "label": "ctl_smoke_910005",
+  "failed": null,
+  "n_firms": 4,
+  "sc1_survival": 0.75,
+  "sc1_ok": true,
+  "sc2_h_below_crit": 0.5913978494623656,
+  "sc2_ok": false,
+  "sc3_binds": [
+   true,
+   false,
+   true,
+   false
+  ],
+  "sc3_ok": false,
+  "sc6_entropy_variance": 0.3679443941353591,
+  "sc6_ok": true,
+  "T1": false,
+  "baseline_survivors": 3,
+  "baseline_collapse": false,
+  "baseline_distinct_compliance_death_ticks": 0,
+  "baseline_compliance_deaths": 0,
+  "baseline_max_deaths_in_one_tick": 1,
+  "baseline_mass_death_tick": false,
+  "shocked_survivors": 1,
+  "shocked_collapse": false,
+  "shocked_distinct_compliance_death_ticks": 1,
+  "shocked_compliance_deaths": 2,
+  "shocked_max_deaths_in_one_tick": 2,
+  "shocked_mass_death_tick": false,
+  "baseline_death_records": [
+   [
+    12,
+    2,
+    "solvency"
+   ]
+  ],
+  "shocked_death_records": [
+   [
+    12,
+    2,
+    "solvency"
+   ],
+   [
+    61,
+    0,
+    "compliance"
+   ],
+   [
+    61,
+    1,
+    "compliance"
+   ]
+  ],
+  "delta_h_rep_matched": 0.0,
+  "nonzero_matched_delta_h": false,
+  "n_matched_firm_ticks": 254,
+  "drawn_onset": 60,
+  "drawn_magnitude": 0.38148450482964347,
+  "baseline_events_sha256": "7fcb9374939c19e66d8e453835cb809d09beb6cf73cf989688901fcd5ec72450",
+  "shocked_events_sha256": "f7528bfe87f5dce2f70f478eff94f470ca436a0a5eb4f66bdd8759e5fc86d0be",
+  "control": "smoke",
+  "shock_seed": 910005
+ },
+ {
+  "label": "ctl_smoke_910006",
+  "failed": null,
+  "n_firms": 4,
+  "sc1_survival": 0.75,
+  "sc1_ok": true,
+  "sc2_h_below_crit": 0.5913978494623656,
+  "sc2_ok": false,
+  "sc3_binds": [
+   true,
+   false,
+   true,
+   false
+  ],
+  "sc3_ok": false,
+  "sc6_entropy_variance": 0.3679443941353591,
+  "sc6_ok": true,
+  "T1": false,
+  "baseline_survivors": 3,
+  "baseline_collapse": false,
+  "baseline_distinct_compliance_death_ticks": 0,
+  "baseline_compliance_deaths": 0,
+  "baseline_max_deaths_in_one_tick": 1,
+  "baseline_mass_death_tick": false,
+  "shocked_survivors": 3,
+  "shocked_collapse": false,
+  "shocked_distinct_compliance_death_ticks": 0,
+  "shocked_compliance_deaths": 0,
+  "shocked_max_deaths_in_one_tick": 1,
+  "shocked_mass_death_tick": false,
+  "baseline_death_records": [
+   [
+    12,
+    2,
+    "solvency"
+   ]
+  ],
+  "shocked_death_records": [
+   [
+    12,
+    2,
+    "solvency"
+   ]
+  ],
+  "delta_h_rep_matched": -0.019057338784261947,
+  "nonzero_matched_delta_h": true,
+  "n_matched_firm_ticks": 372,
+  "drawn_onset": 13,
+  "drawn_magnitude": 0.256865967073069,
+  "baseline_events_sha256": "7fcb9374939c19e66d8e453835cb809d09beb6cf73cf989688901fcd5ec72450",
+  "shocked_events_sha256": "25a648df949416922b3016ec20256ed8599d81030e8e58be2ebfc078e4c29c5a",
+  "control": "smoke",
+  "shock_seed": 910006
+ },
+ {
+  "label": "ctl_smoke_910007",
+  "failed": null,
+  "n_firms": 4,
+  "sc1_survival": 0.75,
+  "sc1_ok": true,
+  "sc2_h_below_crit": 0.5913978494623656,
+  "sc2_ok": false,
+  "sc3_binds": [
+   true,
+   false,
+   true,
+   false
+  ],
+  "sc3_ok": false,
+  "sc6_entropy_variance": 0.3679443941353591,
+  "sc6_ok": true,
+  "T1": false,
+  "baseline_survivors": 3,
+  "baseline_collapse": false,
+  "baseline_distinct_compliance_death_ticks": 0,
+  "baseline_compliance_deaths": 0,
+  "baseline_max_deaths_in_one_tick": 1,
+  "baseline_mass_death_tick": false,
+  "shocked_survivors": 3,
+  "shocked_collapse": false,
+  "shocked_distinct_compliance_death_ticks": 0,
+  "shocked_compliance_deaths": 0,
+  "shocked_max_deaths_in_one_tick": 1,
+  "shocked_mass_death_tick": false,
+  "baseline_death_records": [
+   [
+    12,
+    2,
+    "solvency"
+   ]
+  ],
+  "shocked_death_records": [
+   [
+    12,
+    2,
+    "solvency"
+   ]
+  ],
+  "delta_h_rep_matched": -0.019057338784261947,
+  "nonzero_matched_delta_h": true,
+  "n_matched_firm_ticks": 372,
+  "drawn_onset": 27,
+  "drawn_magnitude": 0.22633196207452372,
+  "baseline_events_sha256": "7fcb9374939c19e66d8e453835cb809d09beb6cf73cf989688901fcd5ec72450",
+  "shocked_events_sha256": "e0d1deee136244150ca6ec4d6e7211f8776fedfbe6daf6bce0c319f4f1cac475",
+  "control": "smoke",
+  "shock_seed": 910007
+ },
+ {
+  "label": "ctl_smoke_910008",
+  "failed": null,
+  "n_firms": 4,
+  "sc1_survival": 0.75,
+  "sc1_ok": true,
+  "sc2_h_below_crit": 0.5913978494623656,
+  "sc2_ok": false,
+  "sc3_binds": [
+   true,
+   false,
+   true,
+   false
+  ],
+  "sc3_ok": false,
+  "sc6_entropy_variance": 0.3679443941353591,
+  "sc6_ok": true,
+  "T1": false,
+  "baseline_survivors": 3,
+  "baseline_collapse": false,
+  "baseline_distinct_compliance_death_ticks": 0,
+  "baseline_compliance_deaths": 0,
+  "baseline_max_deaths_in_one_tick": 1,
+  "baseline_mass_death_tick": false,
+  "shocked_survivors": 1,
+  "shocked_collapse": false,
+  "shocked_distinct_compliance_death_ticks": 1,
+  "shocked_compliance_deaths": 2,
+  "shocked_max_deaths_in_one_tick": 2,
+  "shocked_mass_death_tick": false,
+  "baseline_death_records": [
+   [
+    12,
+    2,
+    "solvency"
+   ]
+  ],
+  "shocked_death_records": [
+   [
+    12,
+    2,
+    "solvency"
+   ],
+   [
+    64,
+    0,
+    "compliance"
+   ],
+   [
+    64,
+    1,
+    "compliance"
+   ]
+  ],
+  "delta_h_rep_matched": 0.0,
+  "nonzero_matched_delta_h": false,
+  "n_matched_firm_ticks": 260,
+  "drawn_onset": 63,
+  "drawn_magnitude": 0.27415290976728685,
+  "baseline_events_sha256": "7fcb9374939c19e66d8e453835cb809d09beb6cf73cf989688901fcd5ec72450",
+  "shocked_events_sha256": "2dbd6e33e343ec6233ed313128724dd67e51e860517bbcd127124bb0df808b8d",
+  "control": "smoke",
+  "shock_seed": 910008
+ },
+ {
+  "label": "ctl_smoke_910009",
+  "failed": null,
+  "n_firms": 4,
+  "sc1_survival": 0.75,
+  "sc1_ok": true,
+  "sc2_h_below_crit": 0.5913978494623656,
+  "sc2_ok": false,
+  "sc3_binds": [
+   true,
+   false,
+   true,
+   false
+  ],
+  "sc3_ok": false,
+  "sc6_entropy_variance": 0.3679443941353591,
+  "sc6_ok": true,
+  "T1": false,
+  "baseline_survivors": 3,
+  "baseline_collapse": false,
+  "baseline_distinct_compliance_death_ticks": 0,
+  "baseline_compliance_deaths": 0,
+  "baseline_max_deaths_in_one_tick": 1,
+  "baseline_mass_death_tick": false,
+  "shocked_survivors": 3,
+  "shocked_collapse": false,
+  "shocked_distinct_compliance_death_ticks": 0,
+  "shocked_compliance_deaths": 0,
+  "shocked_max_deaths_in_one_tick": 1,
+  "shocked_mass_death_tick": false,
+  "baseline_death_records": [
+   [
+    12,
+    2,
+    "solvency"
+   ]
+  ],
+  "shocked_death_records": [
+   [
+    12,
+    2,
+    "solvency"
+   ]
+  ],
+  "delta_h_rep_matched": -0.019057338784261947,
+  "nonzero_matched_delta_h": true,
+  "n_matched_firm_ticks": 372,
+  "drawn_onset": 26,
+  "drawn_magnitude": 0.2739148777699385,
+  "baseline_events_sha256": "7fcb9374939c19e66d8e453835cb809d09beb6cf73cf989688901fcd5ec72450",
+  "shocked_events_sha256": "4bad09911a7e799c9c47018d8be5e68a65b1adf08f19e9fcfd20ad44308ca90c",
+  "control": "smoke",
+  "shock_seed": 910009
+ },
+ {
+  "label": "ctl_smoke_910010",
+  "failed": null,
+  "n_firms": 4,
+  "sc1_survival": 0.75,
+  "sc1_ok": true,
+  "sc2_h_below_crit": 0.5913978494623656,
+  "sc2_ok": false,
+  "sc3_binds": [
+   true,
+   false,
+   true,
+   false
+  ],
+  "sc3_ok": false,
+  "sc6_entropy_variance": 0.3679443941353591,
+  "sc6_ok": true,
+  "T1": false,
+  "baseline_survivors": 3,
+  "baseline_collapse": false,
+  "baseline_distinct_compliance_death_ticks": 0,
+  "baseline_compliance_deaths": 0,
+  "baseline_max_deaths_in_one_tick": 1,
+  "baseline_mass_death_tick": false,
+  "shocked_survivors": 1,
+  "shocked_collapse": false,
+  "shocked_distinct_compliance_death_ticks": 1,
+  "shocked_compliance_deaths": 2,
+  "shocked_max_deaths_in_one_tick": 2,
+  "shocked_mass_death_tick": false,
+  "baseline_death_records": [
+   [
+    12,
+    2,
+    "solvency"
+   ]
+  ],
+  "shocked_death_records": [
+   [
+    12,
+    2,
+    "solvency"
+   ],
+   [
+    52,
+    0,
+    "compliance"
+   ],
+   [
+    52,
+    1,
+    "compliance"
+   ]
+  ],
+  "delta_h_rep_matched": 0.0,
+  "nonzero_matched_delta_h": false,
+  "n_matched_firm_ticks": 236,
+  "drawn_onset": 51,
+  "drawn_magnitude": 0.36155018060749966,
+  "baseline_events_sha256": "7fcb9374939c19e66d8e453835cb809d09beb6cf73cf989688901fcd5ec72450",
+  "shocked_events_sha256": "c05142f8576797565c652776f1bfa4ba4a5c26b2989dfd525ac6d4aef11d2dfa",
+  "control": "smoke",
+  "shock_seed": 910010
+ },
+ {
+  "label": "ctl_smoke_910011",
+  "failed": null,
+  "n_firms": 4,
+  "sc1_survival": 0.75,
+  "sc1_ok": true,
+  "sc2_h_below_crit": 0.5913978494623656,
+  "sc2_ok": false,
+  "sc3_binds": [
+   true,
+   false,
+   true,
+   false
+  ],
+  "sc3_ok": false,
+  "sc6_entropy_variance": 0.3679443941353591,
+  "sc6_ok": true,
+  "T1": false,
+  "baseline_survivors": 3,
+  "baseline_collapse": false,
+  "baseline_distinct_compliance_death_ticks": 0,
+  "baseline_compliance_deaths": 0,
+  "baseline_max_deaths_in_one_tick": 1,
+  "baseline_mass_death_tick": false,
+  "shocked_survivors": 3,
+  "shocked_collapse": false,
+  "shocked_distinct_compliance_death_ticks": 0,
+  "shocked_compliance_deaths": 0,
+  "shocked_max_deaths_in_one_tick": 1,
+  "shocked_mass_death_tick": false,
+  "baseline_death_records": [
+   [
+    12,
+    2,
+    "solvency"
+   ]
+  ],
+  "shocked_death_records": [
+   [
+    12,
+    2,
+    "solvency"
+   ]
+  ],
+  "delta_h_rep_matched": -0.019057338784261947,
+  "nonzero_matched_delta_h": true,
+  "n_matched_firm_ticks": 372,
+  "drawn_onset": 13,
+  "drawn_magnitude": 0.2052425068151863,
+  "baseline_events_sha256": "7fcb9374939c19e66d8e453835cb809d09beb6cf73cf989688901fcd5ec72450",
+  "shocked_events_sha256": "3f9ef6713a678b7c323775718ee55f8aa15998e79781ab762b59ca77513be2e0",
+  "control": "smoke",
+  "shock_seed": 910011
+ },
+ {
+  "label": "ctl_smoke_910012",
+  "failed": null,
+  "n_firms": 4,
+  "sc1_survival": 0.75,
+  "sc1_ok": true,
+  "sc2_h_below_crit": 0.5913978494623656,
+  "sc2_ok": false,
+  "sc3_binds": [
+   true,
+   false,
+   true,
+   false
+  ],
+  "sc3_ok": false,
+  "sc6_entropy_variance": 0.3679443941353591,
+  "sc6_ok": true,
+  "T1": false,
+  "baseline_survivors": 3,
+  "baseline_collapse": false,
+  "baseline_distinct_compliance_death_ticks": 0,
+  "baseline_compliance_deaths": 0,
+  "baseline_max_deaths_in_one_tick": 1,
+  "baseline_mass_death_tick": false,
+  "shocked_survivors": 1,
+  "shocked_collapse": false,
+  "shocked_distinct_compliance_death_ticks": 1,
+  "shocked_compliance_deaths": 2,
+  "shocked_max_deaths_in_one_tick": 2,
+  "shocked_mass_death_tick": false,
+  "baseline_death_records": [
+   [
+    12,
+    2,
+    "solvency"
+   ]
+  ],
+  "shocked_death_records": [
+   [
+    12,
+    2,
+    "solvency"
+   ],
+   [
+    79,
+    0,
+    "compliance"
+   ],
+   [
+    79,
+    1,
+    "compliance"
+   ]
+  ],
+  "delta_h_rep_matched": 0.0,
+  "nonzero_matched_delta_h": false,
+  "n_matched_firm_ticks": 290,
+  "drawn_onset": 78,
+  "drawn_magnitude": 0.16097752796241768,
+  "baseline_events_sha256": "7fcb9374939c19e66d8e453835cb809d09beb6cf73cf989688901fcd5ec72450",
+  "shocked_events_sha256": "edc36b59e6e480cd1e0c7803063079f49223102ef486757ca02bd71653b7834b",
+  "control": "smoke",
+  "shock_seed": 910012
+ },
+ {
+  "label": "ctl_smoke_910013",
+  "failed": null,
+  "n_firms": 4,
+  "sc1_survival": 0.75,
+  "sc1_ok": true,
+  "sc2_h_below_crit": 0.5913978494623656,
+  "sc2_ok": false,
+  "sc3_binds": [
+   true,
+   false,
+   true,
+   false
+  ],
+  "sc3_ok": false,
+  "sc6_entropy_variance": 0.3679443941353591,
+  "sc6_ok": true,
+  "T1": false,
+  "baseline_survivors": 3,
+  "baseline_collapse": false,
+  "baseline_distinct_compliance_death_ticks": 0,
+  "baseline_compliance_deaths": 0,
+  "baseline_max_deaths_in_one_tick": 1,
+  "baseline_mass_death_tick": false,
+  "shocked_survivors": 3,
+  "shocked_collapse": false,
+  "shocked_distinct_compliance_death_ticks": 0,
+  "shocked_compliance_deaths": 0,
+  "shocked_max_deaths_in_one_tick": 1,
+  "shocked_mass_death_tick": false,
+  "baseline_death_records": [
+   [
+    12,
+    2,
+    "solvency"
+   ]
+  ],
+  "shocked_death_records": [
+   [
+    12,
+    2,
+    "solvency"
+   ]
+  ],
+  "delta_h_rep_matched": -0.019057338784261947,
+  "nonzero_matched_delta_h": true,
+  "n_matched_firm_ticks": 372,
+  "drawn_onset": 23,
+  "drawn_magnitude": 0.16734877665996503,
+  "baseline_events_sha256": "7fcb9374939c19e66d8e453835cb809d09beb6cf73cf989688901fcd5ec72450",
+  "shocked_events_sha256": "ac082e8a42366607012272c5f06614f046c5d2ebd0425958fa0b33b89d220d5c",
+  "control": "smoke",
+  "shock_seed": 910013
+ },
+ {
+  "label": "ctl_smoke_910014",
+  "failed": null,
+  "n_firms": 4,
+  "sc1_survival": 0.75,
+  "sc1_ok": true,
+  "sc2_h_below_crit": 0.5913978494623656,
+  "sc2_ok": false,
+  "sc3_binds": [
+   true,
+   false,
+   true,
+   false
+  ],
+  "sc3_ok": false,
+  "sc6_entropy_variance": 0.3679443941353591,
+  "sc6_ok": true,
+  "T1": false,
+  "baseline_survivors": 3,
+  "baseline_collapse": false,
+  "baseline_distinct_compliance_death_ticks": 0,
+  "baseline_compliance_deaths": 0,
+  "baseline_max_deaths_in_one_tick": 1,
+  "baseline_mass_death_tick": false,
+  "shocked_survivors": 3,
+  "shocked_collapse": false,
+  "shocked_distinct_compliance_death_ticks": 0,
+  "shocked_compliance_deaths": 0,
+  "shocked_max_deaths_in_one_tick": 1,
+  "shocked_mass_death_tick": false,
+  "baseline_death_records": [
+   [
+    12,
+    2,
+    "solvency"
+   ]
+  ],
+  "shocked_death_records": [
+   [
+    12,
+    2,
+    "solvency"
+   ]
+  ],
+  "delta_h_rep_matched": -0.1553858331993655,
+  "nonzero_matched_delta_h": true,
+  "n_matched_firm_ticks": 372,
+  "drawn_onset": 33,
+  "drawn_magnitude": 0.4273244033967103,
+  "baseline_events_sha256": "7fcb9374939c19e66d8e453835cb809d09beb6cf73cf989688901fcd5ec72450",
+  "shocked_events_sha256": "9df5e811718a576bbdfbe995e7a36fe6bcac941e164bc2ada05c9b51492607a8",
+  "control": "smoke",
+  "shock_seed": 910014
+ },
+ {
+  "label": "ctl_smoke_910015",
+  "failed": null,
+  "n_firms": 4,
+  "sc1_survival": 0.75,
+  "sc1_ok": true,
+  "sc2_h_below_crit": 0.5913978494623656,
+  "sc2_ok": false,
+  "sc3_binds": [
+   true,
+   false,
+   true,
+   false
+  ],
+  "sc3_ok": false,
+  "sc6_entropy_variance": 0.3679443941353591,
+  "sc6_ok": true,
+  "T1": false,
+  "baseline_survivors": 3,
+  "baseline_collapse": false,
+  "baseline_distinct_compliance_death_ticks": 0,
+  "baseline_compliance_deaths": 0,
+  "baseline_max_deaths_in_one_tick": 1,
+  "baseline_mass_death_tick": false,
+  "shocked_survivors": 3,
+  "shocked_collapse": false,
+  "shocked_distinct_compliance_death_ticks": 0,
+  "shocked_compliance_deaths": 0,
+  "shocked_max_deaths_in_one_tick": 1,
+  "shocked_mass_death_tick": false,
+  "baseline_death_records": [
+   [
+    12,
+    2,
+    "solvency"
+   ]
+  ],
+  "shocked_death_records": [
+   [
+    12,
+    2,
+    "solvency"
+   ]
+  ],
+  "delta_h_rep_matched": -0.1553858331993655,
+  "nonzero_matched_delta_h": true,
+  "n_matched_firm_ticks": 372,
+  "drawn_onset": 18,
+  "drawn_magnitude": 0.45733235360180685,
+  "baseline_events_sha256": "7fcb9374939c19e66d8e453835cb809d09beb6cf73cf989688901fcd5ec72450",
+  "shocked_events_sha256": "ac7e525bf863ca178b6dd0aa82ab004f3817474c19b966cac4416cd242deb8b2",
+  "control": "smoke",
+  "shock_seed": 910015
+ },
+ {
+  "label": "ctl_smoke_910016",
+  "failed": null,
+  "n_firms": 4,
+  "sc1_survival": 0.75,
+  "sc1_ok": true,
+  "sc2_h_below_crit": 0.5913978494623656,
+  "sc2_ok": false,
+  "sc3_binds": [
+   true,
+   false,
+   true,
+   false
+  ],
+  "sc3_ok": false,
+  "sc6_entropy_variance": 0.3679443941353591,
+  "sc6_ok": true,
+  "T1": false,
+  "baseline_survivors": 3,
+  "baseline_collapse": false,
+  "baseline_distinct_compliance_death_ticks": 0,
+  "baseline_compliance_deaths": 0,
+  "baseline_max_deaths_in_one_tick": 1,
+  "baseline_mass_death_tick": false,
+  "shocked_survivors": 1,
+  "shocked_collapse": false,
+  "shocked_distinct_compliance_death_ticks": 1,
+  "shocked_compliance_deaths": 2,
+  "shocked_max_deaths_in_one_tick": 2,
+  "shocked_mass_death_tick": false,
+  "baseline_death_records": [
+   [
+    12,
+    2,
+    "solvency"
+   ]
+  ],
+  "shocked_death_records": [
+   [
+    12,
+    2,
+    "solvency"
+   ],
+   [
+    48,
+    0,
+    "compliance"
+   ],
+   [
+    48,
+    1,
+    "compliance"
+   ]
+  ],
+  "delta_h_rep_matched": 0.0,
+  "nonzero_matched_delta_h": false,
+  "n_matched_firm_ticks": 228,
+  "drawn_onset": 47,
+  "drawn_magnitude": 0.36437188858734065,
+  "baseline_events_sha256": "7fcb9374939c19e66d8e453835cb809d09beb6cf73cf989688901fcd5ec72450",
+  "shocked_events_sha256": "b16a84255f963280afbf56ee94bf3b4a5b0726d1268347f924db041972270a59",
+  "control": "smoke",
+  "shock_seed": 910016
+ },
+ {
+  "label": "ctl_smoke_910017",
+  "failed": null,
+  "n_firms": 4,
+  "sc1_survival": 0.75,
+  "sc1_ok": true,
+  "sc2_h_below_crit": 0.5913978494623656,
+  "sc2_ok": false,
+  "sc3_binds": [
+   true,
+   false,
+   true,
+   false
+  ],
+  "sc3_ok": false,
+  "sc6_entropy_variance": 0.3679443941353591,
+  "sc6_ok": true,
+  "T1": false,
+  "baseline_survivors": 3,
+  "baseline_collapse": false,
+  "baseline_distinct_compliance_death_ticks": 0,
+  "baseline_compliance_deaths": 0,
+  "baseline_max_deaths_in_one_tick": 1,
+  "baseline_mass_death_tick": false,
+  "shocked_survivors": 1,
+  "shocked_collapse": false,
+  "shocked_distinct_compliance_death_ticks": 1,
+  "shocked_compliance_deaths": 2,
+  "shocked_max_deaths_in_one_tick": 2,
+  "shocked_mass_death_tick": false,
+  "baseline_death_records": [
+   [
+    12,
+    2,
+    "solvency"
+   ]
+  ],
+  "shocked_death_records": [
+   [
+    12,
+    2,
+    "solvency"
+   ],
+   [
+    43,
+    0,
+    "compliance"
+   ],
+   [
+    43,
+    1,
+    "compliance"
+   ]
+  ],
+  "delta_h_rep_matched": 0.0,
+  "nonzero_matched_delta_h": false,
+  "n_matched_firm_ticks": 218,
+  "drawn_onset": 21,
+  "drawn_magnitude": 0.3917718057657778,
+  "baseline_events_sha256": "7fcb9374939c19e66d8e453835cb809d09beb6cf73cf989688901fcd5ec72450",
+  "shocked_events_sha256": "57c7e2539d28d2aadf46cd8c3810e3fc87b032345080df21e14e127755200631",
+  "control": "smoke",
+  "shock_seed": 910017
+ },
+ {
+  "label": "ctl_smoke_910018",
+  "failed": null,
+  "n_firms": 4,
+  "sc1_survival": 0.75,
+  "sc1_ok": true,
+  "sc2_h_below_crit": 0.5913978494623656,
+  "sc2_ok": false,
+  "sc3_binds": [
+   true,
+   false,
+   true,
+   false
+  ],
+  "sc3_ok": false,
+  "sc6_entropy_variance": 0.3679443941353591,
+  "sc6_ok": true,
+  "T1": false,
+  "baseline_survivors": 3,
+  "baseline_collapse": false,
+  "baseline_distinct_compliance_death_ticks": 0,
+  "baseline_compliance_deaths": 0,
+  "baseline_max_deaths_in_one_tick": 1,
+  "baseline_mass_death_tick": false,
+  "shocked_survivors": 1,
+  "shocked_collapse": false,
+  "shocked_distinct_compliance_death_ticks": 1,
+  "shocked_compliance_deaths": 2,
+  "shocked_max_deaths_in_one_tick": 2,
+  "shocked_mass_death_tick": false,
+  "baseline_death_records": [
+   [
+    12,
+    2,
+    "solvency"
+   ]
+  ],
+  "shocked_death_records": [
+   [
+    12,
+    2,
+    "solvency"
+   ],
+   [
+    66,
+    0,
+    "compliance"
+   ],
+   [
+    66,
+    1,
+    "compliance"
+   ]
+  ],
+  "delta_h_rep_matched": 0.0,
+  "nonzero_matched_delta_h": false,
+  "n_matched_firm_ticks": 264,
+  "drawn_onset": 65,
+  "drawn_magnitude": 0.35811352663623747,
+  "baseline_events_sha256": "7fcb9374939c19e66d8e453835cb809d09beb6cf73cf989688901fcd5ec72450",
+  "shocked_events_sha256": "5eea11733da4608b52d14d3c149ab3832de18565e1d5e613e5ff621b90cc33b8",
+  "control": "smoke",
+  "shock_seed": 910018
+ },
+ {
+  "label": "ctl_smoke_910019",
+  "failed": null,
+  "n_firms": 4,
+  "sc1_survival": 0.75,
+  "sc1_ok": true,
+  "sc2_h_below_crit": 0.5913978494623656,
+  "sc2_ok": false,
+  "sc3_binds": [
+   true,
+   false,
+   true,
+   false
+  ],
+  "sc3_ok": false,
+  "sc6_entropy_variance": 0.3679443941353591,
+  "sc6_ok": true,
+  "T1": false,
+  "baseline_survivors": 3,
+  "baseline_collapse": false,
+  "baseline_distinct_compliance_death_ticks": 0,
+  "baseline_compliance_deaths": 0,
+  "baseline_max_deaths_in_one_tick": 1,
+  "baseline_mass_death_tick": false,
+  "shocked_survivors": 1,
+  "shocked_collapse": false,
+  "shocked_distinct_compliance_death_ticks": 1,
+  "shocked_compliance_deaths": 2,
+  "shocked_max_deaths_in_one_tick": 2,
+  "shocked_mass_death_tick": false,
+  "baseline_death_records": [
+   [
+    12,
+    2,
+    "solvency"
+   ]
+  ],
+  "shocked_death_records": [
+   [
+    12,
+    2,
+    "solvency"
+   ],
+   [
+    43,
+    0,
+    "compliance"
+   ],
+   [
+    43,
+    1,
+    "compliance"
+   ]
+  ],
+  "delta_h_rep_matched": 0.0,
+  "nonzero_matched_delta_h": false,
+  "n_matched_firm_ticks": 218,
+  "drawn_onset": 31,
+  "drawn_magnitude": 0.36762333766238825,
+  "baseline_events_sha256": "7fcb9374939c19e66d8e453835cb809d09beb6cf73cf989688901fcd5ec72450",
+  "shocked_events_sha256": "adcb18af26660c7d34f85bffe00e6523507d687f57bd398d43a0a7c7f5a50bf7",
+  "control": "smoke",
+  "shock_seed": 910019
+ },
+ {
+  "label": "ctl_smoke_910020",
+  "failed": null,
+  "n_firms": 4,
+  "sc1_survival": 0.75,
+  "sc1_ok": true,
+  "sc2_h_below_crit": 0.5913978494623656,
+  "sc2_ok": false,
+  "sc3_binds": [
+   true,
+   false,
+   true,
+   false
+  ],
+  "sc3_ok": false,
+  "sc6_entropy_variance": 0.3679443941353591,
+  "sc6_ok": true,
+  "T1": false,
+  "baseline_survivors": 3,
+  "baseline_collapse": false,
+  "baseline_distinct_compliance_death_ticks": 0,
+  "baseline_compliance_deaths": 0,
+  "baseline_max_deaths_in_one_tick": 1,
+  "baseline_mass_death_tick": false,
+  "shocked_survivors": 1,
+  "shocked_collapse": false,
+  "shocked_distinct_compliance_death_ticks": 1,
+  "shocked_compliance_deaths": 2,
+  "shocked_max_deaths_in_one_tick": 2,
+  "shocked_mass_death_tick": false,
+  "baseline_death_records": [
+   [
+    12,
+    2,
+    "solvency"
+   ]
+  ],
+  "shocked_death_records": [
+   [
+    12,
+    2,
+    "solvency"
+   ],
+   [
+    73,
+    0,
+    "compliance"
+   ],
+   [
+    73,
+    1,
+    "compliance"
+   ]
+  ],
+  "delta_h_rep_matched": 0.0,
+  "nonzero_matched_delta_h": false,
+  "n_matched_firm_ticks": 278,
+  "drawn_onset": 72,
+  "drawn_magnitude": 0.4882595748358681,
+  "baseline_events_sha256": "7fcb9374939c19e66d8e453835cb809d09beb6cf73cf989688901fcd5ec72450",
+  "shocked_events_sha256": "b840bb4b6cb105153d9ebe8f68c7eb789c85b905be977ebe397da477eb486366",
+  "control": "smoke",
+  "shock_seed": 910020
+ },
+ {
+  "label": "ctl_cell79_910001",
+  "failed": null,
+  "n_firms": 12,
+  "sc1_survival": 0.8333333333333334,
+  "sc1_ok": true,
+  "sc2_h_below_crit": 0.16328125,
+  "sc2_ok": true,
+  "sc3_binds": [
+   true,
+   true,
+   true,
+   true
+  ],
+  "sc3_ok": true,
+  "sc6_entropy_variance": 0.19755597134241099,
+  "sc6_ok": true,
+  "T1": true,
+  "baseline_survivors": 10,
+  "baseline_collapse": false,
+  "baseline_distinct_compliance_death_ticks": 0,
+  "baseline_compliance_deaths": 0,
+  "baseline_max_deaths_in_one_tick": 2,
+  "baseline_mass_death_tick": false,
+  "shocked_survivors": 1,
+  "shocked_collapse": true,
+  "shocked_distinct_compliance_death_ticks": 1,
+  "shocked_compliance_deaths": 9,
+  "shocked_max_deaths_in_one_tick": 9,
+  "shocked_mass_death_tick": true,
+  "baseline_death_records": [
+   [
+    40,
+    1,
+    "solvency"
+   ],
+   [
+    40,
+    2,
+    "solvency"
+   ]
+  ],
+  "shocked_death_records": [
+   [
+    40,
+    1,
+    "solvency"
+   ],
+   [
+    40,
+    2,
+    "solvency"
+   ],
+   [
+    56,
+    3,
+    "compliance"
+   ],
+   [
+    56,
+    4,
+    "compliance"
+   ],
+   [
+    56,
+    5,
+    "compliance"
+   ],
+   [
+    56,
+    6,
+    "compliance"
+   ],
+   [
+    56,
+    7,
+    "compliance"
+   ],
+   [
+    56,
+    8,
+    "compliance"
+   ],
+   [
+    56,
+    9,
+    "compliance"
+   ],
+   [
+    56,
+    10,
+    "compliance"
+   ],
+   [
+    56,
+    11,
+    "compliance"
+   ]
+  ],
+  "delta_h_rep_matched": 0.00383453245890622,
+  "nonzero_matched_delta_h": true,
+  "n_matched_firm_ticks": 704,
+  "drawn_onset": 52,
+  "drawn_magnitude": 0.2194103083288543,
+  "baseline_events_sha256": "e55454fc79d0cf6fa19e03de9393c3a332d259c81a67c49a6a3217ff48366215",
+  "shocked_events_sha256": "ae7e3acc1ea32472ad00849153c68a58aa5486bdde0c3829d5fda6bc625cf690",
+  "control": "cell79",
+  "shock_seed": 910001
+ },
+ {
+  "label": "ctl_cell79_910002",
+  "failed": null,
+  "n_firms": 12,
+  "sc1_survival": 0.8333333333333334,
+  "sc1_ok": true,
+  "sc2_h_below_crit": 0.16328125,
+  "sc2_ok": true,
+  "sc3_binds": [
+   true,
+   true,
+   true,
+   true
+  ],
+  "sc3_ok": true,
+  "sc6_entropy_variance": 0.19755597134241099,
+  "sc6_ok": true,
+  "T1": true,
+  "baseline_survivors": 10,
+  "baseline_collapse": false,
+  "baseline_distinct_compliance_death_ticks": 0,
+  "baseline_compliance_deaths": 0,
+  "baseline_max_deaths_in_one_tick": 2,
+  "baseline_mass_death_tick": false,
+  "shocked_survivors": 10,
+  "shocked_collapse": false,
+  "shocked_distinct_compliance_death_ticks": 0,
+  "shocked_compliance_deaths": 0,
+  "shocked_max_deaths_in_one_tick": 2,
+  "shocked_mass_death_tick": false,
+  "baseline_death_records": [
+   [
+    40,
+    1,
+    "solvency"
+   ],
+   [
+    40,
+    2,
+    "solvency"
+   ]
+  ],
+  "shocked_death_records": [
+   [
+    40,
+    1,
+    "solvency"
+   ],
+   [
+    40,
+    2,
+    "solvency"
+   ]
+  ],
+  "delta_h_rep_matched": 0.1828218661296843,
+  "nonzero_matched_delta_h": true,
+  "n_matched_firm_ticks": 1280,
+  "drawn_onset": 68,
+  "drawn_magnitude": 0.2860512341359726,
+  "baseline_events_sha256": "e55454fc79d0cf6fa19e03de9393c3a332d259c81a67c49a6a3217ff48366215",
+  "shocked_events_sha256": "01cbc1351357928056e10c9ac68df751135be3a5815a87da407cb9ab77942aae",
+  "control": "cell79",
+  "shock_seed": 910002
+ },
+ {
+  "label": "ctl_cell79_910003",
+  "failed": null,
+  "n_firms": 12,
+  "sc1_survival": 0.8333333333333334,
+  "sc1_ok": true,
+  "sc2_h_below_crit": 0.16328125,
+  "sc2_ok": true,
+  "sc3_binds": [
+   true,
+   true,
+   true,
+   true
+  ],
+  "sc3_ok": true,
+  "sc6_entropy_variance": 0.19755597134241099,
+  "sc6_ok": true,
+  "T1": true,
+  "baseline_survivors": 10,
+  "baseline_collapse": false,
+  "baseline_distinct_compliance_death_ticks": 0,
+  "baseline_compliance_deaths": 0,
+  "baseline_max_deaths_in_one_tick": 2,
+  "baseline_mass_death_tick": false,
+  "shocked_survivors": 10,
+  "shocked_collapse": false,
+  "shocked_distinct_compliance_death_ticks": 0,
+  "shocked_compliance_deaths": 0,
+  "shocked_max_deaths_in_one_tick": 2,
+  "shocked_mass_death_tick": false,
+  "baseline_death_records": [
+   [
+    40,
+    1,
+    "solvency"
+   ],
+   [
+    40,
+    2,
+    "solvency"
+   ]
+  ],
+  "shocked_death_records": [
+   [
+    40,
+    1,
+    "solvency"
+   ],
+   [
+    40,
+    2,
+    "solvency"
+   ]
+  ],
+  "delta_h_rep_matched": 0.015699163459923518,
+  "nonzero_matched_delta_h": true,
+  "n_matched_firm_ticks": 1280,
+  "drawn_onset": 74,
+  "drawn_magnitude": 0.0650015825916605,
+  "baseline_events_sha256": "e55454fc79d0cf6fa19e03de9393c3a332d259c81a67c49a6a3217ff48366215",
+  "shocked_events_sha256": "ba3c21f293cb11a7f81bfe1f99ddc8d045e602356a888e1a7decd117e0c255e6",
+  "control": "cell79",
+  "shock_seed": 910003
+ },
+ {
+  "label": "ctl_cell79_910004",
+  "failed": null,
+  "n_firms": 12,
+  "sc1_survival": 0.8333333333333334,
+  "sc1_ok": true,
+  "sc2_h_below_crit": 0.16328125,
+  "sc2_ok": true,
+  "sc3_binds": [
+   true,
+   true,
+   true,
+   true
+  ],
+  "sc3_ok": true,
+  "sc6_entropy_variance": 0.19755597134241099,
+  "sc6_ok": true,
+  "T1": true,
+  "baseline_survivors": 10,
+  "baseline_collapse": false,
+  "baseline_distinct_compliance_death_ticks": 0,
+  "baseline_compliance_deaths": 0,
+  "baseline_max_deaths_in_one_tick": 2,
+  "baseline_mass_death_tick": false,
+  "shocked_survivors": 1,
+  "shocked_collapse": true,
+  "shocked_distinct_compliance_death_ticks": 1,
+  "shocked_compliance_deaths": 9,
+  "shocked_max_deaths_in_one_tick": 9,
+  "shocked_mass_death_tick": true,
+  "baseline_death_records": [
+   [
+    40,
+    1,
+    "solvency"
+   ],
+   [
+    40,
+    2,
+    "solvency"
+   ]
+  ],
+  "shocked_death_records": [
+   [
+    40,
+    1,
+    "solvency"
+   ],
+   [
+    40,
+    2,
+    "solvency"
+   ],
+   [
+    48,
+    3,
+    "compliance"
+   ],
+   [
+    48,
+    4,
+    "compliance"
+   ],
+   [
+    48,
+    5,
+    "compliance"
+   ],
+   [
+    48,
+    6,
+    "compliance"
+   ],
+   [
+    48,
+    7,
+    "compliance"
+   ],
+   [
+    48,
+    8,
+    "compliance"
+   ],
+   [
+    48,
+    9,
+    "compliance"
+   ],
+   [
+    48,
+    10,
+    "compliance"
+   ],
+   [
+    48,
+    11,
+    "compliance"
+   ]
+  ],
+  "delta_h_rep_matched": 0.0009574706946739522,
+  "nonzero_matched_delta_h": true,
+  "n_matched_firm_ticks": 632,
+  "drawn_onset": 37,
+  "drawn_magnitude": 0.16349591973640165,
+  "baseline_events_sha256": "e55454fc79d0cf6fa19e03de9393c3a332d259c81a67c49a6a3217ff48366215",
+  "shocked_events_sha256": "053b6ec858676b1442e5ec460602e43e421df3c5ed58cbe332b0b640212e8502",
+  "control": "cell79",
+  "shock_seed": 910004
+ },
+ {
+  "label": "ctl_cell79_910005",
+  "failed": null,
+  "n_firms": 12,
+  "sc1_survival": 0.8333333333333334,
+  "sc1_ok": true,
+  "sc2_h_below_crit": 0.16328125,
+  "sc2_ok": true,
+  "sc3_binds": [
+   true,
+   true,
+   true,
+   true
+  ],
+  "sc3_ok": true,
+  "sc6_entropy_variance": 0.19755597134241099,
+  "sc6_ok": true,
+  "T1": true,
+  "baseline_survivors": 10,
+  "baseline_collapse": false,
+  "baseline_distinct_compliance_death_ticks": 0,
+  "baseline_compliance_deaths": 0,
+  "baseline_max_deaths_in_one_tick": 2,
+  "baseline_mass_death_tick": false,
+  "shocked_survivors": 10,
+  "shocked_collapse": false,
+  "shocked_distinct_compliance_death_ticks": 0,
+  "shocked_compliance_deaths": 0,
+  "shocked_max_deaths_in_one_tick": 2,
+  "shocked_mass_death_tick": false,
+  "baseline_death_records": [
+   [
+    40,
+    1,
+    "solvency"
+   ],
+   [
+    40,
+    2,
+    "solvency"
+   ]
+  ],
+  "shocked_death_records": [
+   [
+    40,
+    1,
+    "solvency"
+   ],
+   [
+    40,
+    2,
+    "solvency"
+   ]
+  ],
+  "delta_h_rep_matched": 0.2149840675757372,
+  "nonzero_matched_delta_h": true,
+  "n_matched_firm_ticks": 1280,
+  "drawn_onset": 60,
+  "drawn_magnitude": 0.2543230032197623,
+  "baseline_events_sha256": "e55454fc79d0cf6fa19e03de9393c3a332d259c81a67c49a6a3217ff48366215",
+  "shocked_events_sha256": "6565253792730a533dd769ff01b9a796b6785e0605624b1910ccbf8859b56786",
+  "control": "cell79",
+  "shock_seed": 910005
+ },
+ {
+  "label": "ctl_cell79_910006",
+  "failed": null,
+  "n_firms": 12,
+  "sc1_survival": 0.8333333333333334,
+  "sc1_ok": true,
+  "sc2_h_below_crit": 0.16328125,
+  "sc2_ok": true,
+  "sc3_binds": [
+   true,
+   true,
+   true,
+   true
+  ],
+  "sc3_ok": true,
+  "sc6_entropy_variance": 0.19755597134241099,
+  "sc6_ok": true,
+  "T1": true,
+  "baseline_survivors": 10,
+  "baseline_collapse": false,
+  "baseline_distinct_compliance_death_ticks": 0,
+  "baseline_compliance_deaths": 0,
+  "baseline_max_deaths_in_one_tick": 2,
+  "baseline_mass_death_tick": false,
+  "shocked_survivors": 1,
+  "shocked_collapse": true,
+  "shocked_distinct_compliance_death_ticks": 1,
+  "shocked_compliance_deaths": 9,
+  "shocked_max_deaths_in_one_tick": 9,
+  "shocked_mass_death_tick": true,
+  "baseline_death_records": [
+   [
+    40,
+    1,
+    "solvency"
+   ],
+   [
+    40,
+    2,
+    "solvency"
+   ]
+  ],
+  "shocked_death_records": [
+   [
+    40,
+    1,
+    "solvency"
+   ],
+   [
+    40,
+    2,
+    "solvency"
+   ],
+   [
+    48,
+    3,
+    "compliance"
+   ],
+   [
+    48,
+    4,
+    "compliance"
+   ],
+   [
+    48,
+    5,
+    "compliance"
+   ],
+   [
+    48,
+    6,
+    "compliance"
+   ],
+   [
+    48,
+    7,
+    "compliance"
+   ],
+   [
+    48,
+    8,
+    "compliance"
+   ],
+   [
+    48,
+    9,
+    "compliance"
+   ],
+   [
+    48,
+    10,
+    "compliance"
+   ],
+   [
+    48,
+    11,
+    "compliance"
+   ]
+  ],
+  "delta_h_rep_matched": 0.0009574706946739522,
+  "nonzero_matched_delta_h": true,
+  "n_matched_firm_ticks": 632,
+  "drawn_onset": 13,
+  "drawn_magnitude": 0.1712439780487127,
+  "baseline_events_sha256": "e55454fc79d0cf6fa19e03de9393c3a332d259c81a67c49a6a3217ff48366215",
+  "shocked_events_sha256": "271b1bf2f16cab952a0bb201a729d138a07aa27c0a5abc195b993ae33f7658e3",
+  "control": "cell79",
+  "shock_seed": 910006
+ },
+ {
+  "label": "ctl_cell79_910007",
+  "failed": null,
+  "n_firms": 12,
+  "sc1_survival": 0.8333333333333334,
+  "sc1_ok": true,
+  "sc2_h_below_crit": 0.16328125,
+  "sc2_ok": true,
+  "sc3_binds": [
+   true,
+   true,
+   true,
+   true
+  ],
+  "sc3_ok": true,
+  "sc6_entropy_variance": 0.19755597134241099,
+  "sc6_ok": true,
+  "T1": true,
+  "baseline_survivors": 10,
+  "baseline_collapse": false,
+  "baseline_distinct_compliance_death_ticks": 0,
+  "baseline_compliance_deaths": 0,
+  "baseline_max_deaths_in_one_tick": 2,
+  "baseline_mass_death_tick": false,
+  "shocked_survivors": 1,
+  "shocked_collapse": true,
+  "shocked_distinct_compliance_death_ticks": 1,
+  "shocked_compliance_deaths": 9,
+  "shocked_max_deaths_in_one_tick": 9,
+  "shocked_mass_death_tick": true,
+  "baseline_death_records": [
+   [
+    40,
+    1,
+    "solvency"
+   ],
+   [
+    40,
+    2,
+    "solvency"
+   ]
+  ],
+  "shocked_death_records": [
+   [
+    40,
+    1,
+    "solvency"
+   ],
+   [
+    40,
+    2,
+    "solvency"
+   ],
+   [
+    48,
+    3,
+    "compliance"
+   ],
+   [
+    48,
+    4,
+    "compliance"
+   ],
+   [
+    48,
+    5,
+    "compliance"
+   ],
+   [
+    48,
+    6,
+    "compliance"
+   ],
+   [
+    48,
+    7,
+    "compliance"
+   ],
+   [
+    48,
+    8,
+    "compliance"
+   ],
+   [
+    48,
+    9,
+    "compliance"
+   ],
+   [
+    48,
+    10,
+    "compliance"
+   ],
+   [
+    48,
+    11,
+    "compliance"
+   ]
+  ],
+  "delta_h_rep_matched": 0.0009574706946739522,
+  "nonzero_matched_delta_h": true,
+  "n_matched_firm_ticks": 632,
+  "drawn_onset": 27,
+  "drawn_magnitude": 0.15088797471634918,
+  "baseline_events_sha256": "e55454fc79d0cf6fa19e03de9393c3a332d259c81a67c49a6a3217ff48366215",
+  "shocked_events_sha256": "f60945653c2a77480b415cbd500d039b17b36443c0c601df973ec90bb8007bcb",
+  "control": "cell79",
+  "shock_seed": 910007
+ },
+ {
+  "label": "ctl_cell79_910008",
+  "failed": null,
+  "n_firms": 12,
+  "sc1_survival": 0.8333333333333334,
+  "sc1_ok": true,
+  "sc2_h_below_crit": 0.16328125,
+  "sc2_ok": true,
+  "sc3_binds": [
+   true,
+   true,
+   true,
+   true
+  ],
+  "sc3_ok": true,
+  "sc6_entropy_variance": 0.19755597134241099,
+  "sc6_ok": true,
+  "T1": true,
+  "baseline_survivors": 10,
+  "baseline_collapse": false,
+  "baseline_distinct_compliance_death_ticks": 0,
+  "baseline_compliance_deaths": 0,
+  "baseline_max_deaths_in_one_tick": 2,
+  "baseline_mass_death_tick": false,
+  "shocked_survivors": 1,
+  "shocked_collapse": true,
+  "shocked_distinct_compliance_death_ticks": 1,
+  "shocked_compliance_deaths": 9,
+  "shocked_max_deaths_in_one_tick": 9,
+  "shocked_mass_death_tick": true,
+  "baseline_death_records": [
+   [
+    40,
+    1,
+    "solvency"
+   ],
+   [
+    40,
+    2,
+    "solvency"
+   ]
+  ],
+  "shocked_death_records": [
+   [
+    40,
+    1,
+    "solvency"
+   ],
+   [
+    40,
+    2,
+    "solvency"
+   ],
+   [
+    66,
+    3,
+    "compliance"
+   ],
+   [
+    66,
+    4,
+    "compliance"
+   ],
+   [
+    66,
+    5,
+    "compliance"
+   ],
+   [
+    66,
+    6,
+    "compliance"
+   ],
+   [
+    66,
+    7,
+    "compliance"
+   ],
+   [
+    66,
+    8,
+    "compliance"
+   ],
+   [
+    66,
+    9,
+    "compliance"
+   ],
+   [
+    66,
+    10,
+    "compliance"
+   ],
+   [
+    66,
+    11,
+    "compliance"
+   ]
+  ],
+  "delta_h_rep_matched": 0.0016267713462026388,
+  "nonzero_matched_delta_h": true,
+  "n_matched_firm_ticks": 794,
+  "drawn_onset": 63,
+  "drawn_magnitude": 0.1827686065115246,
+  "baseline_events_sha256": "e55454fc79d0cf6fa19e03de9393c3a332d259c81a67c49a6a3217ff48366215",
+  "shocked_events_sha256": "2806b25458bc047c86d6d1a855682df8adb3198fd65d99423c7b616543aa3940",
+  "control": "cell79",
+  "shock_seed": 910008
+ },
+ {
+  "label": "ctl_cell79_910009",
+  "failed": null,
+  "n_firms": 12,
+  "sc1_survival": 0.8333333333333334,
+  "sc1_ok": true,
+  "sc2_h_below_crit": 0.16328125,
+  "sc2_ok": true,
+  "sc3_binds": [
+   true,
+   true,
+   true,
+   true
+  ],
+  "sc3_ok": true,
+  "sc6_entropy_variance": 0.19755597134241099,
+  "sc6_ok": true,
+  "T1": true,
+  "baseline_survivors": 10,
+  "baseline_collapse": false,
+  "baseline_distinct_compliance_death_ticks": 0,
+  "baseline_compliance_deaths": 0,
+  "baseline_max_deaths_in_one_tick": 2,
+  "baseline_mass_death_tick": false,
+  "shocked_survivors": 1,
+  "shocked_collapse": true,
+  "shocked_distinct_compliance_death_ticks": 1,
+  "shocked_compliance_deaths": 9,
+  "shocked_max_deaths_in_one_tick": 9,
+  "shocked_mass_death_tick": true,
+  "baseline_death_records": [
+   [
+    40,
+    1,
+    "solvency"
+   ],
+   [
+    40,
+    2,
+    "solvency"
+   ]
+  ],
+  "shocked_death_records": [
+   [
+    40,
+    1,
+    "solvency"
+   ],
+   [
+    40,
+    2,
+    "solvency"
+   ],
+   [
+    48,
+    3,
+    "compliance"
+   ],
+   [
+    48,
+    4,
+    "compliance"
+   ],
+   [
+    48,
+    5,
+    "compliance"
+   ],
+   [
+    48,
+    6,
+    "compliance"
+   ],
+   [
+    48,
+    7,
+    "compliance"
+   ],
+   [
+    48,
+    8,
+    "compliance"
+   ],
+   [
+    48,
+    9,
+    "compliance"
+   ],
+   [
+    48,
+    10,
+    "compliance"
+   ],
+   [
+    48,
+    11,
+    "compliance"
+   ]
+  ],
+  "delta_h_rep_matched": 0.0009574706946739522,
+  "nonzero_matched_delta_h": true,
+  "n_matched_firm_ticks": 632,
+  "drawn_onset": 26,
+  "drawn_magnitude": 0.18260991851329236,
+  "baseline_events_sha256": "e55454fc79d0cf6fa19e03de9393c3a332d259c81a67c49a6a3217ff48366215",
+  "shocked_events_sha256": "a829575fdcd002dfa4f237b59e130026e7d98a10a9cc504220118200c1641a75",
+  "control": "cell79",
+  "shock_seed": 910009
+ },
+ {
+  "label": "ctl_cell79_910010",
+  "failed": null,
+  "n_firms": 12,
+  "sc1_survival": 0.8333333333333334,
+  "sc1_ok": true,
+  "sc2_h_below_crit": 0.16328125,
+  "sc2_ok": true,
+  "sc3_binds": [
+   true,
+   true,
+   true,
+   true
+  ],
+  "sc3_ok": true,
+  "sc6_entropy_variance": 0.19755597134241099,
+  "sc6_ok": true,
+  "T1": true,
+  "baseline_survivors": 10,
+  "baseline_collapse": false,
+  "baseline_distinct_compliance_death_ticks": 0,
+  "baseline_compliance_deaths": 0,
+  "baseline_max_deaths_in_one_tick": 2,
+  "baseline_mass_death_tick": false,
+  "shocked_survivors": 1,
+  "shocked_collapse": true,
+  "shocked_distinct_compliance_death_ticks": 1,
+  "shocked_compliance_deaths": 9,
+  "shocked_max_deaths_in_one_tick": 9,
+  "shocked_mass_death_tick": true,
+  "baseline_death_records": [
+   [
+    40,
+    1,
+    "solvency"
+   ],
+   [
+    40,
+    2,
+    "solvency"
+   ]
+  ],
+  "shocked_death_records": [
+   [
+    40,
+    1,
+    "solvency"
+   ],
+   [
+    40,
+    2,
+    "solvency"
+   ],
+   [
+    54,
+    3,
+    "compliance"
+   ],
+   [
+    54,
+    4,
+    "compliance"
+   ],
+   [
+    54,
+    5,
+    "compliance"
+   ],
+   [
+    54,
+    6,
+    "compliance"
+   ],
+   [
+    54,
+    7,
+    "compliance"
+   ],
+   [
+    54,
+    8,
+    "compliance"
+   ],
+   [
+    54,
+    9,
+    "compliance"
+   ],
+   [
+    54,
+    10,
+    "compliance"
+   ],
+   [
+    54,
+    11,
+    "compliance"
+   ]
+  ],
+  "delta_h_rep_matched": 0.001988276089803225,
+  "nonzero_matched_delta_h": true,
+  "n_matched_firm_ticks": 686,
+  "drawn_onset": 51,
+  "drawn_magnitude": 0.24103345373833313,
+  "baseline_events_sha256": "e55454fc79d0cf6fa19e03de9393c3a332d259c81a67c49a6a3217ff48366215",
+  "shocked_events_sha256": "bf0957a17748cdf0b68011c37ab653bf1ccc234e15da6a6a878313d79c5bea83",
+  "control": "cell79",
+  "shock_seed": 910010
+ },
+ {
+  "label": "ctl_cell79_910011",
+  "failed": null,
+  "n_firms": 12,
+  "sc1_survival": 0.8333333333333334,
+  "sc1_ok": true,
+  "sc2_h_below_crit": 0.16328125,
+  "sc2_ok": true,
+  "sc3_binds": [
+   true,
+   true,
+   true,
+   true
+  ],
+  "sc3_ok": true,
+  "sc6_entropy_variance": 0.19755597134241099,
+  "sc6_ok": true,
+  "T1": true,
+  "baseline_survivors": 10,
+  "baseline_collapse": false,
+  "baseline_distinct_compliance_death_ticks": 0,
+  "baseline_compliance_deaths": 0,
+  "baseline_max_deaths_in_one_tick": 2,
+  "baseline_mass_death_tick": false,
+  "shocked_survivors": 10,
+  "shocked_collapse": false,
+  "shocked_distinct_compliance_death_ticks": 0,
+  "shocked_compliance_deaths": 0,
+  "shocked_max_deaths_in_one_tick": 2,
+  "shocked_mass_death_tick": false,
+  "baseline_death_records": [
+   [
+    40,
+    1,
+    "solvency"
+   ],
+   [
+    40,
+    2,
+    "solvency"
+   ]
+  ],
+  "shocked_death_records": [
+   [
+    40,
+    1,
+    "solvency"
+   ],
+   [
+    40,
+    2,
+    "solvency"
+   ]
+  ],
+  "delta_h_rep_matched": 0.02584339479180997,
+  "nonzero_matched_delta_h": true,
+  "n_matched_firm_ticks": 1280,
+  "drawn_onset": 13,
+  "drawn_magnitude": 0.13682833787679088,
+  "baseline_events_sha256": "e55454fc79d0cf6fa19e03de9393c3a332d259c81a67c49a6a3217ff48366215",
+  "shocked_events_sha256": "074a65df5d5c94a43c4bd4a21419b15a37ccfb95f05249d2212eba4f45bf785c",
+  "control": "cell79",
+  "shock_seed": 910011
+ },
+ {
+  "label": "ctl_cell79_910012",
+  "failed": null,
+  "n_firms": 12,
+  "sc1_survival": 0.8333333333333334,
+  "sc1_ok": true,
+  "sc2_h_below_crit": 0.16328125,
+  "sc2_ok": true,
+  "sc3_binds": [
+   true,
+   true,
+   true,
+   true
+  ],
+  "sc3_ok": true,
+  "sc6_entropy_variance": 0.19755597134241099,
+  "sc6_ok": true,
+  "T1": true,
+  "baseline_survivors": 10,
+  "baseline_collapse": false,
+  "baseline_distinct_compliance_death_ticks": 0,
+  "baseline_compliance_deaths": 0,
+  "baseline_max_deaths_in_one_tick": 2,
+  "baseline_mass_death_tick": false,
+  "shocked_survivors": 10,
+  "shocked_collapse": false,
+  "shocked_distinct_compliance_death_ticks": 0,
+  "shocked_compliance_deaths": 0,
+  "shocked_max_deaths_in_one_tick": 2,
+  "shocked_mass_death_tick": false,
+  "baseline_death_records": [
+   [
+    40,
+    1,
+    "solvency"
+   ],
+   [
+    40,
+    2,
+    "solvency"
+   ]
+  ],
+  "shocked_death_records": [
+   [
+    40,
+    1,
+    "solvency"
+   ],
+   [
+    40,
+    2,
+    "solvency"
+   ]
+  ],
+  "delta_h_rep_matched": 0.014804439219512066,
+  "nonzero_matched_delta_h": true,
+  "n_matched_firm_ticks": 1280,
+  "drawn_onset": 78,
+  "drawn_magnitude": 0.10731835197494516,
+  "baseline_events_sha256": "e55454fc79d0cf6fa19e03de9393c3a332d259c81a67c49a6a3217ff48366215",
+  "shocked_events_sha256": "4f90972bef43e27418ad728e988a5e793bf65f31185b157b28e5ea15fb6995ef",
+  "control": "cell79",
+  "shock_seed": 910012
+ },
+ {
+  "label": "ctl_cell79_910013",
+  "failed": null,
+  "n_firms": 12,
+  "sc1_survival": 0.8333333333333334,
+  "sc1_ok": true,
+  "sc2_h_below_crit": 0.16328125,
+  "sc2_ok": true,
+  "sc3_binds": [
+   true,
+   true,
+   true,
+   true
+  ],
+  "sc3_ok": true,
+  "sc6_entropy_variance": 0.19755597134241099,
+  "sc6_ok": true,
+  "T1": true,
+  "baseline_survivors": 10,
+  "baseline_collapse": false,
+  "baseline_distinct_compliance_death_ticks": 0,
+  "baseline_compliance_deaths": 0,
+  "baseline_max_deaths_in_one_tick": 2,
+  "baseline_mass_death_tick": false,
+  "shocked_survivors": 10,
+  "shocked_collapse": false,
+  "shocked_distinct_compliance_death_ticks": 0,
+  "shocked_compliance_deaths": 0,
+  "shocked_max_deaths_in_one_tick": 2,
+  "shocked_mass_death_tick": false,
+  "baseline_death_records": [
+   [
+    40,
+    1,
+    "solvency"
+   ],
+   [
+    40,
+    2,
+    "solvency"
+   ]
+  ],
+  "shocked_death_records": [
+   [
+    40,
+    1,
+    "solvency"
+   ],
+   [
+    40,
+    2,
+    "solvency"
+   ]
+  ],
+  "delta_h_rep_matched": 0.02584339479180997,
+  "nonzero_matched_delta_h": true,
+  "n_matched_firm_ticks": 1280,
+  "drawn_onset": 23,
+  "drawn_magnitude": 0.11156585110664337,
+  "baseline_events_sha256": "e55454fc79d0cf6fa19e03de9393c3a332d259c81a67c49a6a3217ff48366215",
+  "shocked_events_sha256": "e5c51ae5c0d35e73f71682ed5bdef6215d1f7bc2052e1c401b90853c7f312a33",
+  "control": "cell79",
+  "shock_seed": 910013
+ },
+ {
+  "label": "ctl_cell79_910014",
+  "failed": null,
+  "n_firms": 12,
+  "sc1_survival": 0.8333333333333334,
+  "sc1_ok": true,
+  "sc2_h_below_crit": 0.16328125,
+  "sc2_ok": true,
+  "sc3_binds": [
+   true,
+   true,
+   true,
+   true
+  ],
+  "sc3_ok": true,
+  "sc6_entropy_variance": 0.19755597134241099,
+  "sc6_ok": true,
+  "T1": true,
+  "baseline_survivors": 10,
+  "baseline_collapse": false,
+  "baseline_distinct_compliance_death_ticks": 0,
+  "baseline_compliance_deaths": 0,
+  "baseline_max_deaths_in_one_tick": 2,
+  "baseline_mass_death_tick": false,
+  "shocked_survivors": 10,
+  "shocked_collapse": false,
+  "shocked_distinct_compliance_death_ticks": 0,
+  "shocked_compliance_deaths": 0,
+  "shocked_max_deaths_in_one_tick": 2,
+  "shocked_mass_death_tick": false,
+  "baseline_death_records": [
+   [
+    40,
+    1,
+    "solvency"
+   ],
+   [
+    40,
+    2,
+    "solvency"
+   ]
+  ],
+  "shocked_death_records": [
+   [
+    40,
+    1,
+    "solvency"
+   ],
+   [
+    40,
+    2,
+    "solvency"
+   ]
+  ],
+  "delta_h_rep_matched": 0.26098182054096736,
+  "nonzero_matched_delta_h": true,
+  "n_matched_firm_ticks": 1280,
+  "drawn_onset": 33,
+  "drawn_magnitude": 0.28488293559780686,
+  "baseline_events_sha256": "e55454fc79d0cf6fa19e03de9393c3a332d259c81a67c49a6a3217ff48366215",
+  "shocked_events_sha256": "b034292c27a40d379439026b66e16ad622750f2d8c1e39399488fc6bce14f08e",
+  "control": "cell79",
+  "shock_seed": 910014
+ },
+ {
+  "label": "ctl_cell79_910015",
+  "failed": null,
+  "n_firms": 12,
+  "sc1_survival": 0.8333333333333334,
+  "sc1_ok": true,
+  "sc2_h_below_crit": 0.16328125,
+  "sc2_ok": true,
+  "sc3_binds": [
+   true,
+   true,
+   true,
+   true
+  ],
+  "sc3_ok": true,
+  "sc6_entropy_variance": 0.19755597134241099,
+  "sc6_ok": true,
+  "T1": true,
+  "baseline_survivors": 10,
+  "baseline_collapse": false,
+  "baseline_distinct_compliance_death_ticks": 0,
+  "baseline_compliance_deaths": 0,
+  "baseline_max_deaths_in_one_tick": 2,
+  "baseline_mass_death_tick": false,
+  "shocked_survivors": 10,
+  "shocked_collapse": false,
+  "shocked_distinct_compliance_death_ticks": 0,
+  "shocked_compliance_deaths": 0,
+  "shocked_max_deaths_in_one_tick": 2,
+  "shocked_mass_death_tick": false,
+  "baseline_death_records": [
+   [
+    40,
+    1,
+    "solvency"
+   ],
+   [
+    40,
+    2,
+    "solvency"
+   ]
+  ],
+  "shocked_death_records": [
+   [
+    40,
+    1,
+    "solvency"
+   ],
+   [
+    40,
+    2,
+    "solvency"
+   ]
+  ],
+  "delta_h_rep_matched": 0.26098182054096736,
+  "nonzero_matched_delta_h": true,
+  "n_matched_firm_ticks": 1280,
+  "drawn_onset": 18,
+  "drawn_magnitude": 0.3048882357345379,
+  "baseline_events_sha256": "e55454fc79d0cf6fa19e03de9393c3a332d259c81a67c49a6a3217ff48366215",
+  "shocked_events_sha256": "5513392772b4bd57751f33e798bd59ed4f241ed6d2b50f0313f8d42ea160baea",
+  "control": "cell79",
+  "shock_seed": 910015
+ },
+ {
+  "label": "ctl_cell79_910016",
+  "failed": null,
+  "n_firms": 12,
+  "sc1_survival": 0.8333333333333334,
+  "sc1_ok": true,
+  "sc2_h_below_crit": 0.16328125,
+  "sc2_ok": true,
+  "sc3_binds": [
+   true,
+   true,
+   true,
+   true
+  ],
+  "sc3_ok": true,
+  "sc6_entropy_variance": 0.19755597134241099,
+  "sc6_ok": true,
+  "T1": true,
+  "baseline_survivors": 10,
+  "baseline_collapse": false,
+  "baseline_distinct_compliance_death_ticks": 0,
+  "baseline_compliance_deaths": 0,
+  "baseline_max_deaths_in_one_tick": 2,
+  "baseline_mass_death_tick": false,
+  "shocked_survivors": 1,
+  "shocked_collapse": true,
+  "shocked_distinct_compliance_death_ticks": 1,
+  "shocked_compliance_deaths": 9,
+  "shocked_max_deaths_in_one_tick": 9,
+  "shocked_mass_death_tick": true,
+  "baseline_death_records": [
+   [
+    40,
+    1,
+    "solvency"
+   ],
+   [
+    40,
+    2,
+    "solvency"
+   ]
+  ],
+  "shocked_death_records": [
+   [
+    40,
+    1,
+    "solvency"
+   ],
+   [
+    40,
+    2,
+    "solvency"
+   ],
+   [
+    51,
+    3,
+    "compliance"
+   ],
+   [
+    51,
+    4,
+    "compliance"
+   ],
+   [
+    51,
+    5,
+    "compliance"
+   ],
+   [
+    51,
+    6,
+    "compliance"
+   ],
+   [
+    51,
+    7,
+    "compliance"
+   ],
+   [
+    51,
+    8,
+    "compliance"
+   ],
+   [
+    51,
+    9,
+    "compliance"
+   ],
+   [
+    51,
+    10,
+    "compliance"
+   ],
+   [
+    51,
+    11,
+    "compliance"
+   ]
+  ],
+  "delta_h_rep_matched": 0.002105233506850474,
+  "nonzero_matched_delta_h": true,
+  "n_matched_firm_ticks": 659,
+  "drawn_onset": 47,
+  "drawn_magnitude": 0.24291459239156046,
+  "baseline_events_sha256": "e55454fc79d0cf6fa19e03de9393c3a332d259c81a67c49a6a3217ff48366215",
+  "shocked_events_sha256": "54342c63ff3efd1eb11c13c8675b296da5b71a5a1a1303d1a29e5300decc40f8",
+  "control": "cell79",
+  "shock_seed": 910016
+ },
+ {
+  "label": "ctl_cell79_910017",
+  "failed": null,
+  "n_firms": 12,
+  "sc1_survival": 0.8333333333333334,
+  "sc1_ok": true,
+  "sc2_h_below_crit": 0.16328125,
+  "sc2_ok": true,
+  "sc3_binds": [
+   true,
+   true,
+   true,
+   true
+  ],
+  "sc3_ok": true,
+  "sc6_entropy_variance": 0.19755597134241099,
+  "sc6_ok": true,
+  "T1": true,
+  "baseline_survivors": 10,
+  "baseline_collapse": false,
+  "baseline_distinct_compliance_death_ticks": 0,
+  "baseline_compliance_deaths": 0,
+  "baseline_max_deaths_in_one_tick": 2,
+  "baseline_mass_death_tick": false,
+  "shocked_survivors": 10,
+  "shocked_collapse": false,
+  "shocked_distinct_compliance_death_ticks": 0,
+  "shocked_compliance_deaths": 0,
+  "shocked_max_deaths_in_one_tick": 2,
+  "shocked_mass_death_tick": false,
+  "baseline_death_records": [
+   [
+    40,
+    1,
+    "solvency"
+   ],
+   [
+    40,
+    2,
+    "solvency"
+   ]
+  ],
+  "shocked_death_records": [
+   [
+    40,
+    1,
+    "solvency"
+   ],
+   [
+    40,
+    2,
+    "solvency"
+   ]
+  ],
+  "delta_h_rep_matched": 0.26098182054096736,
+  "nonzero_matched_delta_h": true,
+  "n_matched_firm_ticks": 1280,
+  "drawn_onset": 21,
+  "drawn_magnitude": 0.26118120384385185,
+  "baseline_events_sha256": "e55454fc79d0cf6fa19e03de9393c3a332d259c81a67c49a6a3217ff48366215",
+  "shocked_events_sha256": "b6e523ff1740ef6b44381a0e4ab94710999f70ab60e91f8ce0746a92df7be01a",
+  "control": "cell79",
+  "shock_seed": 910017
+ },
+ {
+  "label": "ctl_cell79_910018",
+  "failed": null,
+  "n_firms": 12,
+  "sc1_survival": 0.8333333333333334,
+  "sc1_ok": true,
+  "sc2_h_below_crit": 0.16328125,
+  "sc2_ok": true,
+  "sc3_binds": [
+   true,
+   true,
+   true,
+   true
+  ],
+  "sc3_ok": true,
+  "sc6_entropy_variance": 0.19755597134241099,
+  "sc6_ok": true,
+  "T1": true,
+  "baseline_survivors": 10,
+  "baseline_collapse": false,
+  "baseline_distinct_compliance_death_ticks": 0,
+  "baseline_compliance_deaths": 0,
+  "baseline_max_deaths_in_one_tick": 2,
+  "baseline_mass_death_tick": false,
+  "shocked_survivors": 1,
+  "shocked_collapse": true,
+  "shocked_distinct_compliance_death_ticks": 1,
+  "shocked_compliance_deaths": 9,
+  "shocked_max_deaths_in_one_tick": 9,
+  "shocked_mass_death_tick": true,
+  "baseline_death_records": [
+   [
+    40,
+    1,
+    "solvency"
+   ],
+   [
+    40,
+    2,
+    "solvency"
+   ]
+  ],
+  "shocked_death_records": [
+   [
+    40,
+    1,
+    "solvency"
+   ],
+   [
+    40,
+    2,
+    "solvency"
+   ],
+   [
+    69,
+    3,
+    "compliance"
+   ],
+   [
+    69,
+    4,
+    "compliance"
+   ],
+   [
+    69,
+    5,
+    "compliance"
+   ],
+   [
+    69,
+    6,
+    "compliance"
+   ],
+   [
+    69,
+    7,
+    "compliance"
+   ],
+   [
+    69,
+    8,
+    "compliance"
+   ],
+   [
+    69,
+    9,
+    "compliance"
+   ],
+   [
+    69,
+    10,
+    "compliance"
+   ],
+   [
+    69,
+    11,
+    "compliance"
+   ]
+  ],
+  "delta_h_rep_matched": 0.0015560421572373068,
+  "nonzero_matched_delta_h": true,
+  "n_matched_firm_ticks": 821,
+  "drawn_onset": 65,
+  "drawn_magnitude": 0.23874235109082498,
+  "baseline_events_sha256": "e55454fc79d0cf6fa19e03de9393c3a332d259c81a67c49a6a3217ff48366215",
+  "shocked_events_sha256": "7d3574ab6e6f4fe4a7f71fdc05d22550c43b5c9b9ec8a6142bcdf981be24b67d",
+  "control": "cell79",
+  "shock_seed": 910018
+ },
+ {
+  "label": "ctl_cell79_910019",
+  "failed": null,
+  "n_firms": 12,
+  "sc1_survival": 0.8333333333333334,
+  "sc1_ok": true,
+  "sc2_h_below_crit": 0.16328125,
+  "sc2_ok": true,
+  "sc3_binds": [
+   true,
+   true,
+   true,
+   true
+  ],
+  "sc3_ok": true,
+  "sc6_entropy_variance": 0.19755597134241099,
+  "sc6_ok": true,
+  "T1": true,
+  "baseline_survivors": 10,
+  "baseline_collapse": false,
+  "baseline_distinct_compliance_death_ticks": 0,
+  "baseline_compliance_deaths": 0,
+  "baseline_max_deaths_in_one_tick": 2,
+  "baseline_mass_death_tick": false,
+  "shocked_survivors": 1,
+  "shocked_collapse": true,
+  "shocked_distinct_compliance_death_ticks": 1,
+  "shocked_compliance_deaths": 9,
+  "shocked_max_deaths_in_one_tick": 9,
+  "shocked_mass_death_tick": true,
+  "baseline_death_records": [
+   [
+    40,
+    1,
+    "solvency"
+   ],
+   [
+    40,
+    2,
+    "solvency"
+   ]
+  ],
+  "shocked_death_records": [
+   [
+    40,
+    1,
+    "solvency"
+   ],
+   [
+    40,
+    2,
+    "solvency"
+   ],
+   [
+    48,
+    3,
+    "compliance"
+   ],
+   [
+    48,
+    4,
+    "compliance"
+   ],
+   [
+    48,
+    5,
+    "compliance"
+   ],
+   [
+    48,
+    6,
+    "compliance"
+   ],
+   [
+    48,
+    7,
+    "compliance"
+   ],
+   [
+    48,
+    8,
+    "compliance"
+   ],
+   [
+    48,
+    9,
+    "compliance"
+   ],
+   [
+    48,
+    10,
+    "compliance"
+   ],
+   [
+    48,
+    11,
+    "compliance"
+   ]
+  ],
+  "delta_h_rep_matched": 0.0009574706946739522,
+  "nonzero_matched_delta_h": true,
+  "n_matched_firm_ticks": 632,
+  "drawn_onset": 31,
+  "drawn_magnitude": 0.24508222510825886,
+  "baseline_events_sha256": "e55454fc79d0cf6fa19e03de9393c3a332d259c81a67c49a6a3217ff48366215",
+  "shocked_events_sha256": "d699b28cb71d54e797858475951c9964be81ebdf9e5cd964433b972e601f5b4c",
+  "control": "cell79",
+  "shock_seed": 910019
+ },
+ {
+  "label": "ctl_cell79_910020",
+  "failed": null,
+  "n_firms": 12,
+  "sc1_survival": 0.8333333333333334,
+  "sc1_ok": true,
+  "sc2_h_below_crit": 0.16328125,
+  "sc2_ok": true,
+  "sc3_binds": [
+   true,
+   true,
+   true,
+   true
+  ],
+  "sc3_ok": true,
+  "sc6_entropy_variance": 0.19755597134241099,
+  "sc6_ok": true,
+  "T1": true,
+  "baseline_survivors": 10,
+  "baseline_collapse": false,
+  "baseline_distinct_compliance_death_ticks": 0,
+  "baseline_compliance_deaths": 0,
+  "baseline_max_deaths_in_one_tick": 2,
+  "baseline_mass_death_tick": false,
+  "shocked_survivors": 10,
+  "shocked_collapse": false,
+  "shocked_distinct_compliance_death_ticks": 0,
+  "shocked_compliance_deaths": 0,
+  "shocked_max_deaths_in_one_tick": 2,
+  "shocked_mass_death_tick": false,
+  "baseline_death_records": [
+   [
+    40,
+    1,
+    "solvency"
+   ],
+   [
+    40,
+    2,
+    "solvency"
+   ]
+  ],
+  "shocked_death_records": [
+   [
+    40,
+    1,
+    "solvency"
+   ],
+   [
+    40,
+    2,
+    "solvency"
+   ]
+  ],
+  "delta_h_rep_matched": 0.17249430288837678,
+  "nonzero_matched_delta_h": true,
+  "n_matched_firm_ticks": 1280,
+  "drawn_onset": 72,
+  "drawn_magnitude": 0.32550638322391207,
+  "baseline_events_sha256": "e55454fc79d0cf6fa19e03de9393c3a332d259c81a67c49a6a3217ff48366215",
+  "shocked_events_sha256": "91ef180f4c72f800b5292e4efe79fd6f68d2ac258aaa227584f0d8cdabe410f2",
+  "control": "cell79",
+  "shock_seed": 910020
+ }
+]

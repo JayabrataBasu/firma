@@ -1,0 +1,173 @@
+DIAGNOSTIC-ONLY - SEEDED POPULATION HETEROGENEITY - NOT REGISTERED - NOT FOR TUNING
+spec: /home/jayabratabasu/firma/docs/review/evidence/R20/hetero_spec.json  sha256 b10d402e83de170c6a507f41dad2accc35b7eb775d610a680c5e06593d492bab
+DISCLOSURE: theta_limit = 0.90 was chosen by the reviewer AFTER seeing regime grid 2 (R18: SC-2 was only reachable at 0.90). The distributions and spread levels are reviewer-proposed (R20) and were fixed here before any run.
+
+== Q1 / control: same seed -> byte-equal config and byte-equal event log ==
+  config built twice (low, init seed 910001, shocked): BYTE-EQUAL  sha256 327317392467e684856bab06fae596c99a17ebc30e79ee1432cc3005b6f8263f
+  event log, run twice: BYTE-EQUAL  b7aed4f0f20ad500e714d146995f984bbbcfc84d8468237728955d18d493c228  b7aed4f0f20ad500e714d146995f984bbbcfc84d8468237728955d18d493c228
+
+== control: R12 smoke config and R18 cell 79 through the Q2/Q4 code ==
+  smoke: REPRODUCES the recorded numbers
+    now:      {'sc1_survival': 0.75, 'sc2_h_below_crit': 0.5913978494623656, 'sc3_binds': [True, False, True, False], 'sc6_entropy_variance': 0.3679443941353591, 'survivors_per_run': [1, 1, 1, 3, 1, 3, 3, 1, 3, 1, 3, 1, 3, 3, 3, 1, 1, 1, 1, 1], 'nonzero_matched_fraction': 0.4, 'mean_survival_shocked': 0.45}
+    recorded: {'sc1_survival': 0.75, 'sc2_h_below_crit': 0.5913978494623656, 'sc3_binds': [True, False, True, False], 'sc6_entropy_variance': 0.3679443941353591, 'survivors_per_run': [1, 1, 1, 3, 1, 3, 3, 1, 3, 1, 3, 1, 3, 3, 3, 1, 1, 1, 1, 1], 'nonzero_matched_fraction': 0.4, 'mean_survival_shocked': 0.45}
+  smoke through the Q2 metrics (20 shock seeds, init seed 910004): 20 init seeds
+    survivors at end, shocked (of 12): {1: 12, 3: 8}
+    survivors at end, baseline:        {3: 20}
+    collapse rate (survivors <= 2): shocked 0.000; baseline 0.000
+    distinct compliance-death ticks per shocked run: {0: 8, 1: 12} (mean over the 12 runs with any compliance death: 1.000)
+    share of runs with >= 5 deaths in one tick: shocked 0.000; baseline 0.000; largest same-tick death count per shocked run: {1: 8, 2: 12}
+    non-zero matched DeltaH: 0.400; distinct event logs: shocked 20, baseline 1
+  cell79: REPRODUCES the recorded numbers
+    now:      {'sc1_survival': 0.8333333333333334, 'sc2_h_below_crit': 0.16328125, 'sc3_binds': [True, True, True, True], 'sc6_entropy_variance': 0.19755597134241099, 'survivors_per_run': [1, 10, 10, 1, 10, 1, 1, 1, 1, 1, 10, 10, 10, 10, 10, 1, 10, 1, 1, 10], 'nonzero_matched_fraction': 1.0, 'mean_survival_shocked': 0.45833333333333337}
+    recorded: {'sc1_survival': 0.8333333333333334, 'sc2_h_below_crit': 0.16328125, 'sc3_binds': [True, True, True, True], 'sc6_entropy_variance': 0.19755597134241099, 'survivors_per_run': [1, 10, 10, 1, 10, 1, 1, 1, 1, 1, 10, 10, 10, 10, 10, 1, 10, 1, 1, 10], 'nonzero_matched_fraction': 1.0, 'mean_survival_shocked': 0.45833333333333337}
+  cell79 through the Q2 metrics (20 shock seeds, init seed 910004): 20 init seeds
+    survivors at end, shocked (of 12): {1: 10, 10: 10}
+    survivors at end, baseline:        {10: 20}
+    collapse rate (survivors <= 2): shocked 0.500; baseline 0.000
+    distinct compliance-death ticks per shocked run: {0: 10, 1: 10} (mean over the 10 runs with any compliance death: 1.000)
+    share of runs with >= 5 deaths in one tick: shocked 0.500; baseline 0.000; largest same-tick death count per shocked run: {2: 10, 9: 10}
+    non-zero matched DeltaH: 1.000; distinct event logs: shocked 20, baseline 1
+
+== Q2: does heterogeneity remove the synchronised cliff? ==
+  reference, copied from evidence/R18 (cell 79, homogeneous types): collapse rate by shock mean {'0.1': 0.1, '0.2': 0.5, '0.3': 0.45}; in its collapsed runs nine firms die of compliance in one tick (passing_cells_description.txt)
+ spread level low: {'cv_cap': 0.25, 'sd_cap': 0.05, 'a_spread': 0.1}
+  set A: 50 init seeds
+    survivors at end, shocked (of 12): {0: 23, 1: 6, 8: 3, 9: 3, 10: 4, 11: 7, 12: 4}
+    survivors at end, baseline:        {7: 1, 8: 7, 9: 8, 10: 9, 11: 19, 12: 6}
+    collapse rate (survivors <= 2): shocked 0.580; baseline 0.000
+    distinct compliance-death ticks per shocked run: {0: 21, 1: 20, 2: 7, 3: 2} (mean over the 29 runs with any compliance death: 1.379)
+    share of runs with >= 5 deaths in one tick: shocked 0.580; baseline 0.020; largest same-tick death count per shocked run: {0: 4, 1: 7, 2: 4, 3: 3, 4: 3, 6: 1, 7: 5, 8: 2, 9: 7, 10: 5, 11: 7, 12: 2}
+    non-zero matched DeltaH: 1.000; distinct event logs: shocked 50, baseline 50
+  set B: 50 init seeds
+    survivors at end, shocked (of 12): {0: 27, 1: 1, 8: 1, 9: 3, 10: 10, 11: 3, 12: 5}
+    survivors at end, baseline:        {7: 1, 8: 1, 9: 10, 10: 20, 11: 11, 12: 7}
+    collapse rate (survivors <= 2): shocked 0.560; baseline 0.000
+    distinct compliance-death ticks per shocked run: {0: 22, 1: 16, 2: 10, 3: 2} (mean over the 28 runs with any compliance death: 1.500)
+    share of runs with >= 5 deaths in one tick: shocked 0.560; baseline 0.020; largest same-tick death count per shocked run: {0: 5, 1: 5, 2: 8, 3: 3, 4: 1, 6: 1, 7: 2, 8: 4, 9: 4, 10: 10, 11: 7}
+    non-zero matched DeltaH: 1.000; distinct event logs: shocked 50, baseline 50
+  set pooled: 100 init seeds
+    survivors at end, shocked (of 12): {0: 50, 1: 7, 8: 4, 9: 6, 10: 14, 11: 10, 12: 9}
+    survivors at end, baseline:        {7: 2, 8: 8, 9: 18, 10: 29, 11: 30, 12: 13}
+    collapse rate (survivors <= 2): shocked 0.570; baseline 0.000
+    distinct compliance-death ticks per shocked run: {0: 43, 1: 36, 2: 17, 3: 4} (mean over the 57 runs with any compliance death: 1.439)
+    share of runs with >= 5 deaths in one tick: shocked 0.570; baseline 0.020; largest same-tick death count per shocked run: {0: 9, 1: 12, 2: 12, 3: 6, 4: 4, 6: 2, 7: 7, 8: 6, 9: 11, 10: 15, 11: 14, 12: 2}
+    non-zero matched DeltaH: 1.000; distinct event logs: shocked 100, baseline 100
+ spread level medium: {'cv_cap': 0.5, 'sd_cap': 0.1, 'a_spread': 0.25}
+  set A: 50 init seeds
+    survivors at end, shocked (of 12): {0: 7, 1: 10, 2: 8, 3: 4, 8: 3, 9: 3, 10: 4, 11: 7, 12: 4}
+    survivors at end, baseline:        {7: 1, 8: 7, 9: 8, 10: 9, 11: 19, 12: 6}
+    collapse rate (survivors <= 2): shocked 0.500; baseline 0.000
+    distinct compliance-death ticks per shocked run: {0: 21, 1: 17, 2: 9, 3: 3} (mean over the 29 runs with any compliance death: 1.517)
+    share of runs with >= 5 deaths in one tick: shocked 0.580; baseline 0.020; largest same-tick death count per shocked run: {0: 4, 1: 7, 2: 4, 3: 5, 4: 1, 5: 3, 6: 2, 7: 5, 8: 6, 9: 6, 10: 4, 11: 2, 12: 1}
+    non-zero matched DeltaH: 1.000; distinct event logs: shocked 50, baseline 50
+  set B: 50 init seeds
+    survivors at end, shocked (of 12): {0: 10, 1: 9, 2: 7, 3: 2, 8: 1, 9: 3, 10: 10, 11: 3, 12: 5}
+    survivors at end, baseline:        {7: 1, 8: 1, 9: 10, 10: 20, 11: 11, 12: 7}
+    collapse rate (survivors <= 2): shocked 0.520; baseline 0.000
+    distinct compliance-death ticks per shocked run: {0: 22, 1: 11, 2: 15, 3: 1, 4: 1} (mean over the 28 runs with any compliance death: 1.714)
+    share of runs with >= 5 deaths in one tick: shocked 0.560; baseline 0.000; largest same-tick death count per shocked run: {0: 5, 1: 6, 2: 8, 3: 2, 4: 1, 5: 2, 6: 4, 7: 4, 8: 3, 9: 10, 10: 3, 11: 2}
+    non-zero matched DeltaH: 1.000; distinct event logs: shocked 50, baseline 50
+  set pooled: 100 init seeds
+    survivors at end, shocked (of 12): {0: 17, 1: 19, 2: 15, 3: 6, 8: 4, 9: 6, 10: 14, 11: 10, 12: 9}
+    survivors at end, baseline:        {7: 2, 8: 8, 9: 18, 10: 29, 11: 30, 12: 13}
+    collapse rate (survivors <= 2): shocked 0.510; baseline 0.000
+    distinct compliance-death ticks per shocked run: {0: 43, 1: 28, 2: 24, 3: 4, 4: 1} (mean over the 57 runs with any compliance death: 1.614)
+    share of runs with >= 5 deaths in one tick: shocked 0.570; baseline 0.010; largest same-tick death count per shocked run: {0: 9, 1: 13, 2: 12, 3: 7, 4: 2, 5: 5, 6: 6, 7: 9, 8: 9, 9: 16, 10: 7, 11: 4, 12: 1}
+    non-zero matched DeltaH: 1.000; distinct event logs: shocked 100, baseline 100
+ spread level high: {'cv_cap': 1.0, 'sd_cap': 0.2, 'a_spread': 0.5}
+  set A: 50 init seeds
+    survivors at end, shocked (of 12): {0: 1, 1: 6, 2: 8, 3: 6, 4: 6, 5: 2, 8: 3, 9: 3, 10: 4, 11: 7, 12: 4}
+    survivors at end, baseline:        {7: 1, 8: 6, 9: 9, 10: 9, 11: 19, 12: 6}
+    collapse rate (survivors <= 2): shocked 0.300; baseline 0.000
+    distinct compliance-death ticks per shocked run: {0: 21, 1: 14, 2: 14, 3: 1} (mean over the 29 runs with any compliance death: 1.552)
+    share of runs with >= 5 deaths in one tick: shocked 0.520; baseline 0.000; largest same-tick death count per shocked run: {0: 4, 1: 7, 2: 6, 3: 3, 4: 4, 5: 5, 6: 6, 7: 5, 8: 3, 9: 4, 10: 2, 11: 1}
+    non-zero matched DeltaH: 1.000; distinct event logs: shocked 50, baseline 50
+  set B: 50 init seeds
+    survivors at end, shocked (of 12): {0: 2, 1: 6, 2: 6, 3: 2, 4: 8, 5: 1, 6: 1, 7: 1, 8: 2, 9: 3, 10: 10, 11: 3, 12: 5}
+    survivors at end, baseline:        {7: 1, 8: 1, 9: 10, 10: 20, 11: 11, 12: 7}
+    collapse rate (survivors <= 2): shocked 0.280; baseline 0.000
+    distinct compliance-death ticks per shocked run: {0: 22, 1: 16, 2: 9, 3: 3} (mean over the 28 runs with any compliance death: 1.536)
+    share of runs with >= 5 deaths in one tick: shocked 0.480; baseline 0.000; largest same-tick death count per shocked run: {0: 5, 1: 11, 2: 3, 3: 4, 4: 3, 5: 5, 6: 4, 7: 5, 8: 5, 9: 2, 10: 3}
+    non-zero matched DeltaH: 1.000; distinct event logs: shocked 50, baseline 50
+  set pooled: 100 init seeds
+    survivors at end, shocked (of 12): {0: 3, 1: 12, 2: 14, 3: 8, 4: 14, 5: 3, 6: 1, 7: 1, 8: 5, 9: 6, 10: 14, 11: 10, 12: 9}
+    survivors at end, baseline:        {7: 2, 8: 7, 9: 19, 10: 29, 11: 30, 12: 13}
+    collapse rate (survivors <= 2): shocked 0.290; baseline 0.000
+    distinct compliance-death ticks per shocked run: {0: 43, 1: 30, 2: 23, 3: 4} (mean over the 57 runs with any compliance death: 1.544)
+    share of runs with >= 5 deaths in one tick: shocked 0.500; baseline 0.000; largest same-tick death count per shocked run: {0: 9, 1: 18, 2: 9, 3: 7, 4: 7, 5: 10, 6: 10, 7: 10, 8: 8, 9: 6, 10: 5, 11: 1}
+    non-zero matched DeltaH: 1.000; distinct event logs: shocked 100, baseline 100
+
+== Q3: set A against set B (declared rule: |A-B| > 0.10, or > 2x) ==
+ spread level low:
+    collapse_rate                    A 0.580   B 0.560   same
+    mass_death_tick_share            A 0.580   B 0.560   same
+    mean_survival_shocked            A 0.370   B 0.382   same
+    mean_survival_baseline           A 0.843   B 0.850   same
+    nonzero_matched_delta_h_share    A 1.000   B 1.000   same
+    sc1_pass_share                   A 0.480   B 0.620   DIFFERS
+    sc2_pass_share                   A 0.500   B 0.660   DIFFERS
+    sc3_pass_share                   A 0.020   B 0.000   DIFFERS
+    sc6_pass_share                   A 1.000   B 1.000   same
+    t1_pass_share                    A 0.020   B 0.000   DIFFERS
+    baseline_collapse_rate           A 0.000   B 0.000   same
+    baseline_mass_death_tick_share   A 0.020   B 0.020   same
+ spread level medium:
+    collapse_rate                    A 0.500   B 0.520   same
+    mass_death_tick_share            A 0.580   B 0.560   same
+    mean_survival_shocked            A 0.423   B 0.428   same
+    mean_survival_baseline           A 0.843   B 0.850   same
+    nonzero_matched_delta_h_share    A 1.000   B 1.000   same
+    sc1_pass_share                   A 0.480   B 0.620   DIFFERS
+    sc2_pass_share                   A 0.400   B 0.700   DIFFERS
+    sc3_pass_share                   A 0.580   B 0.460   DIFFERS
+    sc6_pass_share                   A 1.000   B 1.000   same
+    t1_pass_share                    A 0.100   B 0.160   same
+    baseline_collapse_rate           A 0.000   B 0.000   same
+    baseline_mass_death_tick_share   A 0.020   B 0.000   DIFFERS
+ spread level high:
+    collapse_rate                    A 0.300   B 0.280   same
+    mass_death_tick_share            A 0.520   B 0.480   same
+    mean_survival_shocked            A 0.483   B 0.517   same
+    mean_survival_baseline           A 0.845   B 0.850   same
+    nonzero_matched_delta_h_share    A 1.000   B 1.000   same
+    sc1_pass_share                   A 0.480   B 0.620   DIFFERS
+    sc2_pass_share                   A 0.260   B 0.320   same
+    sc3_pass_share                   A 0.880   B 0.780   same
+    sc6_pass_share                   A 1.000   B 1.000   same
+    t1_pass_share                    A 0.020   B 0.160   DIFFERS
+    baseline_collapse_rate           A 0.000   B 0.000   same
+    baseline_mass_death_tick_share   A 0.000   B 0.000   same
+
+== Q4: cross-seed stressed-but-alive rate (criteria fixed at step 0) ==
+ spread level low:
+    set A      SC-1 0.48  SC-2 0.50  SC-3 0.02  SC-6 1.00  T1 0.02 | collapse 0.58 | non-zero dH 1.00 | FAIL
+    set B      SC-1 0.62  SC-2 0.66  SC-3 0.00  SC-6 1.00  T1 0.00 | collapse 0.56 | non-zero dH 1.00 | FAIL
+    set pooled SC-1 0.55  SC-2 0.58  SC-3 0.01  SC-6 1.00  T1 0.01 | collapse 0.57 | non-zero dH 1.00 | FAIL (verdict)
+    per init seed T1 (set A then set B, seed order; 1 = pass): 0000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000
+ spread level medium:
+    set A      SC-1 0.48  SC-2 0.40  SC-3 0.58  SC-6 1.00  T1 0.10 | collapse 0.50 | non-zero dH 1.00 | FAIL
+    set B      SC-1 0.62  SC-2 0.70  SC-3 0.46  SC-6 1.00  T1 0.16 | collapse 0.52 | non-zero dH 1.00 | FAIL
+    set pooled SC-1 0.55  SC-2 0.55  SC-3 0.52  SC-6 1.00  T1 0.13 | collapse 0.51 | non-zero dH 1.00 | FAIL (verdict)
+    per init seed T1 (set A then set B, seed order; 1 = pass): 0000000000100000000000000000000000101010000000000110000100100000000000100000100000100010000000000001
+ spread level high:
+    set A      SC-1 0.48  SC-2 0.26  SC-3 0.88  SC-6 1.00  T1 0.02 | collapse 0.30 | non-zero dH 1.00 | FAIL
+    set B      SC-1 0.62  SC-2 0.32  SC-3 0.78  SC-6 1.00  T1 0.16 | collapse 0.28 | non-zero dH 1.00 | FAIL
+    set pooled SC-1 0.55  SC-2 0.29  SC-3 0.83  SC-6 1.00  T1 0.09 | collapse 0.29 | non-zero dH 1.00 | FAIL (verdict)
+    per init seed T1 (set A then set B, seed order; 1 = pass): 0000000000000000000000000000000000100000000000000000100000000000000010100000101000010100000100000000
+  VERDICTS: low FAIL; medium FAIL; high FAIL
+
+== Q5: does the draw reach the Arm A outcome? (one pinned firm, beta = 1, no shock) ==
+  drawn h 0.02 shortfall 0.0: 50 init seeds, 2 distinct action sequences, H_rep mean 0.576536 sd 0.215062 (2 distinct values); firm died in 6 runs
+  drawn h 0.02 shortfall 1.0: 50 init seeds, 2 distinct action sequences, H_rep mean 0.576536 sd 0.215062 (2 distinct values); firm died in 6 runs
+  drawn h 0.40 shortfall 0.0: 50 init seeds, 6 distinct action sequences, H_rep mean 0.000000 sd 0.000000 (1 distinct values); firm died in 6 runs
+  drawn h 0.40 shortfall 1.0: 50 init seeds, 2 distinct action sequences, H_rep mean 0.026206 sd 0.129687 (2 distinct values); firm died in 48 runs
+  fixed h 0.02 shortfall 0.0: 50 init seeds, 1 distinct action sequences, H_rep mean 0.655155 sd 0.000000 (1 distinct values); firm died in 0 runs
+  fixed h 0.02 shortfall 1.0: 50 init seeds, 1 distinct action sequences, H_rep mean 0.655155 sd 0.000000 (1 distinct values); firm died in 0 runs
+  fixed h 0.40 shortfall 0.0: 50 init seeds, 1 distinct action sequences, H_rep mean 0.000000 sd 0.000000 (1 distinct values); firm died in 0 runs
+  fixed h 0.40 shortfall 1.0: 50 init seeds, 1 distinct action sequences, H_rep mean 0.000000 sd 0.000000 (1 distinct values); firm died in 50 runs
+  negative control (fixed firm): 1 sequence in every cell, as expected
+
+written under /tmp/claude-1000/-home-jayabratabasu-firma/25acd624-4575-4f2d-9fb5-645f7478f07e/scratchpad/r20: q2_runs.csv, q5_runs.csv, summary.json, control_runs.json
+problems: none
+wall-clock time: 69.3 s
+DIAGNOSTIC-ONLY - SEEDED POPULATION HETEROGENEITY - NOT REGISTERED - NOT FOR TUNING

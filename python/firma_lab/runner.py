@@ -30,7 +30,13 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, Iterable, Sequence, Union
 
-from firma_lab.spec import ExperimentSpec, Factor, Job
+from firma_lab.spec import (
+    RESERVED_SEED_RANGE,
+    ExperimentSpec,
+    Factor,
+    Job,
+    seeds_in_reserved_range,
+)
 
 PathLike = Union[str, Path]
 
@@ -144,6 +150,21 @@ def build_job_config(spec: ExperimentSpec, job: Job) -> dict[str, Any]:
     cfg["seeds"] = job.seeds.to_dict()
     arm = spec.arm(job.arm)
     factors_by_name = {f.name: f for f in arm.factors}
+
+    # PROGRESS.md OQ-14: a `direct_intervention` factor (Arm A's pins) is
+    # broadcast to every agent in the template, and manual Sec 30.7's Arm-A
+    # model has only a `(1 | seed)` grouping term -- one observation per
+    # run. A multi-agent template would pin every firm identically and
+    # yield pseudoreplicated observations, so it is rejected here rather
+    # than silently accepted.
+    pinned = [f.name for f in arm.factors if f.apply_kind == "direct_intervention"]
+    n_agents = len(cfg.get("agents", []))
+    if pinned and n_agents != 1:
+        raise ValueError(
+            f"arm {arm.name!r} sets {pinned} by direct intervention, which requires a "
+            f"model_config_template with exactly one agent; this template has {n_agents} "
+            "(PROGRESS.md OQ-14)"
+        )
 
     # Ordering matters and is deliberate, not incidental: `rule_swap`
     # factors (which rule id is even present) are applied *before*
@@ -379,6 +400,11 @@ class ExperimentResult:
         )
 
 
+class ReservedSeedError(RuntimeError):
+    """``run_experiment`` was asked to execute a job whose seeds fall in
+    ``firma_lab.spec.RESERVED_SEED_RANGE`` without the explicit override."""
+
+
 def run_experiment(
     spec: ExperimentSpec,
     out_dir: PathLike,
@@ -386,6 +412,7 @@ def run_experiment(
     *,
     max_workers: int = 4,
     jobs: Iterable[Job] | None = None,
+    allow_reserved_seed_range: bool = False,
 ) -> ExperimentResult:
     """Expand ``spec`` (or a caller-supplied subset via ``jobs``, used by
     the resumability test) into jobs and execute each via ``firma_bin``,
@@ -405,7 +432,38 @@ def run_experiment(
     Every job's own directory and manifest is independent of every other
     job's, so a crash or interruption mid-run loses at most the
     in-flight jobs, never previously-completed ones' records.
+
+    **Reserved-seed guard (manual Sec 30.5 / Sec 30.6 / Sec 30.9).** Before
+    anything is written or executed, every job's ``StreamSeeds`` is checked
+    against ``firma_lab.spec.RESERVED_SEED_RANGE`` (1-200, the range the
+    registered E1 design owns). If any stream seed of any job is in that
+    range, ``ReservedSeedError`` is raised and no job runs -- unless
+    ``allow_reserved_seed_range=True`` is passed. That argument is the one
+    way to execute the registered design; pass it only for the filed E1
+    run itself (Sec 30.9's conditions met), never for an exploratory run:
+    Sec 30.6 says an exploratory run touching the registered grid
+    invalidates the registration.
+
+    What this guard does **not** cover: it sits in this function only.
+    ``firma run`` invoked directly, a hand-written config, ``_run_one_job``
+    or ``build_job_config`` + ``subprocess`` called by other code, and Rust
+    tests calling ``execute_run`` all bypass it. The engine itself accepts
+    any seeds.
     """
+    job_list = list(jobs) if jobs is not None else list(spec.jobs())
+    if not allow_reserved_seed_range:
+        reserved = [j for j in job_list if seeds_in_reserved_range(j.seeds)]
+        if reserved:
+            reps = sorted({j.replicate for j in reserved})
+            raise ReservedSeedError(
+                f"{len(reserved)} of {len(job_list)} job(s) of spec {spec.id!r} have a stream "
+                f"seed in the reserved range {RESERVED_SEED_RANGE.start}-"
+                f"{RESERVED_SEED_RANGE.stop - 1} (replicates {reps[0]}..{reps[-1]}; manual "
+                "Sec 30.5/30.9 reserves these for the registered E1 design, and Sec 30.6 says "
+                "an exploratory run touching it invalidates the registration). Nothing was "
+                "executed. Use a spec whose first_replicate is above the range, or -- only "
+                "for the filed registered run itself -- pass allow_reserved_seed_range=True."
+            )
     out = Path(out_dir)
     jobs_root = out / "jobs"
     jobs_root.mkdir(parents=True, exist_ok=True)
@@ -413,7 +471,6 @@ def run_experiment(
     if not firma_bin.exists():
         raise FileNotFoundError(f"firma binary not found at {firma_bin}")
 
-    job_list = list(jobs) if jobs is not None else list(spec.jobs())
     result = ExperimentResult(
         spec_id=spec.id, spec_content_hash=spec.content_hash(), total_jobs=len(job_list)
     )

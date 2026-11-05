@@ -1,0 +1,13 @@
+### R20 provenance (DIAGNOSTIC-ONLY)
+date: 2026-10-02T11:36Z; step 0 written: 2026-10-02T11:31:56Z
+git rev: 2820610076bc9bf0317ffa0daaa49859ac8e430b (branch h3-satisficing-lookahead); working tree uncommitted
+step 0: .venv/bin/python scripts/population_generator.py --write-spec docs/review/evidence/R20/hetero_spec.json
+run:    .venv/bin/python scripts/hetero_check.py --spec docs/review/evidence/R20/hetero_spec.json --out <scratch> --jobs 8
+describe: .venv/bin/python docs/review/evidence/R20/describe_results.py <repo>   (no runs)
+hetero_spec.json sha256: b10d402e83de170c6a507f41dad2accc35b7eb775d610a680c5e06593d492bab
+firma binary: target/debug/firma sha256 97f1feac7cbe615f8c01b15d5afd8f2668a6ecced851ce559352e70279275d07
+python: Python 3.14.7; sha256sum: sha256sum (GNU coreutils) 9.11
+wall-clock: 69.3 s
+seeds: mechanism 910001, environment 910002; init 910001..910050 (A), 911001..911050 (B); shock = init seed in Q2-Q4, 910001 in Q5; controls: init 910004, shock 910001..910020. Smallest executed seed 910001.
+runs: Q1 2; controls 2 x 20 x 2 = 80; Q2-Q4 3 levels x 100 init seeds x 2 = 600; Q5 2 arms x 4 cells x 50 = 400. Tests: 5 runs per invocation of test_population_generator.py.
+order: generator + check script + tests written -> coreutils known-answer vectors -> hetero_spec.json written -> tests -> the check, once -> describe_results.py.

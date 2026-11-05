@@ -41,7 +41,7 @@ fn dt2_agent_order_irrelevant() {
               "experiment": "dt2",
               "schema_version": "1.0.0",
               "engine": ">=0.1.0, <0.2.0",
-              "seeds": {{ "mechanism": 4, "environment": 4, "shock": 4, "init": 4 }},
+              "seeds": {{ "mechanism": 10004, "environment": 10004, "shock": 10004, "init": 10004 }},
               "world": {{ "ticks": 120, "resources": ["capital"],
                 "conflict_resolver": {{ "id": "conflict.additive", "version": "^1" }} }},
               "agents": {agents},
@@ -434,7 +434,7 @@ fn tick_is_atomic_wrt_event_log_on_invariant_abort() {
           "experiment": "abort-atomicity",
           "schema_version": "1.0.0",
           "engine": ">=0.1.0, <0.2.0",
-          "seeds": { "mechanism": 1, "environment": 1, "shock": 1, "init": 1 },
+          "seeds": { "mechanism": 10001, "environment": 10001, "shock": 10001, "init": 10001 },
           "world": { "ticks": 10, "resources": ["capital"],
             "conflict_resolver": { "id": "conflict.additive", "version": "^1" } },
           "agents": [

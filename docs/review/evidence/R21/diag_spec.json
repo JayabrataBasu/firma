@@ -1,0 +1,86 @@
+{
+  "A_attribution": {
+    "also_reported": "drawn onset and magnitude for all 30 shock seeds with their marginal collapse rate (the prompt asks for 'the 20 collapse-prone shock seeds'; all 30 are listed, in seed order, so no selection is made)",
+    "collapse": "survivors <= 2 of 12",
+    "design": "fully crossed: 900 shocked runs; one no-shock baseline per population seed (shock rule removed; its shock seed is 910101)",
+    "fork_check": "for population seed 910001 the no-shock run is executed at shock seeds 910101, 910115 and 910130 and must be byte-equal",
+    "population": "medium spread, ABSOLUTE aspiration reading (the prompt says 'R20 spec')",
+    "population_init_seeds": "910001..910030",
+    "reading_rule": "range = max - min of the 30 marginal collapse rates. 'shock-determined' if range over shock seeds >= 3 x range over population seeds; 'population-determined' if range over population seeds >= 3 x range over shock seeds; otherwise 'mixed' (also 'mixed' if both ranges are 0)",
+    "shock": "regulatory/theta_limit, magnitude mean 0.20, sd 0.20/3, onset uniform 10..80, instant, permanent (as R20)",
+    "shock_seeds": "910101..910130",
+    "variance_method": "two-way decomposition without replication of the 30 x 30 matrix of 0/1 collapse indicators x[p][s]: SS_total = sum (x - grand)^2; SS_population = 30 * sum_p (mean_p - grand)^2; SS_shock = 30 * sum_s (mean_s - grand)^2; SS_interaction = SS_total - SS_population - SS_shock (interaction and residual are not separable with one run per cell). Shares are SS / SS_total. Undefined if SS_total = 0"
+  },
+  "B_relative_aspiration": {
+    "comparison": "printed next to the absolute-reading numbers copied from docs/review/evidence/R20/summary.json",
+    "criteria": "R20's, unchanged",
+    "design": "exactly R20 Q2/Q4 (three spread levels, sets A and B, shock seed = init seed, one shocked run and its no-shock fork per init seed) with the relative reading"
+  },
+  "C_behavioural_diversity": {
+    "action_sequence": "per firm, the tuple of (tick, selected_action) decision records with tick <= 39 (a firm that dies earlier has a shorter tuple)",
+    "focus_action_sequence": "per firm, the tuple of (tick, focus, selected_action)",
+    "reported": "number of distinct sequences among the 12 firms; mean, min, max over seeds",
+    "runs": "no-shock baseline, init seeds 910001..910030, each spread level, BOTH aspiration readings (the prompt does not say which; both are run, neither is chosen)",
+    "window": "ticks 0..39 inclusive"
+  },
+  "D_shock_channel": {
+    "cells": [
+      {
+        "channel": "regulatory",
+        "magnitude_mean": 0.2,
+        "magnitude_sd": "0.20 / 3",
+        "target": "theta_limit"
+      },
+      {
+        "channel": "resource",
+        "effect": "input_price 2 -> 3",
+        "magnitude": 1
+      },
+      {
+        "channel": "resource",
+        "effect": "input_price 2 -> 4",
+        "magnitude": 2
+      },
+      {
+        "channel": "resource",
+        "effect": "input_price 2 -> 6",
+        "magnitude": 4
+      },
+      {
+        "channel": "competitive",
+        "effect": "output_price 3 -> 2",
+        "magnitude": 1
+      },
+      {
+        "channel": "competitive",
+        "effect": "output_price 3 -> 1",
+        "magnitude": 2
+      }
+    ],
+    "graded_rule": "a cell is 'graded' iff the share of runs with survivors <= 2 OR survivors == that seed's baseline survivors (12 minus baseline deaths) is below 0.20 (the two extremes counted together) AND at least 4 distinct survivor counts occur",
+    "population": "medium spread, RELATIVE aspiration reading, init seeds 910001..910050 (set A), shock seed = init seed",
+    "resource_and_competitive_shock": "shock.stochastic with magnitude_mean = the level and magnitude_sd = 0 (the plugin then uses the mean exactly), onset uniform 10..80, instant, permanent, targets all",
+    "validity": "read from the plugin before running: prices are unclamped i64 (ADR-0036); all five price levels leave both prices positive; none is dropped"
+  },
+  "aspiration_readings": {
+    "absolute": "R20: aspiration = 8.0 - a + 2 a u (pg.population unchanged)",
+    "relative": "R21: aspiration = 8.0 * (1 + (-a + 2 a u)), with the SAME keyed uniform u (purpose tag aspiration_capital_growth) and a = 0.10 / 0.25 / 0.50 for low / medium / high; every other drawn value is unchanged"
+  },
+  "choices_made_by_the_builder_before_any_run": [
+    "A uses the absolute aspiration reading",
+    "C runs both aspiration readings",
+    "the SS decomposition and that interaction includes residual",
+    "the reading rule when a range is 0",
+    "all 30 shock seeds are listed instead of selecting 20",
+    "resource/competitive magnitudes are fixed (sd = 0)",
+    "the two 'graded' extremes are counted together against the 20% bound",
+    "a dead firm's sequence in C is its shorter tuple"
+  ],
+  "controls": {
+    "byte_equal": "A cell (population 910001, shock seed 910101) run twice",
+    "r18_cell_79": "shock mean 0.20, shock seeds 910001..910020: SC values, per-run survivors, non-zero share and mean survival equal the R18 record",
+    "r20_medium_910001": "the absolute-reading medium pair for init seed 910001 equals its row in docs/review/evidence/R20/q2_runs.csv, including both event-log sha256"
+  },
+  "inherits": "everything not stated here is the R20 spec (docs/review/evidence/R20/hetero_spec.json, sha256 b10d402e83de170c6a507f41dad2accc35b7eb775d610a680c5e06593d492bab): generator, distributions, spread levels, fixed items, T1, collapse = survivors <= 2 of 12, Q3 difference rule, Q4 criteria (pooled over sets A and B)",
+  "task": "R21 DIAG - DIAGNOSTIC-ONLY; nothing registered; no R20 criterion or spread level changed"
+}

@@ -1,0 +1,29 @@
+============================= test session starts ==============================
+platform linux -- Python 3.14.7, pytest-9.1.1, pluggy-1.6.0 -- /home/jayabratabasu/firma/.venv/bin/python
+rootdir: /home/jayabratabasu/firma
+configfile: pyproject.toml
+collecting ... collected 21 items
+
+python/tests/test_regime_search.py::test_the_grid_has_72_cells_in_product_order_with_the_last_axis_fastest PASSED [  4%]
+python/tests/test_regime_search.py::test_the_step_0_grid_file_is_exactly_the_grid_the_script_declares PASSED [  9%]
+python/tests/test_regime_search.py::test_a_run_is_refused_when_the_grid_file_differs PASSED [ 14%]
+python/tests/test_regime_search.py::test_a_run_is_refused_without_a_grid_file_and_step_0_never_overwrites PASSED [ 19%]
+python/tests/test_regime_search.py::test_population_is_linear_in_capital_and_capability PASSED [ 23%]
+python/tests/test_regime_search.py::test_cell_config_fixed_items PASSED  [ 28%]
+python/tests/test_regime_search.py::test_the_no_shock_config_differs_only_by_the_shock_rule PASSED [ 33%]
+python/tests/test_regime_search.py::test_a_reserved_seed_is_refused PASSED [ 38%]
+python/tests/test_regime_search.py::test_a_cell_meeting_every_target_is_stressed_but_alive PASSED [ 42%]
+python/tests/test_regime_search.py::test_each_t1_leg_can_fail_t1_on_its_own[over0] PASSED [ 47%]
+python/tests/test_regime_search.py::test_each_t1_leg_can_fail_t1_on_its_own[over1] PASSED [ 52%]
+python/tests/test_regime_search.py::test_each_t1_leg_can_fail_t1_on_its_own[over2] PASSED [ 57%]
+python/tests/test_regime_search.py::test_each_t1_leg_can_fail_t1_on_its_own[over3] PASSED [ 61%]
+python/tests/test_regime_search.py::test_each_t1_leg_can_fail_t1_on_its_own[over4] PASSED [ 66%]
+python/tests/test_regime_search.py::test_each_t1_leg_can_fail_t1_on_its_own[over5] PASSED [ 71%]
+python/tests/test_regime_search.py::test_t1_bounds_are_inclusive PASSED  [ 76%]
+python/tests/test_regime_search.py::test_t2_fails_when_under_half_the_runs_have_non_zero_matched_delta PASSED [ 80%]
+python/tests/test_regime_search.py::test_t2_fails_when_mean_survival_is_outside_the_band[survivors0] PASSED [ 85%]
+python/tests/test_regime_search.py::test_t2_fails_when_mean_survival_is_outside_the_band[survivors1] PASSED [ 90%]
+python/tests/test_regime_search.py::test_t2_fails_with_no_shocked_runs_and_the_information_column_is_not_a_target PASSED [ 95%]
+python/tests/test_regime_search.py::test_one_cell_end_to_end_with_two_shock_seeds PASSED [100%]
+
+============================== 21 passed in 1.65s ==============================

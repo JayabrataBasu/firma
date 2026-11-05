@@ -1,0 +1,46 @@
+From part2_runs.csv (l_w = 8, h_crit = 0.15); no runs. Shocked runs with any compliance death:
+ low: 6 of 100
+   init seed 910014: drawn onset 33, magnitude 0.2849 (theta_new 0.6151), compliance deaths 6, largest same-tick deaths 6, survivors 5 (baseline 11)
+   init seed 911001: drawn onset 11, magnitude 0.2532 (theta_new 0.6468), compliance deaths 1, largest same-tick deaths 2, survivors 9 (baseline 10)
+   init seed 911002: drawn onset 34, magnitude 0.2585 (theta_new 0.6415), compliance deaths 5, largest same-tick deaths 5, survivors 7 (baseline 12)
+   init seed 911011: drawn onset 16, magnitude 0.2167 (theta_new 0.6833), compliance deaths 5, largest same-tick deaths 5, survivors 6 (baseline 11)
+   init seed 911017: drawn onset 10, magnitude 0.2162 (theta_new 0.6838), compliance deaths 1, largest same-tick deaths 3, survivors 8 (baseline 9)
+   init seed 911030: drawn onset 33, magnitude 0.2111 (theta_new 0.6889), compliance deaths 4, largest same-tick deaths 4, survivors 6 (baseline 10)
+   magnitudes of runs with a compliance death: 0.2111 to 0.2849; runs WITHOUT one whose magnitude lies in that range: 24
+   runs with >= 5 deaths in one tick: 5; of these with a compliance death: 3; baseline already had >= 5 same-tick deaths in 2
+   runs whose shocked survivors equal baseline survivors: 94 of 100; deaths added by the shock per run: {0: 94, 1: 2, 4: 1, 5: 2, 6: 1}
+ medium: 4 of 100
+   init seed 910014: drawn onset 33, magnitude 0.2849 (theta_new 0.6151), compliance deaths 2, largest same-tick deaths 2, survivors 9 (baseline 11)
+   init seed 911002: drawn onset 34, magnitude 0.2585 (theta_new 0.6415), compliance deaths 3, largest same-tick deaths 3, survivors 9 (baseline 12)
+   init seed 911011: drawn onset 16, magnitude 0.2167 (theta_new 0.6833), compliance deaths 2, largest same-tick deaths 2, survivors 9 (baseline 11)
+   init seed 911030: drawn onset 33, magnitude 0.2111 (theta_new 0.6889), compliance deaths 1, largest same-tick deaths 1, survivors 9 (baseline 10)
+   magnitudes of runs with a compliance death: 0.2111 to 0.2849; runs WITHOUT one whose magnitude lies in that range: 26
+   runs with >= 5 deaths in one tick: 1; of these with a compliance death: 0; baseline already had >= 5 same-tick deaths in 1
+   runs whose shocked survivors equal baseline survivors: 96 of 100; deaths added by the shock per run: {0: 96, 1: 1, 2: 2, 3: 1}
+ high: 5 of 100
+   init seed 910014: drawn onset 33, magnitude 0.2849 (theta_new 0.6151), compliance deaths 1, largest same-tick deaths 1, survivors 10 (baseline 11)
+   init seed 911001: drawn onset 11, magnitude 0.2532 (theta_new 0.6468), compliance deaths 1, largest same-tick deaths 1, survivors 9 (baseline 10)
+   init seed 911002: drawn onset 34, magnitude 0.2585 (theta_new 0.6415), compliance deaths 1, largest same-tick deaths 1, survivors 11 (baseline 12)
+   init seed 911011: drawn onset 16, magnitude 0.2167 (theta_new 0.6833), compliance deaths 1, largest same-tick deaths 1, survivors 10 (baseline 11)
+   init seed 911017: drawn onset 10, magnitude 0.2162 (theta_new 0.6838), compliance deaths 1, largest same-tick deaths 2, survivors 8 (baseline 9)
+   magnitudes of runs with a compliance death: 0.2162 to 0.2849; runs WITHOUT one whose magnitude lies in that range: 23
+   runs with >= 5 deaths in one tick: 0; of these with a compliance death: 0; baseline already had >= 5 same-tick deaths in 0
+   runs whose shocked survivors equal baseline survivors: 95 of 100; deaths added by the shock per run: {0: 95, 1: 5}
+
+From part1_runs.csv: l_w = 8, h_crit = 0.15, m >= 0.30 (strikes after onset without compliance deaths):
+ m 0.3: first strike ticks {'': 1, '40': 9}; firms struck at first strike [0, 1, 2, 2, 2, 3, 3, 3, 4, 4]; survivors == fork survivors in 10 of 10
+ m 0.325: first strike ticks {'': 1, '40': 9}; firms struck at first strike [0, 1, 2, 2, 2, 3, 3, 3, 4, 4]; survivors == fork survivors in 10 of 10
+ m 0.35: first strike ticks {'': 1, '40': 9}; firms struck at first strike [0, 1, 2, 2, 2, 3, 3, 3, 4, 4]; survivors == fork survivors in 10 of 10
+
+l_w = 4, h_crit = 0.15, m = 0.200: per population (init seed: first strike tick, firms struck, first compliance-death tick, compliance deaths at it, survivors, fork survivors)
+  910001: 45, 9, 48, 9, 1, 11
+  910002: 45, 6, 48, 6, 2, 9
+  910003: 45, 6, 48, 6, 0, 8
+  910004: 45, 7, 48, 7, 1, 8
+  910005: 45, 7, 48, 7, 4, 12
+  910006: 45, 5, 48, 5, 2, 9
+  910007: 45, 6, 48, 6, 2, 8
+  910008: 45, 11, 48, 11, 0, 12
+  910009: 45, 5, 48, 5, 1, 8
+  910010: 45, 10, 48, 10, 0, 11
+  identical (survivors, first strike tick, first compliance-death tick) across m = 0.175, 0.200, 0.225, 0.250 for every population: True

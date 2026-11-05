@@ -359,8 +359,39 @@ fn firm_state(view: &dyn View, agent: AgentId) -> FirmState {
 fn firm_window(view: &dyn View, agent: AgentId) -> Vec<firma_domain::WindowEntry> {
     view.agent_records(agent, keys::ACTION_WINDOW)
         .iter()
-        .filter_map(|s| firma_domain::WindowEntry::from_json(s).ok())
+        .map(|s| {
+            firma_domain::WindowEntry::from_json(s)
+                .unwrap_or_else(|e| corrupt_record(Some(agent), keys::ACTION_WINDOW, s, &e))
+        })
         .collect()
+}
+
+/// A persisted record this plugin reads could not be parsed. There is no
+/// repair-and-continue path (manual §19.5): dropping the record would
+/// silently change `u`, the pending-effect queue, the observed environment
+/// or the relation graph, and with them the decision. `Rule::apply` has no
+/// `Result` return, so — as for a partial Arm-A pin (ADR 0054) — the loud
+/// failure is a panic naming the agent (if any), the store key and the
+/// offending string.
+fn corrupt_record(agent: Option<AgentId>, key: &str, record: &str, err: &str) -> ! {
+    let who = agent.map_or_else(|| "global".to_owned(), |a| format!("agent {}", a.0));
+    panic!(
+        "{who}: corrupt persisted record under `{key}` ({err}); offending record: \
+         {record:?}. Refusing to drop it and continue (manual §19.5)."
+    )
+}
+
+/// The relation graph from `keys::RELATION_EDGES`; a record that is not a
+/// valid edge is a loud failure, not an empty graph ([`corrupt_record`]).
+fn relation_graph(view: &dyn View) -> RelationGraph {
+    let records = view.global_records(keys::RELATION_EDGES);
+    RelationGraph::from_records(records).unwrap_or_else(|e| {
+        let bad = records
+            .iter()
+            .find(|r| RelationGraph::from_records(std::slice::from_ref(*r)).is_err())
+            .map_or("<unidentified>", String::as_str);
+        corrupt_record(None, keys::RELATION_EDGES, bad, &e)
+    })
 }
 
 /// `u` (regulated-activity intensity, §9.1 `g_2`) for one firm — derived on
@@ -382,7 +413,10 @@ fn firm_u(view: &dyn View, agent: AgentId, l_w: usize) -> f64 {
 fn firm_pending_effects(view: &dyn View, agent: AgentId) -> Vec<firma_domain::LaggedRecord> {
     view.agent_records(agent, keys::LAGGED_EFFECTS)
         .iter()
-        .filter_map(|s| firma_domain::LaggedRecord::from_json(s).ok())
+        .map(|s| {
+            firma_domain::LaggedRecord::from_json(s)
+                .unwrap_or_else(|e| corrupt_record(Some(agent), keys::LAGGED_EFFECTS, s, &e))
+        })
         .collect()
 }
 
@@ -408,7 +442,10 @@ fn firm_aux(view: &dyn View, agent: AgentId, l_w: usize) -> FirmAuxState {
 fn observed_env(view: &dyn View, agent: AgentId) -> Option<firma_domain::EnvSnapshot> {
     view.agent_records(agent, keys::OBSERVED_ENV)
         .last()
-        .and_then(|s| firma_domain::EnvSnapshot::from_json(s).ok())
+        .map(|s| {
+            firma_domain::EnvSnapshot::from_json(s)
+                .unwrap_or_else(|e| corrupt_record(Some(agent), keys::OBSERVED_ENV, s, &e))
+        })
 }
 
 /// §8.2 `θ` **as `agent` sees it** (§12.2 via ADR 0035): the observed snapshot
@@ -1023,8 +1060,7 @@ impl Rule for Satisficing {
     }
     fn apply(&self, view: &dyn View, _key: RngKey) -> Vec<Delta> {
         let p = &self.params;
-        let graph = RelationGraph::from_records(view.global_records(keys::RELATION_EDGES))
-            .unwrap_or_default();
+        let graph = relation_graph(view);
         let mut out = Vec::new();
 
         for &agent in view.live_agents() {
@@ -1201,8 +1237,7 @@ impl Rule for DecisionRandom {
         &self.writes
     }
     fn apply(&self, view: &dyn View, key: RngKey) -> Vec<Delta> {
-        let graph = RelationGraph::from_records(view.global_records(keys::RELATION_EDGES))
-            .unwrap_or_default();
+        let graph = relation_graph(view);
         let mut out = Vec::new();
 
         for &agent in view.live_agents() {

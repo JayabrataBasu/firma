@@ -221,7 +221,7 @@ _SEED_PATTERNS = [
         r'"shock"\s*:\s*(\d+)\s*,\s*"init"\s*:\s*(\d+)'
     ),
     re.compile(
-        r"StreamSeeds\s*\{\s*mechanism\s*:\s*(\d+)\s*,\s*environment\s*:\s*(\d+)\s*,\s*"
+        r"(?:Stream|Run)Seeds\s*\{\s*mechanism\s*:\s*(\d+)\s*,\s*environment\s*:\s*(\d+)\s*,\s*"
         r"shock\s*:\s*(\d+)\s*,\s*init\s*:\s*(\d+)"
     ),
     re.compile(r"StreamSeeds\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*\)"),
@@ -235,7 +235,7 @@ def scan_seed_literals(
     """Every literal seed tuple in source files under ``roots``, as
     ``(path, line, (mechanism, environment, shock, init))``. Recognised
     forms: JSON/format-string ``"mechanism": a, "environment": b, "shock": c,
-    "init": d``; Rust ``StreamSeeds { mechanism: a, ... }``; Python
+    "init": d``; Rust ``StreamSeeds { mechanism: a, ... }`` / ``RunSeeds { ... }``; Python
     ``StreamSeeds(a, b, c, d)``; and ``derive_seeds(n)`` (= ``(n,n,n,n)``,
     ADR-0053). A heuristic scan: other spellings are not seen."""
     out = []
@@ -293,7 +293,7 @@ def check_seed_range(
     order = ("mechanism", "environment", "shock", "init")
     rep_of = {
         tuple(derive_seeds(n).to_dict()[k] for k in order): n
-        for n in range(1, spec.num_replicates + 1)
+        for n in spec.replicates()
     }
     registered_tuples = set(rep_of)
     jobs_by_rep: dict[int, list] = {}
@@ -338,7 +338,8 @@ def check_seed_range(
     unacknowledged = [(p, ln, t) for p, ln, t in literal_hits if (p, t) not in ack]
 
     evidence = [
-        f"registered seeds: derive_seeds(n) for n in 1..{spec.num_replicates} (ADR-0053)",
+        f"registered seeds: derive_seeds(n) for n in "
+        f"{spec.first_replicate}..{spec.first_replicate + spec.num_replicates - 1} (ADR-0053)",
         f"exploratory run configs scanned: {n_scanned}",
         "equality = same engine RunConfig after parsing; plugin params compared as written",
     ]

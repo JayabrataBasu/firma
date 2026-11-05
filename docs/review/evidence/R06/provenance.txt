@@ -1,0 +1,11 @@
+DIAGNOSTIC-ONLY provenance, R06 S1 (2026-10-02)
+HEAD export: git archive 2820610076bc9bf0317ffa0daaa49859ac8e430b (uncommitted working-tree changes are NOT in it)
+old export:  git archive 9c49c34f02cf55862761f50feeffd33c442aac4f
+built with: cargo build --release -p firma-cli (both); cargo build --release -p firma-analysis --example sanity_report_json (HEAD)
+rustc 1.98.0 (88d9e12ae 2026-08-18)
+binaries (sha256):
+4079068180cd9f6f058a430d3143c6bf62999132d7880912cd60cb81ddcd1c05  head/target/release/firma
+0bda2e4c239cfb72bc2edc251b26bd4c6d33cad0e30dd2b5b4cab701b90e4a76  head/target/release/examples/sanity_report_json
+3365dded085c0b8481deb8582c9bde04f3336bc406c0f29b4bbc82075cba3e2c  old/target/release/firma
+seeds used: mechanism 910001, environment 910002, init 910004, shock 910001..910050 (S1); (910001+10k .. 910004+10k), k=0..4 and (910001,910002,910003,910004) (inertness). Smallest seed value in any executed config: 910001.
+main checkout: not built into, not edited outside docs/review/evidence/R06 and docs/review/outbox.

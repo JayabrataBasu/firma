@@ -1,0 +1,13 @@
+### R23 provenance (DIAGNOSTIC-ONLY)
+date: 2026-10-02T12:33Z; step 0 written: 2026-10-02T12:28:43Z
+git rev: 2820610076bc9bf0317ffa0daaa49859ac8e430b (branch h3-satisficing-lookahead); working tree uncommitted
+step 0:   .venv/bin/python scripts/diag_manual_defaults.py --write-spec docs/review/evidence/R23/md_spec.json
+existing: cargo test -p firma-conformance --test sanity -- sc16_gate sc4_wmax_beta_probe --nocapture --test-threads=1 > existing_test_output.txt
+run:      .venv/bin/python scripts/diag_manual_defaults.py --spec docs/review/evidence/R23/md_spec.json --gate-output docs/review/evidence/R23/existing_test_output.txt --out <scratch> --jobs 8
+md_spec.json sha256: b9ec62b6a30243ead96eeb5bb3adb3627daa15a6b28d2fdb92f8dbe3bedaf03b
+firma binary: target/debug/firma sha256 97f1feac7cbe615f8c01b15d5afd8f2668a6ecced851ce559352e70279275d07
+python: Python 3.14.7
+wall-clock: 69.0 s (one run of the script)
+seeds executed by this script: all >= 910001 (part 1: 910001; part 2: 910001..910004 and 911001..911004; part 3: mechanism 910001, environment 910002, init = shock 910001..910020). The existing Rust tests, run by cargo as in every round, use their own seeds.
+runs: controls 2; part 1 4 (two cells, trace on and off); part 2 9 (3 configs x 2 l_w + 3 at a second seed set); part 3 stage 1 800; stage 2 0. Total 815. Tests: 1 run per invocation of test_diag_manual_defaults.py.
+order: sources read -> script + tests written -> md_spec.json written -> tests -> existing sanity tests' output captured -> the diagnostic, once.

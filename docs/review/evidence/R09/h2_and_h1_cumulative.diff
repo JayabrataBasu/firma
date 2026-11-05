@@ -1,0 +1,1028 @@
+diff --git a/crates/firma-analysis/examples/sanity_report_json.rs b/crates/firma-analysis/examples/sanity_report_json.rs
+index f9bc7f9..7567699 100644
+--- a/crates/firma-analysis/examples/sanity_report_json.rs
++++ b/crates/firma-analysis/examples/sanity_report_json.rs
+@@ -12,8 +12,7 @@
+ 
+ use std::path::PathBuf;
+ 
+-use firma_analysis::sanity::sanity_from_run;
+-use firma_analysis::Reconstruction;
++use firma_analysis::sanity::{reconstruct_checked, try_sanity_from_run};
+ use firma_config::RunConfig;
+ use serde_json::json;
+ 
+@@ -28,15 +27,21 @@ fn main() {
+     let cfg = RunConfig::from_json(&cfg_json).expect("parse config");
+     let run_dir = PathBuf::from(run_dir);
+ 
+-    let report = sanity_from_run(&cfg, &run_dir);
++    // A malformed `scales` parameter or an unparsable persisted record in the
++    // log is an error with a non-zero exit, never a report computed without
++    // the offending records.
++    let fail = |e: String| -> ! {
++        eprintln!("sanity_report_json: {e}");
++        std::process::exit(1);
++    };
++    let report = try_sanity_from_run(&cfg, &run_dir).unwrap_or_else(|e| fail(e));
+ 
+-    let mut recon = Reconstruction::new(&cfg);
+-    for ev in firma_io::read_events::<firma_core::Event>(&run_dir.join("events.ndjson"))
+-        .expect("read events")
+-        .map(|e| e.expect("parse event"))
+-    {
+-        recon.apply(&ev);
+-    }
++    let events: Vec<firma_core::Event> =
++        firma_io::read_events::<firma_core::Event>(&run_dir.join("events.ndjson"))
++            .expect("read events")
++            .map(|e| e.expect("parse event"))
++            .collect();
++    let recon = reconstruct_checked(&cfg, &events).unwrap_or_else(|e| fail(e));
+ 
+     let out = json!({
+         "sanity": report,
+diff --git a/crates/firma-analysis/src/reconstruct.rs b/crates/firma-analysis/src/reconstruct.rs
+index df5c0b8..2455f16 100644
+--- a/crates/firma-analysis/src/reconstruct.rs
++++ b/crates/firma-analysis/src/reconstruct.rs
+@@ -219,6 +219,7 @@ pub struct Reconstruction {
+     scales: ScaleFactors,
+     tick: u64,
+     horizon: Option<u64>,
++    parse_errors: Vec<String>,
+ }
+ 
+ impl Reconstruction {
+@@ -226,8 +227,27 @@ impl Reconstruction {
+     /// `decision.satisficing` / `constraint.action_window` parameters the
+     /// running model used, so a reconstructed `h` matches the model's own
+     /// (§9.2 `scales`).
++    ///
++    /// # Panics
++    /// If the config's `decision.satisficing` `scales` parameter is present
++    /// but malformed — see [`Reconstruction::try_new`], which returns that as
++    /// an error instead. This infallible form exists for callers that
++    /// cannot propagate one; it never falls back to default scales.
+     #[must_use]
+     pub fn new(cfg: &RunConfig) -> Reconstruction {
++        Self::try_new(cfg).unwrap_or_else(|e| panic!("{e}"))
++    }
++
++    /// As [`Reconstruction::new`], returning an error instead of panicking.
++    ///
++    /// # Errors
++    /// If `decision.satisficing` carries a `scales` parameter that is not a
++    /// valid [`ScaleFactors`]. An **absent** `scales` parameter (or no
++    /// `decision.satisficing` rule at all) means the §9.2 defaults, exactly
++    /// as the running model applies them; a present-but-malformed one would
++    /// make every reconstructed `h` silently disagree with the model's, so
++    /// it is refused.
++    pub fn try_new(cfg: &RunConfig) -> Result<Reconstruction, String> {
+         let mut firms = BTreeMap::new();
+         for a in &cfg.agents {
+             firms.insert(
+@@ -276,14 +296,21 @@ impl Reconstruction {
+         let l_w = param_u64(cfg, "constraint.action_window", "l_w")
+             .or_else(|| param_u64(cfg, "decision.satisficing", "l_w"))
+             .unwrap_or(8) as usize;
+-        let scales: ScaleFactors = cfg
++        let scales: ScaleFactors = match cfg
+             .rules
+             .iter()
+             .find(|r| r.id.0 == "decision.satisficing")
+             .and_then(|r| r.params.get("scales").cloned())
+-            .and_then(|v| serde_json::from_value(v).ok())
+-            .unwrap_or_default();
+-        Reconstruction {
++        {
++            None => ScaleFactors::default(),
++            Some(v) => serde_json::from_value(v.clone()).map_err(|e| {
++                format!(
++                    "decision.satisficing `scales` parameter is not a valid ScaleFactors \
++                     ({e}); offending value: {v}. Refusing to reconstruct with default scales."
++                )
++            })?,
++        };
++        Ok(Reconstruction {
+             firms,
+             theta,
+             h_crit,
+@@ -291,7 +318,8 @@ impl Reconstruction {
+             scales,
+             tick: 0,
+             horizon: None,
+-        }
++            parse_errors: Vec::new(),
++        })
+     }
+ 
+     /// Fold one event, returning the [`Notable`] facts it represents — most
+@@ -431,10 +459,23 @@ impl Reconstruction {
+             (DeltaTarget::Agent(a), DeltaKind::ReplaceAgentList { list, records_json }) => {
+                 if list == keys::ACTION_WINDOW {
+                     if let Some(f) = self.firms.get_mut(&a.0) {
+-                        f.window = records_json
+-                            .iter()
+-                            .filter_map(|s| WindowEntry::from_json(s).ok())
+-                            .collect();
++                        // An unparsable entry is recorded in `parse_errors`
++                        // (agent, key, offending string), not dropped without
++                        // trace: this is offline analysis, so it reports the
++                        // problem rather than aborting the reader.
++                        let mut window = Vec::with_capacity(records_json.len());
++                        for s in records_json {
++                            match WindowEntry::from_json(s) {
++                                Ok(e) => window.push(e),
++                                Err(err) => self.parse_errors.push(format!(
++                                    "tick {tick}, agent {}: corrupt record under `{}` \
++                                     ({err}); offending record: {s:?}",
++                                    a.0,
++                                    keys::ACTION_WINDOW
++                                )),
++                            }
++                        }
++                        f.window = window;
+                         if let Some(last) = f.window.last() {
+                             *f.action_counts.entry(last.action).or_default() += 1;
+                         }
+@@ -444,14 +485,25 @@ impl Reconstruction {
+             (DeltaTarget::Agent(a), DeltaKind::PushAgentRecord { list, record_json })
+                 if list == keys::LAGGED_EFFECTS && phase == 5 =>
+             {
+-                if let Ok(rec) = LaggedRecord::from_json(record_json) {
+-                    if let Some(applied) = shaping_applied(&rec) {
+-                        out.push(Notable::ShapingCommitted {
+-                            tick,
+-                            agent: a.0,
+-                            applied: Some(applied),
+-                        });
++                match LaggedRecord::from_json(record_json) {
++                    Ok(rec) => {
++                        if let Some(applied) = shaping_applied(&rec) {
++                            out.push(Notable::ShapingCommitted {
++                                tick,
++                                agent: a.0,
++                                applied: Some(applied),
++                            });
++                        }
+                     }
++                    // Counted, not skipped without trace: an unparsable
++                    // record here would otherwise silently lower the
++                    // shaping-commit count (SC-4/SC-5).
++                    Err(err) => self.parse_errors.push(format!(
++                        "tick {tick}, agent {}: corrupt record under `{}` ({err}); \
++                         offending record: {record_json:?}",
++                        a.0,
++                        keys::LAGGED_EFFECTS
++                    )),
+                 }
+             }
+             _ => {}
+@@ -549,4 +601,155 @@ impl Reconstruction {
+     pub fn total_count(&self) -> usize {
+         self.firms.len()
+     }
++
++    /// Persisted records in the event log that could not be parsed, one
++    /// message per record, naming the agent, the list key and the offending
++    /// string. Empty for a well-formed log. A non-empty list means every
++    /// quantity derived from that list (`u`, `h`, repertoire entropy, action
++    /// counts) was computed without the unparsable entries and must not be
++    /// trusted — check this before using a reconstruction.
++    #[must_use]
++    pub fn parse_errors(&self) -> &[String] {
++        &self.parse_errors
++    }
++}
++
++#[cfg(test)]
++mod tests {
++    use super::*;
++    use firma_core::{AgentId, DeltaKind, DeltaTarget, Event, PluginId};
++
++    fn recon() -> Reconstruction {
++        Reconstruction::new(&recon_cfg())
++    }
++
++    fn recon_cfg() -> RunConfig {
++        RunConfig::from_json(
++            r#"{
++              "experiment": "unit", "schema_version": "1.0.0", "engine": ">=0.1.0, <0.2.0",
++              "seeds": {"mechanism": 910001, "environment": 910002, "shock": 910003, "init": 910004},
++              "world": {"ticks": 10, "resources": ["capital", "input"],
++                "conflict_resolver": {"id": "conflict.additive", "version": "^1"}},
++              "agents": [{"id": 0, "stocks": {"capital": 100}}],
++              "rules": [{"id": "constraint.action_window", "version": "^1", "params": {"l_w": 4}}]
++            }"#,
++        )
++        .unwrap()
++    }
++
++    fn window_event(records: Vec<String>) -> Event {
++        Event::DeltaApplied {
++            tick: 3,
++            phase: 7,
++            origin: PluginId::new("constraint.action_window"),
++            target: DeltaTarget::Agent(AgentId(0)),
++            kind: DeltaKind::ReplaceAgentList {
++                list: keys::ACTION_WINDOW.to_owned(),
++                records_json: records,
++            },
++        }
++    }
++
++    fn cfg_with_scales(scales: &str) -> RunConfig {
++        RunConfig::from_json(&format!(
++            r#"{{
++              "experiment": "unit", "schema_version": "1.0.0", "engine": ">=0.1.0, <0.2.0",
++              "seeds": {{"mechanism": 910001, "environment": 910002, "shock": 910003, "init": 910004}},
++              "world": {{"ticks": 10, "resources": ["capital", "input"],
++                "conflict_resolver": {{"id": "conflict.additive", "version": "^1"}}}},
++              "agents": [{{"id": 0, "stocks": {{"capital": 100}}}}],
++              "rules": [{{"id": "decision.satisficing", "version": "^1", "params": {{"l_w": 4{scales}}}}}]
++            }}"#
++        ))
++        .unwrap()
++    }
++
++    #[test]
++    fn absent_scales_param_still_means_defaults() {
++        assert!(Reconstruction::try_new(&cfg_with_scales("")).is_ok());
++        assert!(Reconstruction::try_new(&recon_cfg()).is_ok());
++    }
++
++    #[test]
++    fn well_formed_scales_param_is_accepted() {
++        let json = serde_json::to_string(&ScaleFactors::default()).unwrap();
++        assert!(
++            Reconstruction::try_new(&cfg_with_scales(&format!(r#", "scales": {json}"#))).is_ok()
++        );
++    }
++
++    #[test]
++    fn malformed_scales_param_is_an_error_not_silent_defaults() {
++        let Err(err) = Reconstruction::try_new(&cfg_with_scales(
++            r#", "scales": {"s_l": "MALFORMED-SCALE"}"#,
++        )) else {
++            panic!("a malformed `scales` param must be an error, not ScaleFactors::default()");
++        };
++        for p in ["decision.satisficing", "scales", "MALFORMED-SCALE"] {
++            assert!(err.contains(p), "error does not name {p:?}: {err}");
++        }
++    }
++
++    #[test]
++    #[should_panic(expected = "MALFORMED-SCALE")]
++    fn infallible_constructor_panics_on_a_malformed_scales_param() {
++        let _ = Reconstruction::new(&cfg_with_scales(
++            r#", "scales": {"s_l": "MALFORMED-SCALE"}"#,
++        ));
++    }
++
++    #[test]
++    fn one_corrupt_lagged_record_is_counted_and_named_not_silently_skipped() {
++        let mut r = recon();
++        r.apply(&Event::DeltaApplied {
++            tick: 6,
++            phase: 5,
++            origin: PluginId::new("action.shaping.rdt_standard.lobby"),
++            target: DeltaTarget::Agent(AgentId(0)),
++            kind: DeltaKind::PushAgentRecord {
++                list: keys::LAGGED_EFFECTS.to_owned(),
++                record_json: r#"{"maturity_tick":"CORRUPT-RECORD"}"#.to_owned(),
++            },
++        });
++        assert_eq!(
++            r.parse_errors().len(),
++            1,
++            "one corrupt lagged record ⇒ one error"
++        );
++        let msg = &r.parse_errors()[0];
++        for p in ["agent 0", keys::LAGGED_EFFECTS, "CORRUPT-RECORD", "tick 6"] {
++            assert!(msg.contains(p), "error does not name {p:?}: {msg}");
++        }
++    }
++
++    #[test]
++    fn a_well_formed_window_reports_no_parse_error() {
++        let mut r = recon();
++        r.apply(&window_event(vec![
++            WindowEntry::new(1, 2).to_json(),
++            WindowEntry::new(2, 1).to_json(),
++        ]));
++        assert!(r.parse_errors().is_empty());
++        assert_eq!(r.firm(0).unwrap().window.len(), 2);
++    }
++
++    #[test]
++    fn one_corrupt_window_record_is_counted_and_named_not_silently_dropped() {
++        let mut r = recon();
++        let corrupt = r#"{"tick":"CORRUPT-RECORD"}"#;
++        r.apply(&window_event(vec![
++            WindowEntry::new(1, 2).to_json(),
++            corrupt.to_owned(),
++            WindowEntry::new(2, 1).to_json(),
++        ]));
++        assert_eq!(
++            r.parse_errors().len(),
++            1,
++            "exactly one corrupt record ⇒ one error"
++        );
++        let msg = &r.parse_errors()[0];
++        for p in ["agent 0", keys::ACTION_WINDOW, "CORRUPT-RECORD", "tick 3"] {
++            assert!(msg.contains(p), "error does not name {p:?}: {msg}");
++        }
++    }
+ }
+diff --git a/crates/firma-analysis/src/sanity.rs b/crates/firma-analysis/src/sanity.rs
+index ad4c1f9..7a0aa96 100644
+--- a/crates/firma-analysis/src/sanity.rs
++++ b/crates/firma-analysis/src/sanity.rs
+@@ -117,7 +117,59 @@ fn ratio(num: usize, den: usize) -> f64 {
+ /// harness should fail loudly.
+ #[must_use]
+ pub fn sanity_from_run(cfg: &RunConfig, run_dir: &Path) -> SanityReport {
+-    let mut r = Reconstruction::new(cfg);
++    try_sanity_from_run(cfg, run_dir).unwrap_or_else(|e| panic!("{e}"))
++}
++
++/// One error message for a reconstruction that met unparsable persisted
++/// records, or `Ok(())` if it met none. The message lists every record
++/// ([`Reconstruction::parse_errors`]: tick, agent, key, offending string).
++fn refuse_parse_errors(r: &Reconstruction) -> Result<(), String> {
++    let errs = r.parse_errors();
++    if errs.is_empty() {
++        Ok(())
++    } else {
++        Err(format!(
++            "event log contains {} unparsable persisted record(s); every quantity derived \
++             from them (u, h, repertoire entropy, shaping counts) would be wrong, so no \
++             result is returned:\n  {}",
++            errs.len(),
++            errs.join("\n  ")
++        ))
++    }
++}
++
++/// Fold `events` through a [`Reconstruction`] and return it **only if** the
++/// log was well-formed: a malformed `scales` parameter
++/// ([`Reconstruction::try_new`]) or any unparsable persisted record
++/// ([`Reconstruction::parse_errors`]) is an error. Use this instead of
++/// `Reconstruction::new` + `apply` wherever the result becomes a reported
++/// number.
++///
++/// # Errors
++/// As described above; the message names each offending record.
++pub fn reconstruct_checked<'a>(
++    cfg: &RunConfig,
++    events: impl IntoIterator<Item = &'a Event>,
++) -> Result<Reconstruction, String> {
++    let mut r = Reconstruction::try_new(cfg)?;
++    for ev in events {
++        r.apply(ev);
++    }
++    refuse_parse_errors(&r)?;
++    Ok(r)
++}
++
++/// As [`sanity_from_run`], but a malformed `scales` parameter or an event log
++/// containing unparsable persisted records is returned as an error instead
++/// of a panic — and never as a report computed without those records.
++///
++/// # Errors
++/// As described above.
++///
++/// # Panics
++/// If the event log cannot be read or an event line fails to parse.
++pub fn try_sanity_from_run(cfg: &RunConfig, run_dir: &Path) -> Result<SanityReport, String> {
++    let mut r = Reconstruction::try_new(cfg)?;
+     let initial_firms = cfg.agents.len();
+ 
+     let mut focus_total = 0usize;
+@@ -226,7 +278,9 @@ pub fn sanity_from_run(cfg: &RunConfig, run_dir: &Path) -> SanityReport {
+             / entropies.len() as f64
+     };
+ 
+-    SanityReport {
++    refuse_parse_errors(&r)?;
++
++    Ok(SanityReport {
+         initial_firms,
+         survivors,
+         sc1_survival: survivors as f64 / initial_firms.max(1) as f64,
+@@ -244,5 +298,118 @@ pub fn sanity_from_run(cfg: &RunConfig, run_dir: &Path) -> SanityReport {
+         sc6_entropy_mean: ent_mean,
+         decisions,
+         shaping_commits,
++    })
++}
++
++#[cfg(test)]
++mod tests {
++    use super::*;
++    use firma_core::{AgentId, DeltaKind, DeltaTarget, PluginId};
++    use firma_domain::{keys, WindowEntry};
++
++    fn cfg() -> RunConfig {
++        RunConfig::from_json(
++            r#"{
++              "experiment": "unit", "schema_version": "1.0.0", "engine": ">=0.1.0, <0.2.0",
++              "seeds": {"mechanism": 910001, "environment": 910002, "shock": 910003, "init": 910004},
++              "world": {"ticks": 4, "resources": ["capital", "input"],
++                "conflict_resolver": {"id": "conflict.additive", "version": "^1"}},
++              "agents": [{"id": 0, "stocks": {"capital": 100}}],
++              "rules": [{"id": "constraint.action_window", "version": "^1", "params": {"l_w": 4}}]
++            }"#,
++        )
++        .unwrap()
++    }
++
++    /// A minimal event log whose one window record list holds `records`.
++    fn events(records: Vec<String>) -> Vec<Event> {
++        vec![
++            Event::RunStarted {
++                manual_version: "1.0.0".into(),
++                engine_version: "0.1.0".into(),
++                horizon: 4,
++            },
++            Event::DeltaApplied {
++                tick: 2,
++                phase: 7,
++                origin: PluginId::new("constraint.action_window"),
++                target: DeltaTarget::Agent(AgentId(0)),
++                kind: DeltaKind::ReplaceAgentList {
++                    list: keys::ACTION_WINDOW.to_owned(),
++                    records_json: records,
++                },
++            },
++        ]
++    }
++
++    fn clean() -> Vec<String> {
++        vec![
++            WindowEntry::new(0, 1).to_json(),
++            WindowEntry::new(1, 2).to_json(),
++        ]
++    }
++
++    fn one_corrupt() -> Vec<String> {
++        vec![
++            WindowEntry::new(0, 1).to_json(),
++            r#"{"tick":"CORRUPT-RECORD"}"#.to_owned(),
++            WindowEntry::new(1, 2).to_json(),
++        ]
++    }
++
++    fn run_dir(tag: &str, evs: &[Event]) -> std::path::PathBuf {
++        let d =
++            std::env::temp_dir().join(format!("firma-analysis-h2-{tag}-{}", std::process::id()));
++        std::fs::create_dir_all(&d).unwrap();
++        let body: String = evs
++            .iter()
++            .map(|e| serde_json::to_string(e).unwrap() + "\n")
++            .collect();
++        std::fs::write(d.join("events.ndjson"), body).unwrap();
++        d
++    }
++
++    #[test]
++    fn a_clean_log_reconstructs_and_reports() {
++        let evs = events(clean());
++        assert!(reconstruct_checked(&cfg(), &evs).is_ok());
++        let d = run_dir("clean", &evs);
++        assert!(try_sanity_from_run(&cfg(), &d).is_ok());
++        let _ = std::fs::remove_dir_all(&d);
++    }
++
++    #[test]
++    fn reconstruct_checked_refuses_a_log_with_one_corrupt_record() {
++        let evs = events(one_corrupt());
++        let Err(err) = reconstruct_checked(&cfg(), &evs) else {
++            panic!("a corrupt record must make the checked fold fail");
++        };
++        for p in [
++            "1 unparsable",
++            "agent 0",
++            keys::ACTION_WINDOW,
++            "CORRUPT-RECORD",
++        ] {
++            assert!(err.contains(p), "error does not name {p:?}: {err}");
++        }
++    }
++
++    #[test]
++    fn try_sanity_from_run_refuses_a_log_with_one_corrupt_record() {
++        let d = run_dir("corrupt", &events(one_corrupt()));
++        let Err(err) = try_sanity_from_run(&cfg(), &d) else {
++            panic!("a corrupt record must not yield a sanity report");
++        };
++        let _ = std::fs::remove_dir_all(&d);
++        for p in ["agent 0", keys::ACTION_WINDOW, "CORRUPT-RECORD"] {
++            assert!(err.contains(p), "error does not name {p:?}: {err}");
++        }
++    }
++
++    #[test]
++    #[should_panic(expected = "CORRUPT-RECORD")]
++    fn sanity_from_run_panics_on_a_log_with_one_corrupt_record() {
++        let d = run_dir("corrupt-panic", &events(one_corrupt()));
++        let _ = sanity_from_run(&cfg(), &d);
+     }
+ }
+diff --git a/crates/firma-plugins/firma-plugin-action-shaping/src/lib.rs b/crates/firma-plugins/firma-plugin-action-shaping/src/lib.rs
+index 2a68d36..20257f8 100644
+--- a/crates/firma-plugins/firma-plugin-action-shaping/src/lib.rs
++++ b/crates/firma-plugins/firma-plugin-action-shaping/src/lib.rs
+@@ -243,10 +243,22 @@ impl Rule for ShapingRule {
+         let tick = view.tick().0;
+ 
+         // The relation graph is only consulted by `contract`; parse once.
+-        let graph = match RelationGraph::from_records(view.global_records(keys::RELATION_EDGES)) {
+-            Ok(g) => g,
+-            Err(_) => return Vec::new(), // corrupt store — do nothing rather than guess
+-        };
++        // A corrupt relation store is a loud failure, not "emit nothing": a
++        // firm that selected a shaping action would otherwise silently not
++        // act this tick (manual §19.5: no repair-and-continue; `Rule::apply`
++        // has no `Result`; precedent: the partial Arm-A pin, ADR 0054).
++        let edge_records = view.global_records(keys::RELATION_EDGES);
++        let graph = RelationGraph::from_records(edge_records).unwrap_or_else(|e| {
++            let bad = edge_records
++                .iter()
++                .find(|r| RelationGraph::from_records(std::slice::from_ref(*r)).is_err())
++                .map_or("<unidentified>", String::as_str);
++            panic!(
++                "global: corrupt persisted record under `{}` ({e}); offending record: \
++                 {bad:?}. Refusing to drop it and continue (manual §19.5).",
++                keys::RELATION_EDGES
++            )
++        });
+ 
+         let mut out = Vec::new();
+         for &agent in view.live_agents() {
+diff --git a/crates/firma-plugins/firma-plugin-action-shaping/src/tests.rs b/crates/firma-plugins/firma-plugin-action-shaping/src/tests.rs
+index 6003eb2..731fa6b 100644
+--- a/crates/firma-plugins/firma-plugin-action-shaping/src/tests.rs
++++ b/crates/firma-plugins/firma-plugin-action-shaping/src/tests.rs
+@@ -362,3 +362,30 @@ fn every_registered_rule_has_a_nonempty_assumption() {
+         assert!(!r.assumption().trim().is_empty(), "{}", r.id().as_str());
+     }
+ }
++
++// --- review H-2: a corrupt relation store is a loud failure, not "do nothing" ---
++
++fn h2_panic_message(f: impl FnOnce()) -> String {
++    let r = std::panic::catch_unwind(std::panic::AssertUnwindSafe(f));
++    let payload =
++        r.expect_err("expected a panic on the corrupt record, but the rule returned normally");
++    payload
++        .downcast_ref::<String>()
++        .cloned()
++        .or_else(|| payload.downcast_ref::<&str>().map(|s| (*s).to_owned()))
++        .unwrap_or_default()
++}
++
++#[test]
++fn shaping_rule_panics_on_a_corrupt_relation_edge_naming_key_and_record() {
++    let v = view_for_lobby(0, 42).with_global_record(
++        keys::RELATION_EDGES,
++        r#"{"source":"CORRUPT-RECORD"}"#.to_owned(),
++    );
++    let msg = h2_panic_message(|| {
++        lobby_rule().apply(&v, v.rng_key());
++    });
++    for p in [keys::RELATION_EDGES, "CORRUPT-RECORD"] {
++        assert!(msg.contains(p), "panic message does not name {p:?}: {msg}");
++    }
++}
+diff --git a/crates/firma-plugins/firma-plugin-constraint/src/phase_rules.rs b/crates/firma-plugins/firma-plugin-constraint/src/phase_rules.rs
+index 7e03c3f..bf778bf 100644
+--- a/crates/firma-plugins/firma-plugin-constraint/src/phase_rules.rs
++++ b/crates/firma-plugins/firma-plugin-constraint/src/phase_rules.rs
+@@ -52,14 +52,32 @@ fn firm_u(view: &dyn View, agent: AgentId, l_w: usize) -> f64 {
+         view.agent_real(agent, keys::REGULATED_INTENSITY)
+             .unwrap_or(0.0)
+     } else {
+-        let entries: Vec<WindowEntry> = w
+-            .iter()
+-            .filter_map(|s| WindowEntry::from_json(s).ok())
+-            .collect();
+-        margin::u_from_window(&entries, l_w)
++        margin::u_from_window(&parse_window(agent, w), l_w)
+     }
+ }
+ 
++/// Parse a firm's persisted action window. A record that is not a valid
++/// [`WindowEntry`] is a loud failure naming the agent, the key and the
++/// offending string: dropping it would silently change `u` and so the
++/// compliance check, and there is no repair-and-continue path (manual
++/// §19.5). `Rule::apply` has no `Result` return, so the failure is a panic
++/// (precedent: the partial Arm-A pin, ADR 0054).
++fn parse_window(agent: AgentId, records: &[String]) -> Vec<WindowEntry> {
++    records
++        .iter()
++        .map(|s| {
++            WindowEntry::from_json(s).unwrap_or_else(|e| {
++                panic!(
++                    "agent {}: corrupt persisted record under `{}` ({e}); offending record: \
++                     {s:?}. Refusing to drop it and continue (manual §19.5).",
++                    agent.0,
++                    keys::ACTION_WINDOW
++                )
++            })
++        })
++        .collect()
++}
++
+ fn theta(view: &dyn View) -> ConstraintParams {
+     ConstraintParams {
+         theta_limit: view.global_real(keys::THETA_LIMIT).unwrap_or(0.0),
+@@ -146,11 +164,7 @@ impl Rule for ActionWindow {
+                 .filter(|a| *a <= 8)
+                 .unwrap_or(0);
+ 
+-            let w: Vec<WindowEntry> = view
+-                .agent_records(agent, keys::ACTION_WINDOW)
+-                .iter()
+-                .filter_map(|s| WindowEntry::from_json(s).ok())
+-                .collect();
++            let w = parse_window(agent, view.agent_records(agent, keys::ACTION_WINDOW));
+             // ADR 0049: the single source of "append + trim to L_W" —
+             // `time_to_boundary`'s forward projection calls the same
+             // function.
+@@ -330,7 +344,20 @@ impl Rule for Enforce {
+         let mut edges: Vec<Edge> = view
+             .global_records(keys::RELATION_EDGES)
+             .iter()
+-            .filter_map(|s| serde_json::from_str::<Edge>(s).ok())
++            .map(|s| {
++                // An edge that does not parse is a loud failure. Dropping it
++                // here would do more than ignore it: when a severance
++                // rewrites the list below, the unparsable record would be
++                // deleted from the persisted store (manual §19.5: no
++                // repair-and-continue; `Rule::apply` has no `Result`).
++                serde_json::from_str::<Edge>(s).unwrap_or_else(|e| {
++                    panic!(
++                        "global: corrupt persisted record under `{}` ({e}); offending \
++                         record: {s:?}. Refusing to drop it and continue (manual §19.5).",
++                        keys::RELATION_EDGES
++                    )
++                })
++            })
+             .collect();
+         let mut edges_changed = false;
+ 
+diff --git a/crates/firma-plugins/firma-plugin-constraint/src/phase_rules/tests.rs b/crates/firma-plugins/firma-plugin-constraint/src/phase_rules/tests.rs
+index ce30948..6103f21 100644
+--- a/crates/firma-plugins/firma-plugin-constraint/src/phase_rules/tests.rs
++++ b/crates/firma-plugins/firma-plugin-constraint/src/phase_rules/tests.rs
+@@ -579,3 +579,74 @@ fn phase_rules_register_and_have_the_right_phases() {
+         assert_eq!(r.phase(), want, "{id}");
+     }
+ }
++
++// ==================== corrupt persisted records (review H-1; §19.5) ====================
++
++const CORRUPT: &str = r#"{"tick":"CORRUPT-RECORD"}"#;
++
++fn panic_message(f: impl FnOnce()) -> String {
++    let r = std::panic::catch_unwind(std::panic::AssertUnwindSafe(f));
++    let payload =
++        r.expect_err("expected a panic on the corrupt record, but the rule returned normally");
++    payload
++        .downcast_ref::<String>()
++        .cloned()
++        .or_else(|| payload.downcast_ref::<&str>().map(|s| (*s).to_owned()))
++        .unwrap_or_default()
++}
++
++/// A window of two valid entries with exactly one corrupt record between them.
++fn view_with_one_corrupt_window_record() -> Mv {
++    let mut v = Mv::new(9, &[0])
++        .theta()
++        .stock(0, "capital", 100)
++        .int(0, keys::SELECTED_ACTION, 1);
++    v.alists.insert(
++        (0, keys::ACTION_WINDOW.into()),
++        vec![
++            WindowEntry::new(7, 2).to_json(),
++            CORRUPT.to_owned(),
++            WindowEntry::new(8, 1).to_json(),
++        ],
++    );
++    v
++}
++
++#[test]
++fn action_window_panics_on_a_corrupt_record_naming_agent_key_and_record() {
++    let rule = ActionWindow::new(ActionWindowParams { l_w: 4 }).unwrap();
++    let v = view_with_one_corrupt_window_record();
++    let msg = panic_message(|| {
++        rule.apply(&v, key());
++    });
++    for p in ["agent 0", keys::ACTION_WINDOW, "CORRUPT-RECORD"] {
++        assert!(msg.contains(p), "panic message does not name {p:?}: {msg}");
++    }
++}
++
++#[test]
++fn enforce_panics_on_a_corrupt_window_record_naming_agent_key_and_record() {
++    let v = view_with_one_corrupt_window_record();
++    let msg = panic_message(|| {
++        enforce(20).apply(&v, key());
++    });
++    for p in ["agent 0", keys::ACTION_WINDOW, "CORRUPT-RECORD"] {
++        assert!(msg.contains(p), "panic message does not name {p:?}: {msg}");
++    }
++}
++
++// --- review H-2: a corrupt relation edge is a loud failure in Enforce ---
++
++#[test]
++fn enforce_panics_on_a_corrupt_relation_edge_naming_key_and_record() {
++    // Exactly one record under `relation_edges`, and it is corrupt.
++    let mut v = Mv::new(9, &[0]).theta().stock(0, "capital", 100);
++    v.glists
++        .insert(keys::RELATION_EDGES.into(), vec![CORRUPT.to_owned()]);
++    let msg = panic_message(|| {
++        enforce(20).apply(&v, key());
++    });
++    for p in [keys::RELATION_EDGES, "CORRUPT-RECORD"] {
++        assert!(msg.contains(p), "panic message does not name {p:?}: {msg}");
++    }
++}
+diff --git a/crates/firma-plugins/firma-plugin-shock/src/lib.rs b/crates/firma-plugins/firma-plugin-shock/src/lib.rs
+index 367f60e..a95240a 100644
+--- a/crates/firma-plugins/firma-plugin-shock/src/lib.rs
++++ b/crates/firma-plugins/firma-plugin-shock/src/lib.rs
+@@ -89,11 +89,34 @@ impl ActiveShock {
+     fn to_json(&self) -> String {
+         serde_json::to_string(self).expect("ActiveShock serialises")
+     }
+-    fn from_json(s: &str) -> Option<ActiveShock> {
+-        serde_json::from_str(s).ok()
++    fn from_json(s: &str) -> Result<ActiveShock, String> {
++        serde_json::from_str(s).map_err(|e| format!("invalid ActiveShock: {e}"))
+     }
+ }
+ 
++/// Every record under `keys::ACTIVE_SHOCKS`, parsed. A record that is not a
++/// valid [`ActiveShock`] is a loud failure naming the key and the offending
++/// string: dropping it would silently forget a shock in progress (its
++/// cumulative applied shift, and for `shock.stochastic` the drawn onset and
++/// magnitude), and the next rewrite of the list would delete it. There is no
++/// repair-and-continue path (manual §19.5) and `Rule::apply` has no `Result`
++/// return, so the failure is a panic (precedent: the partial Arm-A pin,
++/// ADR 0054).
++fn active_shocks(view: &dyn View) -> Vec<ActiveShock> {
++    view.global_records(keys::ACTIVE_SHOCKS)
++        .iter()
++        .map(|s| {
++            ActiveShock::from_json(s).unwrap_or_else(|e| {
++                panic!(
++                    "global: corrupt persisted record under `{}` ({e}); offending record: \
++                     {s:?}. Refusing to drop it and continue (manual §19.5).",
++                    keys::ACTIVE_SHOCKS
++                )
++            })
++        })
++        .collect()
++}
++
+ /// The channel's world-effect for a target cumulative shift of `target`
+ /// (already signed), given the shift already applied. Returns the deltas to
+ /// emit and the new applied-shift bookkeeping.
+@@ -237,11 +260,7 @@ fn run_owner(owner: &str, origin: &PluginId, shocks: &[Shock], view: &dyn View)
+     // semantics would clobber each other (last-writer-wins, and neither sees
+     // the other's step) — so this rewrites the whole list from *its own*
+     // shocks. The `owner` field is kept only for log legibility.
+-    let old: Vec<ActiveShock> = view
+-        .global_records(keys::ACTIVE_SHOCKS)
+-        .iter()
+-        .filter_map(|s| ActiveShock::from_json(s))
+-        .collect();
++    let old: Vec<ActiveShock> = active_shocks(view);
+ 
+     let mut out = Vec::new();
+     let mut new_records: Vec<ActiveShock> = Vec::new();
+@@ -466,10 +485,8 @@ impl Rule for Stochastic {
+         // lives in `ACTIVE_SHOCKS`. Every later tick reuses the record's shock
+         // — re-`draw()`ing would use that tick's key and produce a different
+         // onset/magnitude.
+-        let existing: Option<Shock> = view
+-            .global_records(keys::ACTIVE_SHOCKS)
+-            .iter()
+-            .filter_map(|s| ActiveShock::from_json(s))
++        let existing: Option<Shock> = active_shocks(view)
++            .into_iter()
+             .find(|a| a.shock.id == self.p.id)
+             .map(|a| a.shock);
+         let shock = match existing {
+diff --git a/crates/firma-plugins/firma-plugin-shock/src/tests.rs b/crates/firma-plugins/firma-plugin-shock/src/tests.rs
+index 89d2379..3cb82b5 100644
+--- a/crates/firma-plugins/firma-plugin-shock/src/tests.rs
++++ b/crates/firma-plugins/firma-plugin-shock/src/tests.rs
+@@ -328,3 +328,66 @@ fn params_validated() {
+         let _ = id;
+     }
+ }
++
++// --- review H-2: a corrupt ACTIVE_SHOCKS record is a loud failure (§19.5) ---
++
++fn h2_panic_message(f: impl FnOnce()) -> String {
++    let r = std::panic::catch_unwind(std::panic::AssertUnwindSafe(f));
++    let payload =
++        r.expect_err("expected a panic on the corrupt record, but the rule returned normally");
++    payload
++        .downcast_ref::<String>()
++        .cloned()
++        .or_else(|| payload.downcast_ref::<&str>().map(|s| (*s).to_owned()))
++        .unwrap_or_default()
++}
++
++const H2_CORRUPT: &str = r#"{"owner":"CORRUPT-RECORD"}"#;
++
++#[test]
++fn scheduled_panics_on_a_corrupt_active_shock_record_naming_key_and_record() {
++    let rule = Scheduled::new(ScheduledParams {
++        shocks: vec![reg_shock(
++            "s",
++            3,
++            0.1,
++            Persistence::Permanent,
++            Ramp::Instant,
++        )],
++    })
++    .unwrap();
++    let v = Mv::new(1, &[0, 1]).rec(keys::ACTIVE_SHOCKS, H2_CORRUPT.to_owned());
++    let msg = h2_panic_message(|| {
++        rule.apply(&v, v.key(StreamId::Environment));
++    });
++    for p in [keys::ACTIVE_SHOCKS, "CORRUPT-RECORD"] {
++        assert!(msg.contains(p), "panic message does not name {p:?}: {msg}");
++    }
++}
++
++#[test]
++fn stochastic_panics_on_a_corrupt_active_shock_record_naming_key_and_record() {
++    let rule = Stochastic::new(StochasticParams {
++        id: "rand".into(),
++        channel: ShockChannel::Regulatory {
++            target: RegulatoryTarget::ThetaLimit,
++        },
++        onset_min: 2,
++        onset_max: 5,
++        magnitude_mean: 0.1,
++        magnitude_sd: 0.0,
++        ramp: Ramp::Instant,
++        persistence: Persistence::Permanent,
++        observability: ShockObservability::Full,
++        novelty: 0.5,
++        targets: ShockTargets::All,
++    })
++    .unwrap();
++    let v = Mv::new(1, &[0, 1]).rec(keys::ACTIVE_SHOCKS, H2_CORRUPT.to_owned());
++    let msg = h2_panic_message(|| {
++        rule.apply(&v, v.key(StreamId::Shock));
++    });
++    for p in [keys::ACTIVE_SHOCKS, "CORRUPT-RECORD"] {
++        assert!(msg.contains(p), "panic message does not name {p:?}: {msg}");
++    }
++}
+diff --git a/crates/firma-py/src/lib.rs b/crates/firma-py/src/lib.rs
+index 7a16717..136e4b3 100644
+--- a/crates/firma-py/src/lib.rs
++++ b/crates/firma-py/src/lib.rs
+@@ -22,8 +22,9 @@ use pyo3::exceptions::PyValueError;
+ use pyo3::prelude::*;
+ use pyo3::types::PyDict;
+ 
+-use firma_analysis::sanity::sanity_from_run as rust_sanity_from_run;
+-use firma_analysis::Reconstruction;
++use firma_analysis::sanity::{
++    reconstruct_checked, try_sanity_from_run as rust_try_sanity_from_run,
++};
+ use firma_config::RunConfig;
+ 
+ fn load_config(config_json: &str) -> PyResult<RunConfig> {
+@@ -47,12 +48,14 @@ fn read_events(run_dir: &str) -> PyResult<Vec<firma_core::Event>> {
+ /// gate test would compute for the same log.
+ ///
+ /// # Errors
+-/// A `ValueError` if `config_json` does not parse or `run_dir/events.ndjson`
+-/// cannot be read.
++/// A `ValueError` if `config_json` does not parse, `run_dir/events.ndjson`
++/// cannot be read, the config's `scales` parameter is malformed, or the log
++/// contains an unparsable persisted record (the message names each one).
+ #[pyfunction]
+ fn sanity_report(py: Python<'_>, config_json: &str, run_dir: &str) -> PyResult<Py<PyDict>> {
+     let cfg = load_config(config_json)?;
+-    let report = rust_sanity_from_run(&cfg, std::path::Path::new(run_dir));
++    let report = rust_try_sanity_from_run(&cfg, std::path::Path::new(run_dir))
++        .map_err(PyValueError::new_err)?;
+ 
+     let d = PyDict::new(py);
+     d.set_item("initial_firms", report.initial_firms)?;
+@@ -89,17 +92,15 @@ fn sanity_report(py: Python<'_>, config_json: &str, run_dir: &str) -> PyResult<P
+ /// reconstruction `firma-tui`'s live panels use.
+ ///
+ /// # Errors
+-/// A `ValueError` if `config_json` does not parse or `run_dir/events.ndjson`
+-/// cannot be read.
++/// A `ValueError` if `config_json` does not parse, `run_dir/events.ndjson`
++/// cannot be read, the config's `scales` parameter is malformed, or the log
++/// contains an unparsable persisted record (the message names each one).
+ #[pyfunction]
+ fn final_margins(py: Python<'_>, config_json: &str, run_dir: &str) -> PyResult<Vec<Py<PyDict>>> {
+     let cfg = load_config(config_json)?;
+-    let mut recon = Reconstruction::new(&cfg);
+-    for ev in read_events(run_dir)? {
+-        recon.apply(&ev);
+-    }
+-    recon
+-        .firms()
++    let events = read_events(run_dir)?;
++    final_firms(&cfg, &events)
++        .map_err(PyValueError::new_err)?
+         .into_iter()
+         .map(|f| {
+             let d = PyDict::new(py);
+@@ -122,6 +123,17 @@ fn final_margins(py: Python<'_>, config_json: &str, run_dir: &str) -> PyResult<V
+         .collect()
+ }
+ 
++/// Every firm's final snapshot, for `final_margins` — or an error if the
++/// config's `scales` parameter is malformed or the log holds an unparsable
++/// persisted record ([`reconstruct_checked`]). Margins are never returned
++/// from a reconstruction that had to leave records out.
++fn final_firms(
++    cfg: &RunConfig,
++    events: &[firma_core::Event],
++) -> Result<Vec<firma_analysis::FirmSnapshot>, String> {
++    Ok(reconstruct_checked(cfg, events)?.firms())
++}
++
+ /// The identity hash of a run config: parse it exactly as `firma run` does
+ /// ([`RunConfig::from_json`]), apply the same [`RunConfig::normalise`] the
+ /// orchestrator applies before hashing, and return
+@@ -160,3 +172,59 @@ fn _native(m: &Bound<'_, PyModule>) -> PyResult<()> {
+     m.add_function(wrap_pyfunction!(config_identity_hash, m)?)?;
+     Ok(())
+ }
++
++#[cfg(test)]
++mod tests {
++    use super::*;
++    use firma_core::{AgentId, DeltaKind, DeltaTarget, Event, PluginId};
++
++    fn cfg() -> RunConfig {
++        RunConfig::from_json(
++            r#"{
++              "experiment": "unit", "schema_version": "1.0.0", "engine": ">=0.1.0, <0.2.0",
++              "seeds": {"mechanism": 910001, "environment": 910002, "shock": 910003, "init": 910004},
++              "world": {"ticks": 4, "resources": ["capital", "input"],
++                "conflict_resolver": {"id": "conflict.additive", "version": "^1"}},
++              "agents": [{"id": 0, "stocks": {"capital": 100}}],
++              "rules": [{"id": "constraint.action_window", "version": "^1", "params": {"l_w": 4}}]
++            }"#,
++        )
++        .unwrap()
++    }
++
++    fn window_event(records: Vec<String>) -> Event {
++        Event::DeltaApplied {
++            tick: 2,
++            phase: 7,
++            origin: PluginId::new("constraint.action_window"),
++            target: DeltaTarget::Agent(AgentId(0)),
++            kind: DeltaKind::ReplaceAgentList {
++                list: "action_window".to_owned(),
++                records_json: records,
++            },
++        }
++    }
++
++    #[test]
++    fn final_firms_returns_firms_for_a_clean_log() {
++        let ok = r#"{"tick":0,"action":1}"#.to_owned();
++        assert_eq!(
++            final_firms(&cfg(), &[window_event(vec![ok])])
++                .unwrap()
++                .len(),
++            1
++        );
++    }
++
++    #[test]
++    fn final_firms_refuses_a_log_with_one_corrupt_record() {
++        let ok = r#"{"tick":0,"action":1}"#.to_owned();
++        let bad = r#"{"tick":"CORRUPT-RECORD"}"#.to_owned();
++        let Err(err) = final_firms(&cfg(), &[window_event(vec![ok, bad])]) else {
++            panic!("a corrupt record must not yield firm margins");
++        };
++        for p in ["agent 0", "action_window", "CORRUPT-RECORD"] {
++            assert!(err.contains(p), "error does not name {p:?}: {err}");
++        }
++    }
++}

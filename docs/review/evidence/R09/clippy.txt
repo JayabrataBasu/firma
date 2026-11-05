@@ -1,0 +1,7 @@
+    Checking firma-analysis v0.1.0 (/home/jayabratabasu/firma/crates/firma-analysis)
+    Checking firma-cli v0.1.0 (/home/jayabratabasu/firma/crates/firma-cli)
+    Checking pyo3 v0.29.2
+    Checking firma-tui v0.1.0 (/home/jayabratabasu/firma/crates/firma-tui)
+    Checking firma-conformance v0.1.0 (/home/jayabratabasu/firma/tests)
+    Checking firma-py v0.1.0 (/home/jayabratabasu/firma/crates/firma-py)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 1.67s

@@ -1,0 +1,26 @@
+============================= test session starts ==============================
+platform linux -- Python 3.14.7, pytest-9.1.1, pluggy-1.6.0 -- /home/jayabratabasu/firma/.venv/bin/python
+rootdir: /home/jayabratabasu/firma
+configfile: pyproject.toml
+collecting ... collected 18 items
+
+python/tests/test_diag_manual_defaults.py::test_the_step_0_spec_file_is_exactly_the_spec_the_script_declares PASSED [  5%]
+python/tests/test_diag_manual_defaults.py::test_step_0_never_overwrites_and_a_changed_or_missing_spec_is_refused PASSED [ 11%]
+python/tests/test_diag_manual_defaults.py::test_the_predictions_are_in_the_spec_verbatim PASSED [ 16%]
+python/tests/test_diag_manual_defaults.py::test_cfg_threaded_equals_the_rust_source PASSED [ 22%]
+python/tests/test_diag_manual_defaults.py::test_cfg_healthy_equals_the_rust_source PASSED [ 27%]
+python/tests/test_diag_manual_defaults.py::test_cfg_wide_search_equals_the_rust_source PASSED [ 33%]
+python/tests/test_diag_manual_defaults.py::test_with_l_w_changes_only_the_three_l_w_values PASSED [ 38%]
+python/tests/test_diag_manual_defaults.py::test_report_lines_use_the_rust_print_format PASSED [ 44%]
+python/tests/test_diag_manual_defaults.py::test_gate_block_and_wide_line_are_read_from_captured_output PASSED [ 50%]
+python/tests/test_diag_manual_defaults.py::test_p5_holds_falsified_and_neither PASSED [ 55%]
+python/tests/test_diag_manual_defaults.py::test_u_is_the_regulated_share_of_the_last_l_w_entries PASSED [ 61%]
+python/tests/test_diag_manual_defaults.py::test_trace_rows_use_the_window_before_the_decision_and_the_theta_in_force PASSED [ 66%]
+python/tests/test_diag_manual_defaults.py::test_p4_holds_on_the_hypothesised_story_and_is_falsified_otherwise PASSED [ 72%]
+python/tests/test_diag_manual_defaults.py::test_part_3_has_40_cells_in_product_order PASSED [ 77%]
+python/tests/test_diag_manual_defaults.py::test_part_3_population_axes PASSED [ 83%]
+python/tests/test_diag_manual_defaults.py::test_part_3_default_cell_is_the_r22_part_2_config_and_the_fork_differs_only_by_the_shock PASSED [ 88%]
+python/tests/test_diag_manual_defaults.py::test_p6_is_per_cell_at_a_level_and_reports_the_pooled_share PASSED [ 94%]
+python/tests/test_diag_manual_defaults.py::test_one_part_3_baseline_end_to_end PASSED [100%]
+
+============================== 18 passed in 0.77s ==============================

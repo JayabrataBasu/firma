@@ -1,0 +1,4 @@
+### Remaining silent handling of unparsable persisted records / silent fallbacks in non-test code after H-2 (grep, working tree)
+crates/firma-cli/src/orchestrator.rs:147:        .unwrap_or_default();
+crates/firma-cli/src/orchestrator.rs:174:        .unwrap_or_default();
+crates/firma-plugins/firma-plugin-action-shaping/src/lib.rs:481:                    _ => pending.push(raw.clone()),

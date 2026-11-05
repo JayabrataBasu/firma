@@ -1,0 +1,983 @@
+### cargo-deny 0.20.2, SCRATCH COPY ONLY, deny.toml line 25 changed to: wildcards = "deny"   (the repo's deny.toml is untouched). Full output.
+error[rejected]: failed to satisfy license requirements
+   ┌─ /home/jayabratabasu/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/target-lexicon-0.13.5/Cargo.toml:41:12
+   │
+41 │ license = "Apache-2.0 WITH LLVM-exception"
+   │            ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   │            │
+   │            rejected: license is not explicitly allowed
+   │
+   ├ Apache-2.0 - Apache License 2.0:
+   ├   - OSI approved
+   ├   - FSF Free/Libre
+   ├ target-lexicon v0.13.5
+     └── (build) pyo3-build-config v0.29.2
+         ├── (build) pyo3 v0.29.2
+         │   └── firma-py v0.1.0
+         └── pyo3-ffi v0.29.2
+             └── pyo3 v0.29.2 (*)
+
+warning[license-not-encountered]: license was not encountered
+   ┌─ /tmp/claude-1000/-home-jayabratabasu-firma/25acd624-4575-4f2d-9fb5-645f7478f07e/scratchpad/h1_denyfix/deny.toml:16:6
+   │
+16 │     "BSD-2-Clause",
+   │      ━━━━━━━━━━━━ unmatched license allowance
+
+warning[license-not-encountered]: license was not encountered
+   ┌─ /tmp/claude-1000/-home-jayabratabasu-firma/25acd624-4575-4f2d-9fb5-645f7478f07e/scratchpad/h1_denyfix/deny.toml:17:6
+   │
+17 │     "BSD-3-Clause",
+   │      ━━━━━━━━━━━━ unmatched license allowance
+
+error[wildcard]: found 8 wildcard dependencies for crate 'firma-analysis'
+   ┌─ /tmp/claude-1000/-home-jayabratabasu-firma/25acd624-4575-4f2d-9fb5-645f7478f07e/scratchpad/h1_denyfix/crates/firma-analysis/Cargo.toml:15:14
+   │
+15 │ firma-core = { workspace = true }
+   │              ━━━━━━━━━━━━━━━━━━━━ wildcard dependency
+16 │ firma-domain = { workspace = true }
+   │                ━━━━━━━━━━━━━━━━━━━━ wildcard dependency
+17 │ firma-config = { workspace = true }
+   │                ━━━━━━━━━━━━━━━━━━━━ wildcard dependency
+18 │ firma-io = { workspace = true }
+   │            ━━━━━━━━━━━━━━━━━━━━ wildcard dependency
+   │
+   ┌─ /tmp/claude-1000/-home-jayabratabasu-firma/25acd624-4575-4f2d-9fb5-645f7478f07e/scratchpad/h1_denyfix/Cargo.toml:47:18
+   │
+47 │ firma-analysis = { path = "crates/firma-analysis" }
+   │                  ──────────────────────────────────
+   │                  │
+   │                  workspace dependency
+   │                  workspace dependency
+   │                  workspace dependency
+   │                  workspace dependency
+   │
+   ├ firma-analysis v0.1.0
+     ├── firma-conformance v0.1.0
+     ├── firma-py v0.1.0
+     └── firma-tui v0.1.0
+         └── firma-conformance v0.1.0 (*)
+
+error[wildcard]: found 34 wildcard dependencies for crate 'firma-cli'
+   ┌─ /tmp/claude-1000/-home-jayabratabasu-firma/25acd624-4575-4f2d-9fb5-645f7478f07e/scratchpad/h1_denyfix/crates/firma-cli/Cargo.toml:23:14
+   │
+23 │ firma-core = { workspace = true }
+   │              ━━━━━━━━━━━━━━━━━━━━ wildcard dependency
+24 │ firma-rng = { workspace = true }
+   │             ━━━━━━━━━━━━━━━━━━━━ wildcard dependency
+25 │ firma-domain = { workspace = true }
+   │                ━━━━━━━━━━━━━━━━━━━━ wildcard dependency
+26 │ firma-config = { workspace = true }
+   │                ━━━━━━━━━━━━━━━━━━━━ wildcard dependency
+27 │ firma-viability = { workspace = true }
+   │                   ━━━━━━━━━━━━━━━━━━━━ wildcard dependency
+28 │ firma-registry = { workspace = true }
+   │                  ━━━━━━━━━━━━━━━━━━━━ wildcard dependency
+29 │ firma-io = { workspace = true }
+   │            ━━━━━━━━━━━━━━━━━━━━ wildcard dependency
+30 │ firma-kernel = { workspace = true }
+   │                ━━━━━━━━━━━━━━━━━━━━ wildcard dependency
+31 │ firma-plugin-testkit = { workspace = true }
+   │                        ━━━━━━━━━━━━━━━━━━━━ wildcard dependency
+32 │ firma-plugin-constraint = { workspace = true }
+   │                           ━━━━━━━━━━━━━━━━━━━━ wildcard dependency
+33 │ firma-plugin-action-market = { workspace = true }
+   │                              ━━━━━━━━━━━━━━━━━━━━ wildcard dependency
+34 │ firma-plugin-action-shaping = { workspace = true }
+   │                               ━━━━━━━━━━━━━━━━━━━━ wildcard dependency
+35 │ firma-plugin-decision = { workspace = true }
+   │                         ━━━━━━━━━━━━━━━━━━━━ wildcard dependency
+36 │ firma-plugin-observation = { workspace = true }
+   │                            ━━━━━━━━━━━━━━━━━━━━ wildcard dependency
+37 │ firma-plugin-shock = { workspace = true }
+   │                      ━━━━━━━━━━━━━━━━━━━━ wildcard dependency
+38 │ firma-plugin-locality = { workspace = true }
+   │                         ━━━━━━━━━━━━━━━━━━━━ wildcard dependency
+39 │ firma-plugin-resource = { workspace = true }
+   │                         ━━━━━━━━━━━━━━━━━━━━ wildcard dependency
+   │
+   ┌─ /tmp/claude-1000/-home-jayabratabasu-firma/25acd624-4575-4f2d-9fb5-645f7478f07e/scratchpad/h1_denyfix/Cargo.toml:58:13
+   │
+58 │ firma-cli = { path = "crates/firma-cli" }
+   │             ─────────────────────────────
+   │             │
+   │             workspace dependency
+   │             workspace dependency
+   │             workspace dependency
+   │             workspace dependency
+   │             workspace dependency
+   │             workspace dependency
+   │             workspace dependency
+   │             workspace dependency
+   │             workspace dependency
+   │             workspace dependency
+   │             workspace dependency
+   │             workspace dependency
+   │             workspace dependency
+   │             workspace dependency
+   │             workspace dependency
+   │             workspace dependency
+   │             workspace dependency
+   │
+   ├ firma-cli v0.1.0
+     └── firma-conformance v0.1.0
+
+error[wildcard]: found 2 wildcard dependencies for crate 'firma-config'
+   ┌─ /tmp/claude-1000/-home-jayabratabasu-firma/25acd624-4575-4f2d-9fb5-645f7478f07e/scratchpad/h1_denyfix/crates/firma-config/Cargo.toml:14:14
+   │
+14 │ firma-core = { workspace = true }
+   │              ━━━━━━━━━━━━━━━━━━━━ wildcard dependency
+   │
+   ┌─ /tmp/claude-1000/-home-jayabratabasu-firma/25acd624-4575-4f2d-9fb5-645f7478f07e/scratchpad/h1_denyfix/Cargo.toml:42:16
+   │
+42 │ firma-config = { path = "crates/firma-config" }
+   │                ──────────────────────────────── workspace dependency
+   │
+   ├ firma-config v0.1.0
+     ├── firma-analysis v0.1.0
+     │   ├── firma-conformance v0.1.0
+     │   ├── firma-py v0.1.0
+     │   └── firma-tui v0.1.0
+     │       └── firma-conformance v0.1.0 (*)
+     ├── firma-cli v0.1.0
+     │   └── firma-conformance v0.1.0 (*)
+     ├── firma-conformance v0.1.0 (*)
+     ├── firma-io v0.1.0
+     │   ├── firma-analysis v0.1.0 (*)
+     │   ├── firma-cli v0.1.0 (*)
+     │   ├── firma-conformance v0.1.0 (*)
+     │   ├── firma-py v0.1.0 (*)
+     │   └── firma-tui v0.1.0 (*)
+     ├── firma-py v0.1.0 (*)
+     └── firma-tui v0.1.0 (*)
+
+bug[unresolved-workspace-dependency]: failed to resolve a workspace dependency
+   ┌─ /tmp/claude-1000/-home-jayabratabasu-firma/25acd624-4575-4f2d-9fb5-645f7478f07e/scratchpad/h1_denyfix/tests/Cargo.toml:53:32
+   │
+53 │ firma-analysis = { workspace = true }
+   │                  ──────────────━━━━──
+   │                                │
+   │                                usage of workspace dependency
+   │
+   ├ firma-conformance v0.1.0
+
+bug[unresolved-workspace-dependency]: failed to resolve a workspace dependency
+   ┌─ /tmp/claude-1000/-home-jayabratabasu-firma/25acd624-4575-4f2d-9fb5-645f7478f07e/scratchpad/h1_denyfix/tests/Cargo.toml:55:27
+   │
+55 │ firma-cli = { workspace = true }
+   │             ──────────────━━━━──
+   │                           │
+   │                           usage of workspace dependency
+   │
+   ├ firma-conformance v0.1.0 (*)
+
+bug[unresolved-workspace-dependency]: failed to resolve a workspace dependency
+   ┌─ /tmp/claude-1000/-home-jayabratabasu-firma/25acd624-4575-4f2d-9fb5-645f7478f07e/scratchpad/h1_denyfix/tests/Cargo.toml:44:30
+   │
+44 │ firma-config = { workspace = true }
+   │                ──────────────━━━━──
+   │                              │
+   │                              usage of workspace dependency
+   │
+   ├ firma-conformance v0.1.0 (*)
+
+bug[unresolved-workspace-dependency]: failed to resolve a workspace dependency
+   ┌─ /tmp/claude-1000/-home-jayabratabasu-firma/25acd624-4575-4f2d-9fb5-645f7478f07e/scratchpad/h1_denyfix/tests/Cargo.toml:41:28
+   │
+41 │ firma-core = { workspace = true }
+   │              ──────────────━━━━──
+   │                            │
+   │                            usage of workspace dependency
+   │
+   ├ firma-conformance v0.1.0 (*)
+
+bug[unresolved-workspace-dependency]: failed to resolve a workspace dependency
+   ┌─ /tmp/claude-1000/-home-jayabratabasu-firma/25acd624-4575-4f2d-9fb5-645f7478f07e/scratchpad/h1_denyfix/tests/Cargo.toml:43:30
+   │
+43 │ firma-domain = { workspace = true }
+   │                ──────────────━━━━──
+   │                              │
+   │                              usage of workspace dependency
+   │
+   ├ firma-conformance v0.1.0 (*)
+
+bug[unresolved-workspace-dependency]: failed to resolve a workspace dependency
+   ┌─ /tmp/claude-1000/-home-jayabratabasu-firma/25acd624-4575-4f2d-9fb5-645f7478f07e/scratchpad/h1_denyfix/tests/Cargo.toml:51:26
+   │
+51 │ firma-io = { workspace = true }
+   │            ──────────────━━━━──
+   │                          │
+   │                          usage of workspace dependency
+   │
+   ├ firma-conformance v0.1.0 (*)
+
+bug[unresolved-workspace-dependency]: failed to resolve a workspace dependency
+   ┌─ /tmp/claude-1000/-home-jayabratabasu-firma/25acd624-4575-4f2d-9fb5-645f7478f07e/scratchpad/h1_denyfix/tests/Cargo.toml:52:30
+   │
+52 │ firma-kernel = { workspace = true }
+   │                ──────────────━━━━──
+   │                              │
+   │                              usage of workspace dependency
+   │
+   ├ firma-conformance v0.1.0 (*)
+
+bug[unresolved-workspace-dependency]: failed to resolve a workspace dependency
+   ┌─ /tmp/claude-1000/-home-jayabratabasu-firma/25acd624-4575-4f2d-9fb5-645f7478f07e/scratchpad/h1_denyfix/tests/Cargo.toml:47:44
+   │
+47 │ firma-plugin-action-market = { workspace = true }
+   │                              ──────────────━━━━──
+   │                                            │
+   │                                            usage of workspace dependency
+   │
+   ├ firma-conformance v0.1.0 (*)
+
+bug[unresolved-workspace-dependency]: failed to resolve a workspace dependency
+   ┌─ /tmp/claude-1000/-home-jayabratabasu-firma/25acd624-4575-4f2d-9fb5-645f7478f07e/scratchpad/h1_denyfix/tests/Cargo.toml:48:45
+   │
+48 │ firma-plugin-action-shaping = { workspace = true }
+   │                               ──────────────━━━━──
+   │                                             │
+   │                                             usage of workspace dependency
+   │
+   ├ firma-conformance v0.1.0 (*)
+
+bug[unresolved-workspace-dependency]: failed to resolve a workspace dependency
+   ┌─ /tmp/claude-1000/-home-jayabratabasu-firma/25acd624-4575-4f2d-9fb5-645f7478f07e/scratchpad/h1_denyfix/tests/Cargo.toml:46:41
+   │
+46 │ firma-plugin-constraint = { workspace = true }
+   │                           ──────────────━━━━──
+   │                                         │
+   │                                         usage of workspace dependency
+   │
+   ├ firma-conformance v0.1.0 (*)
+
+bug[unresolved-workspace-dependency]: failed to resolve a workspace dependency
+   ┌─ /tmp/claude-1000/-home-jayabratabasu-firma/25acd624-4575-4f2d-9fb5-645f7478f07e/scratchpad/h1_denyfix/tests/Cargo.toml:49:39
+   │
+49 │ firma-plugin-decision = { workspace = true }
+   │                         ──────────────━━━━──
+   │                                       │
+   │                                       usage of workspace dependency
+   │
+   ├ firma-conformance v0.1.0 (*)
+
+bug[unresolved-workspace-dependency]: failed to resolve a workspace dependency
+   ┌─ /tmp/claude-1000/-home-jayabratabasu-firma/25acd624-4575-4f2d-9fb5-645f7478f07e/scratchpad/h1_denyfix/tests/Cargo.toml:50:39
+   │
+50 │ firma-plugin-locality = { workspace = true }
+   │                         ──────────────━━━━──
+   │                                       │
+   │                                       usage of workspace dependency
+   │
+   ├ firma-conformance v0.1.0 (*)
+
+bug[unresolved-workspace-dependency]: failed to resolve a workspace dependency
+   ┌─ /tmp/claude-1000/-home-jayabratabasu-firma/25acd624-4575-4f2d-9fb5-645f7478f07e/scratchpad/h1_denyfix/tests/Cargo.toml:42:27
+   │
+42 │ firma-rng = { workspace = true }
+   │             ──────────────━━━━──
+   │                           │
+   │                           usage of workspace dependency
+   │
+   ├ firma-conformance v0.1.0 (*)
+
+bug[unresolved-workspace-dependency]: failed to resolve a workspace dependency
+   ┌─ /tmp/claude-1000/-home-jayabratabasu-firma/25acd624-4575-4f2d-9fb5-645f7478f07e/scratchpad/h1_denyfix/tests/Cargo.toml:54:27
+   │
+54 │ firma-tui = { workspace = true }
+   │             ──────────────━━━━──
+   │                           │
+   │                           usage of workspace dependency
+   │
+   ├ firma-conformance v0.1.0 (*)
+
+bug[unresolved-workspace-dependency]: failed to resolve a workspace dependency
+   ┌─ /tmp/claude-1000/-home-jayabratabasu-firma/25acd624-4575-4f2d-9fb5-645f7478f07e/scratchpad/h1_denyfix/tests/Cargo.toml:45:33
+   │
+45 │ firma-viability = { workspace = true }
+   │                   ──────────────━━━━──
+   │                                 │
+   │                                 usage of workspace dependency
+   │
+   ├ firma-conformance v0.1.0 (*)
+
+error[wildcard]: found 15 wildcard dependencies for crate 'firma-conformance'
+   ┌─ /tmp/claude-1000/-home-jayabratabasu-firma/25acd624-4575-4f2d-9fb5-645f7478f07e/scratchpad/h1_denyfix/tests/Cargo.toml:41:14
+   │
+41 │ firma-core = { workspace = true }
+   │              ━━━━━━━━━━━━━━━━━━━━ wildcard dependency
+42 │ firma-rng = { workspace = true }
+   │             ━━━━━━━━━━━━━━━━━━━━ wildcard dependency
+43 │ firma-domain = { workspace = true }
+   │                ━━━━━━━━━━━━━━━━━━━━ wildcard dependency
+44 │ firma-config = { workspace = true }
+   │                ━━━━━━━━━━━━━━━━━━━━ wildcard dependency
+45 │ firma-viability = { workspace = true }
+   │                   ━━━━━━━━━━━━━━━━━━━━ wildcard dependency
+46 │ firma-plugin-constraint = { workspace = true }
+   │                           ━━━━━━━━━━━━━━━━━━━━ wildcard dependency
+47 │ firma-plugin-action-market = { workspace = true }
+   │                              ━━━━━━━━━━━━━━━━━━━━ wildcard dependency
+48 │ firma-plugin-action-shaping = { workspace = true }
+   │                               ━━━━━━━━━━━━━━━━━━━━ wildcard dependency
+49 │ firma-plugin-decision = { workspace = true }
+   │                         ━━━━━━━━━━━━━━━━━━━━ wildcard dependency
+50 │ firma-plugin-locality = { workspace = true }
+   │                         ━━━━━━━━━━━━━━━━━━━━ wildcard dependency
+51 │ firma-io = { workspace = true }
+   │            ━━━━━━━━━━━━━━━━━━━━ wildcard dependency
+52 │ firma-kernel = { workspace = true }
+   │                ━━━━━━━━━━━━━━━━━━━━ wildcard dependency
+53 │ firma-analysis = { workspace = true }
+   │                  ━━━━━━━━━━━━━━━━━━━━ wildcard dependency
+54 │ firma-tui = { workspace = true }
+   │             ━━━━━━━━━━━━━━━━━━━━ wildcard dependency
+55 │ firma-cli = { workspace = true }
+   │             ━━━━━━━━━━━━━━━━━━━━ wildcard dependency
+   │
+   ├ firma-conformance v0.1.0
+
+error[wildcard]: found 2 wildcard dependencies for crate 'firma-domain'
+   ┌─ /tmp/claude-1000/-home-jayabratabasu-firma/25acd624-4575-4f2d-9fb5-645f7478f07e/scratchpad/h1_denyfix/crates/firma-domain/Cargo.toml:17:14
+   │
+17 │ firma-core = { workspace = true }
+   │              ━━━━━━━━━━━━━━━━━━━━ wildcard dependency
+   │
+   ┌─ /tmp/claude-1000/-home-jayabratabasu-firma/25acd624-4575-4f2d-9fb5-645f7478f07e/scratchpad/h1_denyfix/Cargo.toml:41:16
+   │
+41 │ firma-domain = { path = "crates/firma-domain" }
+   │                ──────────────────────────────── workspace dependency
+   │
+   ├ firma-domain v0.1.0
+     ├── firma-analysis v0.1.0
+     │   ├── firma-conformance v0.1.0
+     │   ├── firma-py v0.1.0
+     │   └── firma-tui v0.1.0
+     │       └── firma-conformance v0.1.0 (*)
+     ├── firma-cli v0.1.0
+     │   └── firma-conformance v0.1.0 (*)
+     ├── firma-conformance v0.1.0 (*)
+     ├── firma-plugin-action-market v1.0.0
+     │   ├── firma-cli v0.1.0 (*)
+     │   └── firma-conformance v0.1.0 (*)
+     ├── firma-plugin-action-shaping v1.0.0
+     │   ├── firma-cli v0.1.0 (*)
+     │   └── firma-conformance v0.1.0 (*)
+     ├── firma-plugin-constraint v0.1.0
+     │   ├── firma-cli v0.1.0 (*)
+     │   └── firma-conformance v0.1.0 (*)
+     ├── firma-plugin-decision v1.0.0
+     │   ├── firma-cli v0.1.0 (*)
+     │   └── firma-conformance v0.1.0 (*)
+     ├── firma-plugin-locality v1.0.0
+     │   ├── firma-cli v0.1.0 (*)
+     │   └── firma-conformance v0.1.0 (*)
+     ├── firma-plugin-observation v1.0.0
+     │   └── firma-cli v0.1.0 (*)
+     ├── firma-plugin-resource v1.0.0
+     │   └── firma-cli v0.1.0 (*)
+     ├── firma-plugin-shock v1.0.0
+     │   └── firma-cli v0.1.0 (*)
+     ├── firma-plugin-testkit v0.1.0
+     │   └── firma-cli v0.1.0 (*)
+     └── firma-viability v0.1.0
+         ├── firma-cli v0.1.0 (*)
+         └── firma-conformance v0.1.0 (*)
+
+error[wildcard]: found 4 wildcard dependencies for crate 'firma-io'
+   ┌─ /tmp/claude-1000/-home-jayabratabasu-firma/25acd624-4575-4f2d-9fb5-645f7478f07e/scratchpad/h1_denyfix/crates/firma-io/Cargo.toml:14:14
+   │
+14 │ firma-core = { workspace = true }
+   │              ━━━━━━━━━━━━━━━━━━━━ wildcard dependency
+15 │ firma-config = { workspace = true }
+   │                ━━━━━━━━━━━━━━━━━━━━ wildcard dependency
+   │
+   ┌─ /tmp/claude-1000/-home-jayabratabasu-firma/25acd624-4575-4f2d-9fb5-645f7478f07e/scratchpad/h1_denyfix/Cargo.toml:45:12
+   │
+45 │ firma-io = { path = "crates/firma-io" }
+   │            ────────────────────────────
+   │            │
+   │            workspace dependency
+   │            workspace dependency
+   │
+   ├ firma-io v0.1.0
+     ├── firma-analysis v0.1.0
+     │   ├── firma-conformance v0.1.0
+     │   ├── firma-py v0.1.0
+     │   └── firma-tui v0.1.0
+     │       └── firma-conformance v0.1.0 (*)
+     ├── firma-cli v0.1.0
+     │   └── firma-conformance v0.1.0 (*)
+     ├── firma-conformance v0.1.0 (*)
+     ├── firma-py v0.1.0 (*)
+     └── firma-tui v0.1.0 (*)
+
+error[wildcard]: found 4 wildcard dependencies for crate 'firma-kernel'
+   ┌─ /tmp/claude-1000/-home-jayabratabasu-firma/25acd624-4575-4f2d-9fb5-645f7478f07e/scratchpad/h1_denyfix/crates/firma-kernel/Cargo.toml:14:14
+   │
+14 │ firma-core = { workspace = true }
+   │              ━━━━━━━━━━━━━━━━━━━━ wildcard dependency
+15 │ firma-rng = { workspace = true }
+   │             ━━━━━━━━━━━━━━━━━━━━ wildcard dependency
+   │
+   ┌─ /tmp/claude-1000/-home-jayabratabasu-firma/25acd624-4575-4f2d-9fb5-645f7478f07e/scratchpad/h1_denyfix/Cargo.toml:46:16
+   │
+46 │ firma-kernel = { path = "crates/firma-kernel" }
+   │                ────────────────────────────────
+   │                │
+   │                workspace dependency
+   │                workspace dependency
+   │
+   ├ firma-kernel v0.1.0
+     ├── firma-cli v0.1.0
+     │   └── firma-conformance v0.1.0
+     └── firma-conformance v0.1.0 (*)
+
+error[wildcard]: found 6 wildcard dependencies for crate 'firma-plugin-action-market'
+   ┌─ /tmp/claude-1000/-home-jayabratabasu-firma/25acd624-4575-4f2d-9fb5-645f7478f07e/scratchpad/h1_denyfix/crates/firma-plugins/firma-plugin-action-market/Cargo.toml:15:14
+   │
+15 │ firma-core = { workspace = true }
+   │              ━━━━━━━━━━━━━━━━━━━━ wildcard dependency
+16 │ firma-domain = { workspace = true }
+   │                ━━━━━━━━━━━━━━━━━━━━ wildcard dependency
+17 │ firma-rng = { workspace = true }
+   │             ━━━━━━━━━━━━━━━━━━━━ wildcard dependency
+   │
+   ┌─ /tmp/claude-1000/-home-jayabratabasu-firma/25acd624-4575-4f2d-9fb5-645f7478f07e/scratchpad/h1_denyfix/Cargo.toml:51:30
+   │
+51 │ firma-plugin-action-market = { path = "crates/firma-plugins/firma-plugin-action-market" }
+   │                              ────────────────────────────────────────────────────────────
+   │                              │
+   │                              workspace dependency
+   │                              workspace dependency
+   │                              workspace dependency
+   │
+   ├ firma-plugin-action-market v1.0.0
+     ├── firma-cli v0.1.0
+     │   └── firma-conformance v0.1.0
+     └── firma-conformance v0.1.0 (*)
+
+error[wildcard]: found 6 wildcard dependencies for crate 'firma-plugin-action-shaping'
+   ┌─ /tmp/claude-1000/-home-jayabratabasu-firma/25acd624-4575-4f2d-9fb5-645f7478f07e/scratchpad/h1_denyfix/crates/firma-plugins/firma-plugin-action-shaping/Cargo.toml:15:14
+   │
+15 │ firma-core = { workspace = true }
+   │              ━━━━━━━━━━━━━━━━━━━━ wildcard dependency
+16 │ firma-domain = { workspace = true }
+   │                ━━━━━━━━━━━━━━━━━━━━ wildcard dependency
+17 │ firma-rng = { workspace = true }
+   │             ━━━━━━━━━━━━━━━━━━━━ wildcard dependency
+   │
+   ┌─ /tmp/claude-1000/-home-jayabratabasu-firma/25acd624-4575-4f2d-9fb5-645f7478f07e/scratchpad/h1_denyfix/Cargo.toml:52:31
+   │
+52 │ firma-plugin-action-shaping = { path = "crates/firma-plugins/firma-plugin-action-shaping" }
+   │                               ─────────────────────────────────────────────────────────────
+   │                               │
+   │                               workspace dependency
+   │                               workspace dependency
+   │                               workspace dependency
+   │
+   ├ firma-plugin-action-shaping v1.0.0
+     ├── firma-cli v0.1.0
+     │   └── firma-conformance v0.1.0
+     └── firma-conformance v0.1.0 (*)
+
+error[wildcard]: found 4 wildcard dependencies for crate 'firma-plugin-constraint'
+   ┌─ /tmp/claude-1000/-home-jayabratabasu-firma/25acd624-4575-4f2d-9fb5-645f7478f07e/scratchpad/h1_denyfix/crates/firma-plugins/firma-plugin-constraint/Cargo.toml:14:14
+   │
+14 │ firma-core = { workspace = true }
+   │              ━━━━━━━━━━━━━━━━━━━━ wildcard dependency
+15 │ firma-domain = { workspace = true }
+   │                ━━━━━━━━━━━━━━━━━━━━ wildcard dependency
+   │
+   ┌─ /tmp/claude-1000/-home-jayabratabasu-firma/25acd624-4575-4f2d-9fb5-645f7478f07e/scratchpad/h1_denyfix/Cargo.toml:50:27
+   │
+50 │ firma-plugin-constraint = { path = "crates/firma-plugins/firma-plugin-constraint" }
+   │                           ─────────────────────────────────────────────────────────
+   │                           │
+   │                           workspace dependency
+   │                           workspace dependency
+   │
+   ├ firma-plugin-constraint v0.1.0
+     ├── firma-cli v0.1.0
+     │   └── firma-conformance v0.1.0
+     └── firma-conformance v0.1.0 (*)
+
+error[wildcard]: found 6 wildcard dependencies for crate 'firma-plugin-decision'
+   ┌─ /tmp/claude-1000/-home-jayabratabasu-firma/25acd624-4575-4f2d-9fb5-645f7478f07e/scratchpad/h1_denyfix/crates/firma-plugins/firma-plugin-decision/Cargo.toml:15:14
+   │
+15 │ firma-core = { workspace = true }
+   │              ━━━━━━━━━━━━━━━━━━━━ wildcard dependency
+16 │ firma-rng = { workspace = true }
+   │             ━━━━━━━━━━━━━━━━━━━━ wildcard dependency
+17 │ firma-domain = { workspace = true }
+   │                ━━━━━━━━━━━━━━━━━━━━ wildcard dependency
+   │
+   ┌─ /tmp/claude-1000/-home-jayabratabasu-firma/25acd624-4575-4f2d-9fb5-645f7478f07e/scratchpad/h1_denyfix/Cargo.toml:53:25
+   │
+53 │ firma-plugin-decision = { path = "crates/firma-plugins/firma-plugin-decision" }
+   │                         ───────────────────────────────────────────────────────
+   │                         │
+   │                         workspace dependency
+   │                         workspace dependency
+   │                         workspace dependency
+   │
+   ├ firma-plugin-decision v1.0.0
+     ├── firma-cli v0.1.0
+     │   └── firma-conformance v0.1.0
+     └── firma-conformance v0.1.0 (*)
+
+error[wildcard]: found 4 wildcard dependencies for crate 'firma-plugin-locality'
+   ┌─ /tmp/claude-1000/-home-jayabratabasu-firma/25acd624-4575-4f2d-9fb5-645f7478f07e/scratchpad/h1_denyfix/crates/firma-plugins/firma-plugin-locality/Cargo.toml:14:14
+   │
+14 │ firma-core = { workspace = true }
+   │              ━━━━━━━━━━━━━━━━━━━━ wildcard dependency
+15 │ firma-domain = { workspace = true }
+   │                ━━━━━━━━━━━━━━━━━━━━ wildcard dependency
+   │
+   ┌─ /tmp/claude-1000/-home-jayabratabasu-firma/25acd624-4575-4f2d-9fb5-645f7478f07e/scratchpad/h1_denyfix/Cargo.toml:56:25
+   │
+56 │ firma-plugin-locality = { path = "crates/firma-plugins/firma-plugin-locality" }
+   │                         ───────────────────────────────────────────────────────
+   │                         │
+   │                         workspace dependency
+   │                         workspace dependency
+   │
+   ├ firma-plugin-locality v1.0.0
+     ├── firma-cli v0.1.0
+     │   └── firma-conformance v0.1.0
+     └── firma-conformance v0.1.0 (*)
+
+error[wildcard]: found 6 wildcard dependencies for crate 'firma-plugin-observation'
+   ┌─ /tmp/claude-1000/-home-jayabratabasu-firma/25acd624-4575-4f2d-9fb5-645f7478f07e/scratchpad/h1_denyfix/crates/firma-plugins/firma-plugin-observation/Cargo.toml:14:14
+   │
+14 │ firma-core = { workspace = true }
+   │              ━━━━━━━━━━━━━━━━━━━━ wildcard dependency
+15 │ firma-rng = { workspace = true }
+   │             ━━━━━━━━━━━━━━━━━━━━ wildcard dependency
+16 │ firma-domain = { workspace = true }
+   │                ━━━━━━━━━━━━━━━━━━━━ wildcard dependency
+   │
+   ┌─ /tmp/claude-1000/-home-jayabratabasu-firma/25acd624-4575-4f2d-9fb5-645f7478f07e/scratchpad/h1_denyfix/Cargo.toml:54:28
+   │
+54 │ firma-plugin-observation = { path = "crates/firma-plugins/firma-plugin-observation" }
+   │                            ──────────────────────────────────────────────────────────
+   │                            │
+   │                            workspace dependency
+   │                            workspace dependency
+   │                            workspace dependency
+   │
+   ├ firma-plugin-observation v1.0.0
+     └── firma-cli v0.1.0
+         └── firma-conformance v0.1.0
+
+error[wildcard]: found 6 wildcard dependencies for crate 'firma-plugin-resource'
+   ┌─ /tmp/claude-1000/-home-jayabratabasu-firma/25acd624-4575-4f2d-9fb5-645f7478f07e/scratchpad/h1_denyfix/crates/firma-plugins/firma-plugin-resource/Cargo.toml:14:14
+   │
+14 │ firma-core = { workspace = true }
+   │              ━━━━━━━━━━━━━━━━━━━━ wildcard dependency
+15 │ firma-rng = { workspace = true }
+   │             ━━━━━━━━━━━━━━━━━━━━ wildcard dependency
+16 │ firma-domain = { workspace = true }
+   │                ━━━━━━━━━━━━━━━━━━━━ wildcard dependency
+   │
+   ┌─ /tmp/claude-1000/-home-jayabratabasu-firma/25acd624-4575-4f2d-9fb5-645f7478f07e/scratchpad/h1_denyfix/Cargo.toml:57:25
+   │
+57 │ firma-plugin-resource = { path = "crates/firma-plugins/firma-plugin-resource" }
+   │                         ───────────────────────────────────────────────────────
+   │                         │
+   │                         workspace dependency
+   │                         workspace dependency
+   │                         workspace dependency
+   │
+   ├ firma-plugin-resource v1.0.0
+     └── firma-cli v0.1.0
+         └── firma-conformance v0.1.0
+
+error[wildcard]: found 6 wildcard dependencies for crate 'firma-plugin-shock'
+   ┌─ /tmp/claude-1000/-home-jayabratabasu-firma/25acd624-4575-4f2d-9fb5-645f7478f07e/scratchpad/h1_denyfix/crates/firma-plugins/firma-plugin-shock/Cargo.toml:14:14
+   │
+14 │ firma-core = { workspace = true }
+   │              ━━━━━━━━━━━━━━━━━━━━ wildcard dependency
+15 │ firma-rng = { workspace = true }
+   │             ━━━━━━━━━━━━━━━━━━━━ wildcard dependency
+16 │ firma-domain = { workspace = true }
+   │                ━━━━━━━━━━━━━━━━━━━━ wildcard dependency
+   │
+   ┌─ /tmp/claude-1000/-home-jayabratabasu-firma/25acd624-4575-4f2d-9fb5-645f7478f07e/scratchpad/h1_denyfix/Cargo.toml:55:22
+   │
+55 │ firma-plugin-shock = { path = "crates/firma-plugins/firma-plugin-shock" }
+   │                      ────────────────────────────────────────────────────
+   │                      │
+   │                      workspace dependency
+   │                      workspace dependency
+   │                      workspace dependency
+   │
+   ├ firma-plugin-shock v1.0.0
+     └── firma-cli v0.1.0
+         └── firma-conformance v0.1.0
+
+error[wildcard]: found 6 wildcard dependencies for crate 'firma-plugin-testkit'
+   ┌─ /tmp/claude-1000/-home-jayabratabasu-firma/25acd624-4575-4f2d-9fb5-645f7478f07e/scratchpad/h1_denyfix/crates/firma-plugins/firma-plugin-testkit/Cargo.toml:14:14
+   │
+14 │ firma-core = { workspace = true }
+   │              ━━━━━━━━━━━━━━━━━━━━ wildcard dependency
+15 │ firma-rng = { workspace = true }
+   │             ━━━━━━━━━━━━━━━━━━━━ wildcard dependency
+   ·
+19 │ firma-domain = { workspace = true }
+   │                ━━━━━━━━━━━━━━━━━━━━ wildcard dependency
+   │
+   ┌─ /tmp/claude-1000/-home-jayabratabasu-firma/25acd624-4575-4f2d-9fb5-645f7478f07e/scratchpad/h1_denyfix/Cargo.toml:49:24
+   │
+49 │ firma-plugin-testkit = { path = "crates/firma-plugins/firma-plugin-testkit" }
+   │                        ──────────────────────────────────────────────────────
+   │                        │
+   │                        workspace dependency
+   │                        workspace dependency
+   │                        workspace dependency
+   │
+   ├ firma-plugin-testkit v0.1.0
+     └── firma-cli v0.1.0
+         └── firma-conformance v0.1.0
+
+bug[unresolved-workspace-dependency]: failed to resolve a workspace dependency
+   ┌─ /tmp/claude-1000/-home-jayabratabasu-firma/25acd624-4575-4f2d-9fb5-645f7478f07e/scratchpad/h1_denyfix/crates/firma-py/Cargo.toml:22:32
+   │
+22 │ firma-analysis = { workspace = true }
+   │                  ──────────────━━━━──
+   │                                │
+   │                                usage of workspace dependency
+   │
+   ├ firma-py v0.1.0
+
+bug[unresolved-workspace-dependency]: failed to resolve a workspace dependency
+   ┌─ /tmp/claude-1000/-home-jayabratabasu-firma/25acd624-4575-4f2d-9fb5-645f7478f07e/scratchpad/h1_denyfix/crates/firma-py/Cargo.toml:20:30
+   │
+20 │ firma-config = { workspace = true }
+   │                ──────────────━━━━──
+   │                              │
+   │                              usage of workspace dependency
+   │
+   ├ firma-py v0.1.0 (*)
+
+bug[unresolved-workspace-dependency]: failed to resolve a workspace dependency
+   ┌─ /tmp/claude-1000/-home-jayabratabasu-firma/25acd624-4575-4f2d-9fb5-645f7478f07e/scratchpad/h1_denyfix/crates/firma-py/Cargo.toml:19:28
+   │
+19 │ firma-core = { workspace = true }
+   │              ──────────────━━━━──
+   │                            │
+   │                            usage of workspace dependency
+   │
+   ├ firma-py v0.1.0 (*)
+
+bug[unresolved-workspace-dependency]: failed to resolve a workspace dependency
+   ┌─ /tmp/claude-1000/-home-jayabratabasu-firma/25acd624-4575-4f2d-9fb5-645f7478f07e/scratchpad/h1_denyfix/crates/firma-py/Cargo.toml:21:26
+   │
+21 │ firma-io = { workspace = true }
+   │            ──────────────━━━━──
+   │                          │
+   │                          usage of workspace dependency
+   │
+   ├ firma-py v0.1.0 (*)
+
+error[wildcard]: found 4 wildcard dependencies for crate 'firma-py'
+   ┌─ /tmp/claude-1000/-home-jayabratabasu-firma/25acd624-4575-4f2d-9fb5-645f7478f07e/scratchpad/h1_denyfix/crates/firma-py/Cargo.toml:19:14
+   │
+19 │ firma-core = { workspace = true }
+   │              ━━━━━━━━━━━━━━━━━━━━ wildcard dependency
+20 │ firma-config = { workspace = true }
+   │                ━━━━━━━━━━━━━━━━━━━━ wildcard dependency
+21 │ firma-io = { workspace = true }
+   │            ━━━━━━━━━━━━━━━━━━━━ wildcard dependency
+22 │ firma-analysis = { workspace = true }
+   │                  ━━━━━━━━━━━━━━━━━━━━ wildcard dependency
+   │
+   ├ firma-py v0.1.0
+
+error[wildcard]: found 2 wildcard dependencies for crate 'firma-registry'
+   ┌─ /tmp/claude-1000/-home-jayabratabasu-firma/25acd624-4575-4f2d-9fb5-645f7478f07e/scratchpad/h1_denyfix/crates/firma-registry/Cargo.toml:14:14
+   │
+14 │ firma-core = { workspace = true }
+   │              ━━━━━━━━━━━━━━━━━━━━ wildcard dependency
+   │
+   ┌─ /tmp/claude-1000/-home-jayabratabasu-firma/25acd624-4575-4f2d-9fb5-645f7478f07e/scratchpad/h1_denyfix/Cargo.toml:44:18
+   │
+44 │ firma-registry = { path = "crates/firma-registry" }
+   │                  ────────────────────────────────── workspace dependency
+   │
+   ├ firma-registry v0.1.0
+     └── firma-cli v0.1.0
+         └── firma-conformance v0.1.0
+
+error[wildcard]: found 2 wildcard dependencies for crate 'firma-rng'
+   ┌─ /tmp/claude-1000/-home-jayabratabasu-firma/25acd624-4575-4f2d-9fb5-645f7478f07e/scratchpad/h1_denyfix/crates/firma-rng/Cargo.toml:14:14
+   │
+14 │ firma-core = { workspace = true }
+   │              ━━━━━━━━━━━━━━━━━━━━ wildcard dependency
+   │
+   ┌─ /tmp/claude-1000/-home-jayabratabasu-firma/25acd624-4575-4f2d-9fb5-645f7478f07e/scratchpad/h1_denyfix/Cargo.toml:40:13
+   │
+40 │ firma-rng = { path = "crates/firma-rng" }
+   │             ───────────────────────────── workspace dependency
+   │
+   ├ firma-rng v0.1.0
+     ├── firma-cli v0.1.0
+     │   └── firma-conformance v0.1.0
+     ├── firma-conformance v0.1.0 (*)
+     ├── firma-kernel v0.1.0
+     │   ├── firma-cli v0.1.0 (*)
+     │   └── firma-conformance v0.1.0 (*)
+     ├── firma-plugin-action-market v1.0.0
+     │   ├── firma-cli v0.1.0 (*)
+     │   └── firma-conformance v0.1.0 (*)
+     ├── firma-plugin-action-shaping v1.0.0
+     │   ├── firma-cli v0.1.0 (*)
+     │   └── firma-conformance v0.1.0 (*)
+     ├── firma-plugin-decision v1.0.0
+     │   ├── firma-cli v0.1.0 (*)
+     │   └── firma-conformance v0.1.0 (*)
+     ├── firma-plugin-observation v1.0.0
+     │   └── firma-cli v0.1.0 (*)
+     ├── firma-plugin-resource v1.0.0
+     │   └── firma-cli v0.1.0 (*)
+     ├── firma-plugin-shock v1.0.0
+     │   └── firma-cli v0.1.0 (*)
+     └── firma-plugin-testkit v0.1.0
+         └── firma-cli v0.1.0 (*)
+
+error[wildcard]: found 8 wildcard dependencies for crate 'firma-tui'
+   ┌─ /tmp/claude-1000/-home-jayabratabasu-firma/25acd624-4575-4f2d-9fb5-645f7478f07e/scratchpad/h1_denyfix/crates/firma-tui/Cargo.toml:23:14
+   │
+23 │ firma-core = { workspace = true }
+   │              ━━━━━━━━━━━━━━━━━━━━ wildcard dependency
+24 │ firma-config = { workspace = true }
+   │                ━━━━━━━━━━━━━━━━━━━━ wildcard dependency
+25 │ firma-io = { workspace = true }
+   │            ━━━━━━━━━━━━━━━━━━━━ wildcard dependency
+26 │ firma-analysis = { workspace = true }
+   │                  ━━━━━━━━━━━━━━━━━━━━ wildcard dependency
+   │
+   ┌─ /tmp/claude-1000/-home-jayabratabasu-firma/25acd624-4575-4f2d-9fb5-645f7478f07e/scratchpad/h1_denyfix/Cargo.toml:48:13
+   │
+48 │ firma-tui = { path = "crates/firma-tui" }
+   │             ─────────────────────────────
+   │             │
+   │             workspace dependency
+   │             workspace dependency
+   │             workspace dependency
+   │             workspace dependency
+   │
+   ├ firma-tui v0.1.0
+     └── firma-conformance v0.1.0
+
+error[wildcard]: found 2 wildcard dependencies for crate 'firma-viability'
+   ┌─ /tmp/claude-1000/-home-jayabratabasu-firma/25acd624-4575-4f2d-9fb5-645f7478f07e/scratchpad/h1_denyfix/crates/firma-viability/Cargo.toml:19:16
+   │
+19 │ firma-domain = { workspace = true }
+   │                ━━━━━━━━━━━━━━━━━━━━ wildcard dependency
+   │
+   ┌─ /tmp/claude-1000/-home-jayabratabasu-firma/25acd624-4575-4f2d-9fb5-645f7478f07e/scratchpad/h1_denyfix/Cargo.toml:43:19
+   │
+43 │ firma-viability = { path = "crates/firma-viability" }
+   │                   ─────────────────────────────────── workspace dependency
+   │
+   ├ firma-viability v0.1.0
+     ├── firma-cli v0.1.0
+     │   └── firma-conformance v0.1.0
+     └── firma-conformance v0.1.0 (*)
+
+warning[duplicate]: found 2 duplicate entries for crate 'hashbrown'
+   ┌─ /tmp/claude-1000/-home-jayabratabasu-firma/25acd624-4575-4f2d-9fb5-645f7478f07e/scratchpad/h1_denyfix/Cargo.lock:48:1
+   │  
+48 │ ╭ hashbrown 0.16.1 registry+https://github.com/rust-lang/crates.io-index
+49 │ │ hashbrown 0.17.1 registry+https://github.com/rust-lang/crates.io-index
+   │ ╰──────────────────────────────────────────────────────────────────────┘ lock entries
+   │  
+   ├ hashbrown v0.16.1
+     └── kasuari v0.4.12
+         └── ratatui-core v0.1.2
+             ├── ratatui v0.30.2
+             │   ├── firma-conformance v0.1.0
+             │   └── firma-tui v0.1.0
+             │       └── firma-conformance v0.1.0 (*)
+             ├── ratatui-crossterm v0.1.2
+             │   └── ratatui v0.30.2 (*)
+             ├── ratatui-macros v0.7.2
+             │   └── ratatui v0.30.2 (*)
+             └── ratatui-widgets v0.3.2
+                 ├── ratatui v0.30.2 (*)
+                 └── ratatui-macros v0.7.2 (*)
+   ├ hashbrown v0.17.1
+     ├── lru v0.18.4
+     │   └── ratatui-core v0.1.2
+     │       ├── ratatui v0.30.2
+     │       │   ├── firma-conformance v0.1.0
+     │       │   └── firma-tui v0.1.0
+     │       │       └── firma-conformance v0.1.0 (*)
+     │       ├── ratatui-crossterm v0.1.2
+     │       │   └── ratatui v0.30.2 (*)
+     │       ├── ratatui-macros v0.7.2
+     │       │   └── ratatui v0.30.2 (*)
+     │       └── ratatui-widgets v0.3.2
+     │           ├── ratatui v0.30.2 (*)
+     │           └── ratatui-macros v0.7.2 (*)
+     ├── ratatui-core v0.1.2 (*)
+     └── ratatui-widgets v0.3.2 (*)
+
+warning[duplicate]: found 2 duplicate entries for crate 'syn'
+    ┌─ /tmp/claude-1000/-home-jayabratabasu-firma/25acd624-4575-4f2d-9fb5-645f7478f07e/scratchpad/h1_denyfix/Cargo.lock:105:1
+    │  
+105 │ ╭ syn 2.0.119 registry+https://github.com/rust-lang/crates.io-index
+106 │ │ syn 3.0.4 registry+https://github.com/rust-lang/crates.io-index
+    │ ╰───────────────────────────────────────────────────────────────┘ lock entries
+    │  
+    ├ syn v2.0.119
+      ├── derive_more-impl v2.1.1
+      │   └── derive_more v2.1.1
+      │       └── crossterm v0.29.0
+      │           ├── firma-tui v0.1.0
+      │           │   └── firma-conformance v0.1.0
+      │           └── ratatui-crossterm v0.1.2
+      │               └── ratatui v0.30.2
+      │                   ├── firma-conformance v0.1.0 (*)
+      │                   └── firma-tui v0.1.0 (*)
+      ├── pyo3-macros v0.29.2
+      │   └── pyo3 v0.29.2
+      │       └── firma-py v0.1.0
+      ├── pyo3-macros-backend v0.29.2
+      │   └── pyo3-macros v0.29.2 (*)
+      └── strum_macros v0.28.0
+          └── strum v0.28.0
+              ├── ratatui-core v0.1.2
+              │   ├── ratatui v0.30.2 (*)
+              │   ├── ratatui-crossterm v0.1.2 (*)
+              │   ├── ratatui-macros v0.7.2
+              │   │   └── ratatui v0.30.2 (*)
+              │   └── ratatui-widgets v0.3.2
+              │       ├── ratatui v0.30.2 (*)
+              │       └── ratatui-macros v0.7.2 (*)
+              └── ratatui-widgets v0.3.2 (*)
+    ├ syn v3.0.4
+      ├── darling_core v0.24.1
+      │   ├── darling v0.24.1
+      │   │   └── instability v0.3.13
+      │   │       ├── ratatui v0.30.2
+      │   │       │   ├── firma-conformance v0.1.0
+      │   │       │   └── firma-tui v0.1.0
+      │   │       │       └── firma-conformance v0.1.0 (*)
+      │   │       ├── ratatui-crossterm v0.1.2
+      │   │       │   └── ratatui v0.30.2 (*)
+      │   │       └── ratatui-widgets v0.3.2
+      │   │           ├── ratatui v0.30.2 (*)
+      │   │           └── ratatui-macros v0.7.2
+      │   │               └── ratatui v0.30.2 (*)
+      │   └── darling_macro v0.24.1
+      │       └── darling v0.24.1 (*)
+      ├── darling_macro v0.24.1 (*)
+      ├── instability v0.3.13 (*)
+      ├── serde_derive v1.0.229
+      │   └── serde v1.0.229
+      │       ├── firma-analysis v0.1.0
+      │       │   ├── firma-conformance v0.1.0 (*)
+      │       │   ├── firma-py v0.1.0
+      │       │   └── firma-tui v0.1.0 (*)
+      │       ├── firma-cli v0.1.0
+      │       │   └── firma-conformance v0.1.0 (*)
+      │       ├── firma-config v0.1.0
+      │       │   ├── firma-analysis v0.1.0 (*)
+      │       │   ├── firma-cli v0.1.0 (*)
+      │       │   ├── firma-conformance v0.1.0 (*)
+      │       │   ├── firma-io v0.1.0
+      │       │   │   ├── firma-analysis v0.1.0 (*)
+      │       │   │   ├── firma-cli v0.1.0 (*)
+      │       │   │   ├── firma-conformance v0.1.0 (*)
+      │       │   │   ├── firma-py v0.1.0 (*)
+      │       │   │   └── firma-tui v0.1.0 (*)
+      │       │   ├── firma-py v0.1.0 (*)
+      │       │   └── firma-tui v0.1.0 (*)
+      │       ├── firma-core v0.1.0
+      │       │   ├── firma-analysis v0.1.0 (*)
+      │       │   ├── firma-cli v0.1.0 (*)
+      │       │   ├── firma-config v0.1.0 (*)
+      │       │   ├── firma-conformance v0.1.0 (*)
+      │       │   ├── firma-domain v0.1.0
+      │       │   │   ├── firma-analysis v0.1.0 (*)
+      │       │   │   ├── firma-cli v0.1.0 (*)
+      │       │   │   ├── firma-conformance v0.1.0 (*)
+      │       │   │   ├── firma-plugin-action-market v1.0.0
+      │       │   │   │   ├── firma-cli v0.1.0 (*)
+      │       │   │   │   └── firma-conformance v0.1.0 (*)
+      │       │   │   ├── firma-plugin-action-shaping v1.0.0
+      │       │   │   │   ├── firma-cli v0.1.0 (*)
+      │       │   │   │   └── firma-conformance v0.1.0 (*)
+      │       │   │   ├── firma-plugin-constraint v0.1.0
+      │       │   │   │   ├── firma-cli v0.1.0 (*)
+      │       │   │   │   └── firma-conformance v0.1.0 (*)
+      │       │   │   ├── firma-plugin-decision v1.0.0
+      │       │   │   │   ├── firma-cli v0.1.0 (*)
+      │       │   │   │   └── firma-conformance v0.1.0 (*)
+      │       │   │   ├── firma-plugin-locality v1.0.0
+      │       │   │   │   ├── firma-cli v0.1.0 (*)
+      │       │   │   │   └── firma-conformance v0.1.0 (*)
+      │       │   │   ├── firma-plugin-observation v1.0.0
+      │       │   │   │   └── firma-cli v0.1.0 (*)
+      │       │   │   ├── firma-plugin-resource v1.0.0
+      │       │   │   │   └── firma-cli v0.1.0 (*)
+      │       │   │   ├── firma-plugin-shock v1.0.0
+      │       │   │   │   └── firma-cli v0.1.0 (*)
+      │       │   │   ├── firma-plugin-testkit v0.1.0
+      │       │   │   │   └── firma-cli v0.1.0 (*)
+      │       │   │   └── firma-viability v0.1.0
+      │       │   │       ├── firma-cli v0.1.0 (*)
+      │       │   │       └── firma-conformance v0.1.0 (*)
+      │       │   ├── firma-io v0.1.0 (*)
+      │       │   ├── firma-kernel v0.1.0
+      │       │   │   ├── firma-cli v0.1.0 (*)
+      │       │   │   └── firma-conformance v0.1.0 (*)
+      │       │   ├── firma-plugin-action-market v1.0.0 (*)
+      │       │   ├── firma-plugin-action-shaping v1.0.0 (*)
+      │       │   ├── firma-plugin-constraint v0.1.0 (*)
+      │       │   ├── firma-plugin-decision v1.0.0 (*)
+      │       │   ├── firma-plugin-locality v1.0.0 (*)
+      │       │   ├── firma-plugin-observation v1.0.0 (*)
+      │       │   ├── firma-plugin-resource v1.0.0 (*)
+      │       │   ├── firma-plugin-shock v1.0.0 (*)
+      │       │   ├── firma-plugin-testkit v0.1.0 (*)
+      │       │   ├── firma-py v0.1.0 (*)
+      │       │   ├── firma-registry v0.1.0
+      │       │   │   └── firma-cli v0.1.0 (*)
+      │       │   ├── firma-rng v0.1.0
+      │       │   │   ├── firma-cli v0.1.0 (*)
+      │       │   │   ├── firma-conformance v0.1.0 (*)
+      │       │   │   ├── firma-kernel v0.1.0 (*)
+      │       │   │   ├── firma-plugin-action-market v1.0.0 (*)
+      │       │   │   ├── firma-plugin-action-shaping v1.0.0 (*)
+      │       │   │   ├── firma-plugin-decision v1.0.0 (*)
+      │       │   │   ├── firma-plugin-observation v1.0.0 (*)
+      │       │   │   ├── firma-plugin-resource v1.0.0 (*)
+      │       │   │   ├── firma-plugin-shock v1.0.0 (*)
+      │       │   │   └── firma-plugin-testkit v0.1.0 (*)
+      │       │   └── firma-tui v0.1.0 (*)
+      │       ├── firma-domain v0.1.0 (*)
+      │       ├── firma-io v0.1.0 (*)
+      │       ├── firma-kernel v0.1.0 (*)
+      │       ├── firma-plugin-action-market v1.0.0 (*)
+      │       ├── firma-plugin-action-shaping v1.0.0 (*)
+      │       ├── firma-plugin-constraint v0.1.0 (*)
+      │       ├── firma-plugin-decision v1.0.0 (*)
+      │       ├── firma-plugin-locality v1.0.0 (*)
+      │       ├── firma-plugin-observation v1.0.0 (*)
+      │       ├── firma-plugin-resource v1.0.0 (*)
+      │       ├── firma-plugin-shock v1.0.0 (*)
+      │       └── firma-plugin-testkit v0.1.0 (*)
+      └── thiserror-impl v2.0.20
+          └── thiserror v2.0.20
+              ├── kasuari v0.4.12
+              │   └── ratatui-core v0.1.2
+              │       ├── ratatui v0.30.2 (*)
+              │       ├── ratatui-crossterm v0.1.2 (*)
+              │       ├── ratatui-macros v0.7.2 (*)
+              │       └── ratatui-widgets v0.3.2 (*)
+              └── ratatui-core v0.1.2 (*)
+
+advisories ok, bans FAILED, licenses FAILED, sources ok
+exit: 6

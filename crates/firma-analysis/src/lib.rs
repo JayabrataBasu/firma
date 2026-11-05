@@ -23,7 +23,8 @@
 
 #![forbid(unsafe_code)]
 
+pub mod firm_ticks;
 mod reconstruct;
 pub mod sanity;
 
-pub use reconstruct::{repertoire_entropy, FirmSnapshot, Notable, Reconstruction};
+pub use reconstruct::{max_shortfall, repertoire_entropy, FirmSnapshot, Notable, Reconstruction};

@@ -1,0 +1,52 @@
+EXPLORATORY - DIAGNOSTIC-ONLY - NOT REGISTERED - NOT FOR TUNING
+command: python scripts/exploratory_e1_slice.py --out /tmp/claude-1000/-home-jayabratabasu-firma/25acd624-4575-4f2d-9fb5-645f7478f07e/scratchpad/slice
+base config: configs/experiments/phase2-stage5-smoke.json; ticks = 120; firma: /home/jayabratabasu/firma/target/debug/firma
+seeds: mechanism 910001, environment 910002, init 910004, shock 910001..910050 (50 runs per arm)
+output directory: /tmp/claude-1000/-home-jayabratabasu-firma/25acd624-4575-4f2d-9fb5-645f7478f07e/scratchpad/slice
+
+== MAIN ARM - decision.satisficing ==
+  runs completed: 50 shocked + 50 no-shock forks; failed: 0
+  deaths per shocked run: 1 deaths in 23 runs, 3 deaths in 27 runs
+  no-shock fork: 1 distinct action sequence(s) across 50 shock seeds; H_rep(no-shock) = [0.907236210099]
+  shocked runs: 23 distinct action sequences
+  DeltaH_rep (L_W = 8): mean -0.180936, range [-0.407790, -0.012097], sample sd 0.139210, 23 distinct values
+  cross-check vs firma_lab.metrics sanity_report sc6_entropy_mean (my mean at the model's own window): max |difference| over 50 runs = 2.220e-16
+  candidate h summary (NOT used) - final-state h, mean over live firms: range [-0.3000, 0.1034], 24 distinct values
+  candidate h summary (NOT used) - fraction of live firm-ticks with h < h_crit: range [0.5806, 0.8871], 24 distinct values
+
+== NULL CONTROL - decision.random ==
+  runs completed: 50 shocked + 50 no-shock forks; failed: 0
+  deaths per shocked run: 3 deaths in 2 runs, 4 deaths in 48 runs
+  no-shock fork: 1 distinct action sequence(s) across 50 shock seeds; H_rep(no-shock) = [1.826503580338]
+  shocked runs: 32 distinct action sequences
+  DeltaH_rep (L_W = 8): mean -0.103947, range [-0.185591, +0.000000], sample sd 0.054687, 32 distinct values
+  cross-check vs firma_lab.metrics sanity_report sc6_entropy_mean (my mean at the model's own window): max |difference| over 50 runs = 6.661e-16
+  candidate h summary (NOT used) - final-state h, mean over live firms: range [0.2922, 0.3823], 50 distinct values
+  candidate h summary (NOT used) - fraction of live firm-ticks with h < h_crit: range [0.1951, 0.4405], 39 distinct values
+
+per-run table: /tmp/claude-1000/-home-jayabratabasu-firma/25acd624-4575-4f2d-9fb5-645f7478f07e/scratchpad/slice/per_run_table.csv (100 rows)
+
+== KNOWN-ANSWER CONTROL - existing firma_lab.stats.analyse_h1c on synthetic frames ==
+  (one row per seed, 50 seeds; 400 bootstrap resamples)
+  planted inverted-U: verdict supported (expected supported) -> OK; linear +0.306 [+0.261, +0.350], quadratic -1.000 [-1.072, -0.930]
+  planted monotone: verdict not_supported (expected not_supported) -> OK; linear +0.306 [+0.261, +0.350], quadratic +0.000 [-0.072, +0.070]
+
+== H1c TEST ON THE REAL RUNS ==
+  fitted linear term:    not fitted (no predictor - see verdict)
+  fitted quadratic term: not fitted (no predictor - see verdict)
+
+VERDICT (main arm): NOT COMPUTED - STOPPED BEFORE THE H1c TEST: a per-run h and shortfall cannot be derived from the event log with existing firma_lab functions (no shortfall function exists; h is exposed only as a final-state value or as the fraction of live firm-ticks below h_crit). Question for the owner in docs/review/outbox/R12-slice-report.md.
+VERDICT (null control, decision.random): NOT COMPUTED - same reason
+VERDICT (known-answer controls): both as expected (supported / not_supported)
+
+caveats:
+  - 4-firm population in which firm 2 dies at tick 12 in every satisficing run (checked below against this run's own death records)
+  - the only variance source is the shock stream: the no-shock fork does not depend on the shock seed at all
+  - h and shortfall covary through shock timing only (stated in the task; not checked here, because shortfall is not derived)
+  - the model's focus rule switches at h_crit (decision/lib.rs:175), so a discontinuity at h_crit is expected by construction
+  - H_rep counts SELECTED actions; an action selected under NONE-focus inertia is recorded even when it is not executed (audit F03)
+    (firm 2 died of solvency at tick 12 in 50 of 50 satisficing shocked runs)
+
+wall-clock time: 36.0 s
+EXPLORATORY - DIAGNOSTIC-ONLY - NOT REGISTERED - NOT FOR TUNING
+exit status: 3 (ran to the stop point; no H1c verdict)

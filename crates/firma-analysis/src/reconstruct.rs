@@ -47,6 +47,34 @@ struct Firm {
     window: Vec<WindowEntry>,
     action_counts: BTreeMap<u8, u64>,
     alive: bool,
+    /// Aspirations `A_1..A_3` (§12.1), `None` while a goal's aspiration has
+    /// never been seeded or written — the model reads an absent aspiration as
+    /// "no shortfall for that goal yet".
+    aspirations: [Option<f64>; 3],
+    /// `v_1`'s stored value, `realized_capital_growth` (written in `record`);
+    /// `None` until first written — the model reads absent as `0`.
+    realized_growth: Option<i64>,
+}
+
+/// The three per-goal aspiration keys, in §12.1 goal order.
+const ASPIRATION_KEYS: [&str; 3] = [
+    keys::ASPIRATION_CAPITAL_GROWTH,
+    keys::ASPIRATION_CAPABILITY,
+    keys::ASPIRATION_OBLIGATION_CLEARANCE,
+];
+
+/// `max_j ς_j`, reduced exactly as `decision.satisficing`'s `Focus::attend`
+/// reduces the three shortfalls (first index wins a tie; the value at that
+/// index is the maximum).
+#[must_use]
+pub fn max_shortfall(shortfalls: [f64; 3]) -> f64 {
+    let mut best = 0usize;
+    for j in 1..3 {
+        if shortfalls[j] > shortfalls[best] {
+            best = j;
+        }
+    }
+    shortfalls[best]
 }
 
 /// A read-only snapshot of one firm's current derived state — `h`/`g_j`/`u`
@@ -219,6 +247,7 @@ pub struct Reconstruction {
     scales: ScaleFactors,
     tick: u64,
     horizon: Option<u64>,
+    parse_errors: Vec<String>,
 }
 
 impl Reconstruction {
@@ -226,8 +255,27 @@ impl Reconstruction {
     /// `decision.satisficing` / `constraint.action_window` parameters the
     /// running model used, so a reconstructed `h` matches the model's own
     /// (§9.2 `scales`).
+    ///
+    /// # Panics
+    /// If the config's `decision.satisficing` `scales` parameter is present
+    /// but malformed — see [`Reconstruction::try_new`], which returns that as
+    /// an error instead. This infallible form exists for callers that
+    /// cannot propagate one; it never falls back to default scales.
     #[must_use]
     pub fn new(cfg: &RunConfig) -> Reconstruction {
+        Self::try_new(cfg).unwrap_or_else(|e| panic!("{e}"))
+    }
+
+    /// As [`Reconstruction::new`], returning an error instead of panicking.
+    ///
+    /// # Errors
+    /// If `decision.satisficing` carries a `scales` parameter that is not a
+    /// valid [`ScaleFactors`]. An **absent** `scales` parameter (or no
+    /// `decision.satisficing` rule at all) means the §9.2 defaults, exactly
+    /// as the running model applies them; a present-but-malformed one would
+    /// make every reconstructed `h` silently disagree with the model's, so
+    /// it is refused.
+    pub fn try_new(cfg: &RunConfig) -> Result<Reconstruction, String> {
         let mut firms = BTreeMap::new();
         for a in &cfg.agents {
             firms.insert(
@@ -249,6 +297,8 @@ impl Reconstruction {
                     window: Vec::new(),
                     action_counts: BTreeMap::new(),
                     alive: true,
+                    aspirations: ASPIRATION_KEYS.map(|k| a.reals.get(k).copied()),
+                    realized_growth: a.ints.get(keys::REALIZED_CAPITAL_GROWTH).copied(),
                 },
             );
         }
@@ -276,14 +326,21 @@ impl Reconstruction {
         let l_w = param_u64(cfg, "constraint.action_window", "l_w")
             .or_else(|| param_u64(cfg, "decision.satisficing", "l_w"))
             .unwrap_or(8) as usize;
-        let scales: ScaleFactors = cfg
+        let scales: ScaleFactors = match cfg
             .rules
             .iter()
             .find(|r| r.id.0 == "decision.satisficing")
             .and_then(|r| r.params.get("scales").cloned())
-            .and_then(|v| serde_json::from_value(v).ok())
-            .unwrap_or_default();
-        Reconstruction {
+        {
+            None => ScaleFactors::default(),
+            Some(v) => serde_json::from_value(v.clone()).map_err(|e| {
+                format!(
+                    "decision.satisficing `scales` parameter is not a valid ScaleFactors \
+                     ({e}); offending value: {v}. Refusing to reconstruct with default scales."
+                )
+            })?,
+        };
+        Ok(Reconstruction {
             firms,
             theta,
             h_crit,
@@ -291,7 +348,8 @@ impl Reconstruction {
             scales,
             tick: 0,
             horizon: None,
-        }
+            parse_errors: Vec::new(),
+        })
     }
 
     /// Fold one event, returning the [`Notable`] facts it represents — most
@@ -369,6 +427,10 @@ impl Reconstruction {
                         f.c += delta;
                     } else if field == keys::LEGITIMACY {
                         f.lambda += delta;
+                    } else if let Some(j) = ASPIRATION_KEYS.iter().position(|k| field == k) {
+                        // The store treats an absent real as 0 and the field
+                        // exists from the first adjustment on.
+                        f.aspirations[j] = Some(f.aspirations[j].unwrap_or(0.0) + delta);
                     }
                 }
             }
@@ -412,6 +474,11 @@ impl Reconstruction {
                 out.push(Notable::ComplianceFirstStrike { tick, agent: a.0 });
             }
             (DeltaTarget::Agent(a), DeltaKind::SetAgentInt { field, value }) => {
+                if field == keys::REALIZED_CAPITAL_GROWTH {
+                    if let Some(f) = self.firms.get_mut(&a.0) {
+                        f.realized_growth = Some(*value);
+                    }
+                }
                 if origin.starts_with("decision.") && field == keys::SELECTED_ACTION {
                     out.push(Notable::Decision {
                         tick,
@@ -431,10 +498,23 @@ impl Reconstruction {
             (DeltaTarget::Agent(a), DeltaKind::ReplaceAgentList { list, records_json }) => {
                 if list == keys::ACTION_WINDOW {
                     if let Some(f) = self.firms.get_mut(&a.0) {
-                        f.window = records_json
-                            .iter()
-                            .filter_map(|s| WindowEntry::from_json(s).ok())
-                            .collect();
+                        // An unparsable entry is recorded in `parse_errors`
+                        // (agent, key, offending string), not dropped without
+                        // trace: this is offline analysis, so it reports the
+                        // problem rather than aborting the reader.
+                        let mut window = Vec::with_capacity(records_json.len());
+                        for s in records_json {
+                            match WindowEntry::from_json(s) {
+                                Ok(e) => window.push(e),
+                                Err(err) => self.parse_errors.push(format!(
+                                    "tick {tick}, agent {}: corrupt record under `{}` \
+                                     ({err}); offending record: {s:?}",
+                                    a.0,
+                                    keys::ACTION_WINDOW
+                                )),
+                            }
+                        }
+                        f.window = window;
                         if let Some(last) = f.window.last() {
                             *f.action_counts.entry(last.action).or_default() += 1;
                         }
@@ -444,19 +524,58 @@ impl Reconstruction {
             (DeltaTarget::Agent(a), DeltaKind::PushAgentRecord { list, record_json })
                 if list == keys::LAGGED_EFFECTS && phase == 5 =>
             {
-                if let Ok(rec) = LaggedRecord::from_json(record_json) {
-                    if let Some(applied) = shaping_applied(&rec) {
-                        out.push(Notable::ShapingCommitted {
-                            tick,
-                            agent: a.0,
-                            applied: Some(applied),
-                        });
+                match LaggedRecord::from_json(record_json) {
+                    Ok(rec) => {
+                        if let Some(applied) = shaping_applied(&rec) {
+                            out.push(Notable::ShapingCommitted {
+                                tick,
+                                agent: a.0,
+                                applied: Some(applied),
+                            });
+                        }
                     }
+                    // Counted, not skipped without trace: an unparsable
+                    // record here would otherwise silently lower the
+                    // shaping-commit count (SC-4/SC-5).
+                    Err(err) => self.parse_errors.push(format!(
+                        "tick {tick}, agent {}: corrupt record under `{}` ({err}); \
+                         offending record: {record_json:?}",
+                        a.0,
+                        keys::LAGGED_EFFECTS
+                    )),
                 }
             }
             _ => {}
         }
         out
+    }
+
+    /// A firm's three shortfalls `[ς_1, ς_2, ς_3]` (§12.1: `ς_j = A_j − v_j`)
+    /// from the state reconstructed so far, or `None` for an unknown firm.
+    ///
+    /// The same arithmetic `decision.satisficing` performs at `decide`
+    /// (`Satisficing::shortfalls`, `firma-plugin-decision`): `v_1` is the
+    /// stored `realized_capital_growth` (absent ⇒ `0`), `v_2 = c`,
+    /// `v_3 = −q`; an **absent** aspiration gives `ς_j = 0`. This crate may
+    /// not depend on a plugin (ADR 0045), so the formula is restated here
+    /// from persisted state rather than called; equality with the plugin's
+    /// own decision-time values is checked against its diagnostic trace
+    /// (review R14). Called while folding a tick's `decision.*` record, it
+    /// returns the values that firm's decision used.
+    ///
+    /// Not covered: Arm-A pins (`pinned_shortfall_*`, ADR 0054), which
+    /// replace these values inside the plugin and are not reconstructed.
+    #[must_use]
+    pub fn shortfalls(&self, id: u64) -> Option<[f64; 3]> {
+        let f = self.firms.get(&id)?;
+        let v = [f.realized_growth.unwrap_or(0) as f64, f.c, -(f.q as f64)];
+        let mut sc = [0.0; 3];
+        for j in 0..3 {
+            if let Some(a) = f.aspirations[j] {
+                sc[j] = a - v[j];
+            }
+        }
+        Some(sc)
     }
 
     /// Every firm's derived snapshot, ascending id order (`firms()` is
@@ -548,5 +667,253 @@ impl Reconstruction {
     #[must_use]
     pub fn total_count(&self) -> usize {
         self.firms.len()
+    }
+
+    /// Persisted records in the event log that could not be parsed, one
+    /// message per record, naming the agent, the list key and the offending
+    /// string. Empty for a well-formed log. A non-empty list means every
+    /// quantity derived from that list (`u`, `h`, repertoire entropy, action
+    /// counts) was computed without the unparsable entries and must not be
+    /// trusted — check this before using a reconstruction.
+    #[must_use]
+    pub fn parse_errors(&self) -> &[String] {
+        &self.parse_errors
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use firma_core::{AgentId, DeltaKind, DeltaTarget, Event, PluginId};
+
+    fn recon() -> Reconstruction {
+        Reconstruction::new(&recon_cfg())
+    }
+
+    fn recon_cfg() -> RunConfig {
+        RunConfig::from_json(
+            r#"{
+              "experiment": "unit", "schema_version": "1.0.0", "engine": ">=0.1.0, <0.2.0",
+              "seeds": {"mechanism": 910001, "environment": 910002, "shock": 910003, "init": 910004},
+              "world": {"ticks": 10, "resources": ["capital", "input"],
+                "conflict_resolver": {"id": "conflict.additive", "version": "^1"}},
+              "agents": [{"id": 0, "stocks": {"capital": 100}}],
+              "rules": [{"id": "constraint.action_window", "version": "^1", "params": {"l_w": 4}}]
+            }"#,
+        )
+        .unwrap()
+    }
+
+    fn window_event(records: Vec<String>) -> Event {
+        Event::DeltaApplied {
+            tick: 3,
+            phase: 7,
+            origin: PluginId::new("constraint.action_window"),
+            target: DeltaTarget::Agent(AgentId(0)),
+            kind: DeltaKind::ReplaceAgentList {
+                list: keys::ACTION_WINDOW.to_owned(),
+                records_json: records,
+            },
+        }
+    }
+
+    fn cfg_with_scales(scales: &str) -> RunConfig {
+        RunConfig::from_json(&format!(
+            r#"{{
+              "experiment": "unit", "schema_version": "1.0.0", "engine": ">=0.1.0, <0.2.0",
+              "seeds": {{"mechanism": 910001, "environment": 910002, "shock": 910003, "init": 910004}},
+              "world": {{"ticks": 10, "resources": ["capital", "input"],
+                "conflict_resolver": {{"id": "conflict.additive", "version": "^1"}}}},
+              "agents": [{{"id": 0, "stocks": {{"capital": 100}}}}],
+              "rules": [{{"id": "decision.satisficing", "version": "^1", "params": {{"l_w": 4{scales}}}}}]
+            }}"#
+        ))
+        .unwrap()
+    }
+
+    #[test]
+    fn absent_scales_param_still_means_defaults() {
+        assert!(Reconstruction::try_new(&cfg_with_scales("")).is_ok());
+        assert!(Reconstruction::try_new(&recon_cfg()).is_ok());
+    }
+
+    #[test]
+    fn well_formed_scales_param_is_accepted() {
+        let json = serde_json::to_string(&ScaleFactors::default()).unwrap();
+        assert!(
+            Reconstruction::try_new(&cfg_with_scales(&format!(r#", "scales": {json}"#))).is_ok()
+        );
+    }
+
+    #[test]
+    fn malformed_scales_param_is_an_error_not_silent_defaults() {
+        let Err(err) = Reconstruction::try_new(&cfg_with_scales(
+            r#", "scales": {"s_l": "MALFORMED-SCALE"}"#,
+        )) else {
+            panic!("a malformed `scales` param must be an error, not ScaleFactors::default()");
+        };
+        for p in ["decision.satisficing", "scales", "MALFORMED-SCALE"] {
+            assert!(err.contains(p), "error does not name {p:?}: {err}");
+        }
+    }
+
+    #[test]
+    #[should_panic(expected = "MALFORMED-SCALE")]
+    fn infallible_constructor_panics_on_a_malformed_scales_param() {
+        let _ = Reconstruction::new(&cfg_with_scales(
+            r#", "scales": {"s_l": "MALFORMED-SCALE"}"#,
+        ));
+    }
+
+    #[test]
+    fn one_corrupt_lagged_record_is_counted_and_named_not_silently_skipped() {
+        let mut r = recon();
+        r.apply(&Event::DeltaApplied {
+            tick: 6,
+            phase: 5,
+            origin: PluginId::new("action.shaping.rdt_standard.lobby"),
+            target: DeltaTarget::Agent(AgentId(0)),
+            kind: DeltaKind::PushAgentRecord {
+                list: keys::LAGGED_EFFECTS.to_owned(),
+                record_json: r#"{"maturity_tick":"CORRUPT-RECORD"}"#.to_owned(),
+            },
+        });
+        assert_eq!(
+            r.parse_errors().len(),
+            1,
+            "one corrupt lagged record ⇒ one error"
+        );
+        let msg = &r.parse_errors()[0];
+        for p in ["agent 0", keys::LAGGED_EFFECTS, "CORRUPT-RECORD", "tick 6"] {
+            assert!(msg.contains(p), "error does not name {p:?}: {msg}");
+        }
+    }
+
+    // --- shortfall (review R14) ---
+
+    fn cfg_with_agent(reals: &str, ints: &str) -> RunConfig {
+        RunConfig::from_json(&format!(
+            r#"{{
+              "experiment": "unit", "schema_version": "1.0.0", "engine": ">=0.1.0, <0.2.0",
+              "seeds": {{"mechanism": 910001, "environment": 910002, "shock": 910003, "init": 910004}},
+              "world": {{"ticks": 10, "resources": ["capital", "input"],
+                "conflict_resolver": {{"id": "conflict.additive", "version": "^1"}}}},
+              "agents": [{{"id": 0, "stocks": {{"capital": 100}}, "reals": {{{reals}}}, "ints": {{{ints}}}}}],
+              "rules": [{{"id": "constraint.action_window", "version": "^1", "params": {{"l_w": 4}}}}]
+            }}"#
+        ))
+        .unwrap()
+    }
+
+    fn agent_delta(origin: &str, phase: u8, kind: DeltaKind) -> Event {
+        Event::DeltaApplied {
+            tick: 3,
+            phase,
+            origin: PluginId::new(origin),
+            target: DeltaTarget::Agent(AgentId(0)),
+            kind,
+        }
+    }
+
+    fn set_growth(v: i64) -> Event {
+        agent_delta(
+            "decision.aspiration_update",
+            9,
+            DeltaKind::SetAgentInt {
+                field: keys::REALIZED_CAPITAL_GROWTH.to_owned(),
+                value: v,
+            },
+        )
+    }
+
+    fn adjust_real(field: &str, delta: f64) -> Event {
+        agent_delta(
+            "decision.aspiration_update",
+            9,
+            DeltaKind::AdjustAgentReal {
+                field: field.to_owned(),
+                delta,
+            },
+        )
+    }
+
+    #[test]
+    fn shortfalls_match_the_manual_12_1_table_on_the_15_3_numbers() {
+        // Manual §15.3: A_1 = 5, A_2 = 0.6, A_3 = −20. With realised growth
+        // v_1 = 2, capability c = 0.60 and obligation q = 3:
+        //   ς_1 = 5 − 2 = 3;  ς_2 = 0.6 − 0.60 = 0;  ς_3 = −20 − (−3) = −17.
+        let mut r = Reconstruction::new(&cfg_with_agent(
+            r#""capability": 0.60, "aspiration_capital_growth": 5.0, "aspiration_capability": 0.6, "aspiration_obligation_clearance": -20.0"#,
+            r#""obligation": 3"#,
+        ));
+        r.apply(&set_growth(2));
+        let sc = r.shortfalls(0).unwrap();
+        assert!((sc[0] - 3.0).abs() < 1e-12, "{sc:?}");
+        assert!(sc[1].abs() < 1e-12, "{sc:?}");
+        assert!((sc[2] + 17.0).abs() < 1e-12, "{sc:?}");
+        assert!((max_shortfall(sc) - 3.0).abs() < 1e-12);
+
+        // §15.3's aspiration update after tick 3: A_1 = 5 + 0.1(2 − 5) = 4.7,
+        // logged by `decision.aspiration_update` as a delta of −0.3.
+        r.apply(&adjust_real(
+            keys::ASPIRATION_CAPITAL_GROWTH,
+            0.1 * (2.0 - 5.0),
+        ));
+        let sc = r.shortfalls(0).unwrap();
+        assert!((sc[0] - (4.7 - 2.0)).abs() < 1e-12, "{sc:?}");
+    }
+
+    #[test]
+    fn an_absent_aspiration_gives_zero_shortfall_until_it_is_first_written() {
+        let mut r = Reconstruction::new(&cfg_with_agent(r#""capability": 0.4"#, ""));
+        assert_eq!(r.shortfalls(0).unwrap(), [0.0, 0.0, 0.0]);
+        // Absent realised growth reads as 0: seeding A_1 := 7 gives ς_1 = 7.
+        r.apply(&adjust_real(keys::ASPIRATION_CAPITAL_GROWTH, 7.0));
+        assert_eq!(r.shortfalls(0).unwrap(), [7.0, 0.0, 0.0]);
+        r.apply(&set_growth(9));
+        assert_eq!(r.shortfalls(0).unwrap(), [-2.0, 0.0, 0.0]);
+        // Capability aspiration seeded at 0.4 (the firm's own c): ς_2 = 0.
+        r.apply(&adjust_real(keys::ASPIRATION_CAPABILITY, 0.4));
+        assert_eq!(r.shortfalls(0).unwrap()[1], 0.0);
+        assert!(r.shortfalls(99).is_none());
+    }
+
+    #[test]
+    fn max_shortfall_is_the_value_attend_reads() {
+        assert_eq!(max_shortfall([1.0, 3.0, 2.0]), 3.0);
+        assert_eq!(max_shortfall([3.0, 3.0, 2.0]), 3.0);
+        assert_eq!(max_shortfall([-5.0, -1.0, -2.0]), -1.0);
+        assert_eq!(max_shortfall([0.0, 0.0, 0.0]), 0.0);
+    }
+
+    #[test]
+    fn a_well_formed_window_reports_no_parse_error() {
+        let mut r = recon();
+        r.apply(&window_event(vec![
+            WindowEntry::new(1, 2).to_json(),
+            WindowEntry::new(2, 1).to_json(),
+        ]));
+        assert!(r.parse_errors().is_empty());
+        assert_eq!(r.firm(0).unwrap().window.len(), 2);
+    }
+
+    #[test]
+    fn one_corrupt_window_record_is_counted_and_named_not_silently_dropped() {
+        let mut r = recon();
+        let corrupt = r#"{"tick":"CORRUPT-RECORD"}"#;
+        r.apply(&window_event(vec![
+            WindowEntry::new(1, 2).to_json(),
+            corrupt.to_owned(),
+            WindowEntry::new(2, 1).to_json(),
+        ]));
+        assert_eq!(
+            r.parse_errors().len(),
+            1,
+            "exactly one corrupt record ⇒ one error"
+        );
+        let msg = &r.parse_errors()[0];
+        for p in ["agent 0", keys::ACTION_WINDOW, "CORRUPT-RECORD", "tick 3"] {
+            assert!(msg.contains(p), "error does not name {p:?}: {msg}");
+        }
     }
 }

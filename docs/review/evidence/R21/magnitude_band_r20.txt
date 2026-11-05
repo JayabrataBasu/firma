@@ -1,0 +1,4 @@
+From docs/review/evidence/R20/q2_runs.csv (medium level, 100 init seeds, shock seed = init seed); no runs.
+runs with a compliance death: 57; drawn magnitude min 0.1507 max 0.2451
+runs without: 43; of these, magnitude inside [0.1507, 0.2451]: 0 []
+largest magnitude below the band among runs without: 0.1487; smallest above: 0.2515

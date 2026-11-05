@@ -579,3 +579,74 @@ fn phase_rules_register_and_have_the_right_phases() {
         assert_eq!(r.phase(), want, "{id}");
     }
 }
+
+// ==================== corrupt persisted records (review H-1; §19.5) ====================
+
+const CORRUPT: &str = r#"{"tick":"CORRUPT-RECORD"}"#;
+
+fn panic_message(f: impl FnOnce()) -> String {
+    let r = std::panic::catch_unwind(std::panic::AssertUnwindSafe(f));
+    let payload =
+        r.expect_err("expected a panic on the corrupt record, but the rule returned normally");
+    payload
+        .downcast_ref::<String>()
+        .cloned()
+        .or_else(|| payload.downcast_ref::<&str>().map(|s| (*s).to_owned()))
+        .unwrap_or_default()
+}
+
+/// A window of two valid entries with exactly one corrupt record between them.
+fn view_with_one_corrupt_window_record() -> Mv {
+    let mut v = Mv::new(9, &[0])
+        .theta()
+        .stock(0, "capital", 100)
+        .int(0, keys::SELECTED_ACTION, 1);
+    v.alists.insert(
+        (0, keys::ACTION_WINDOW.into()),
+        vec![
+            WindowEntry::new(7, 2).to_json(),
+            CORRUPT.to_owned(),
+            WindowEntry::new(8, 1).to_json(),
+        ],
+    );
+    v
+}
+
+#[test]
+fn action_window_panics_on_a_corrupt_record_naming_agent_key_and_record() {
+    let rule = ActionWindow::new(ActionWindowParams { l_w: 4 }).unwrap();
+    let v = view_with_one_corrupt_window_record();
+    let msg = panic_message(|| {
+        rule.apply(&v, key());
+    });
+    for p in ["agent 0", keys::ACTION_WINDOW, "CORRUPT-RECORD"] {
+        assert!(msg.contains(p), "panic message does not name {p:?}: {msg}");
+    }
+}
+
+#[test]
+fn enforce_panics_on_a_corrupt_window_record_naming_agent_key_and_record() {
+    let v = view_with_one_corrupt_window_record();
+    let msg = panic_message(|| {
+        enforce(20).apply(&v, key());
+    });
+    for p in ["agent 0", keys::ACTION_WINDOW, "CORRUPT-RECORD"] {
+        assert!(msg.contains(p), "panic message does not name {p:?}: {msg}");
+    }
+}
+
+// --- review H-2: a corrupt relation edge is a loud failure in Enforce ---
+
+#[test]
+fn enforce_panics_on_a_corrupt_relation_edge_naming_key_and_record() {
+    // Exactly one record under `relation_edges`, and it is corrupt.
+    let mut v = Mv::new(9, &[0]).theta().stock(0, "capital", 100);
+    v.glists
+        .insert(keys::RELATION_EDGES.into(), vec![CORRUPT.to_owned()]);
+    let msg = panic_message(|| {
+        enforce(20).apply(&v, key());
+    });
+    for p in [keys::RELATION_EDGES, "CORRUPT-RECORD"] {
+        assert!(msg.contains(p), "panic message does not name {p:?}: {msg}");
+    }
+}

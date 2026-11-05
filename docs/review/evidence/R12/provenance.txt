@@ -1,0 +1,8 @@
+### R12 provenance (EXPLORATORY - DIAGNOSTIC-ONLY)
+date: 2026-10-02T07:10Z
+git rev: 2820610076bc9bf0317ffa0daaa49859ac8e430b (branch h3-satisficing-lookahead); working tree has uncommitted changes: 31 entries (Batch 1, H-1, H-2, this round)
+exact command: .venv/bin/python scripts/exploratory_e1_slice.py --out <scratch dir>   (--out only redirects run outputs; without it a temp dir is used)
+python: Python 3.14.7; rustc: rustc 1.98.0 (88d9e12ae 2026-08-18)
+firma binary: target/debug/firma sha256 d01490f8a9051d83d6fe4b5cffbcda6c019dec55e2ec408b73821e923aebc651 (built from the working tree)
+seeds executed: mechanism 910001, environment 910002, init 910004, shock 910001..910050; smallest seed in any executed config: 910001
+runs executed: 2 arms x 50 shock seeds x (shocked + no-shock fork) = 200, plus 2 in the test suite (shock seed 910001)

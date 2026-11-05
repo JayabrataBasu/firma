@@ -1,0 +1,9 @@
+### cargo-deny cargo-deny 0.20.2 on a scratch copy of the working tree, deny.toml AS IS
+error[unexpected-keys]: found 1 unexpected keys, expected: ["multiple-versions", "multiple-versions-include-dev", "highlight", "deny", "allow", "allow-workspace", "features", "external-default-features", "workspace-default-features", "skip", "skip-tree", "wildcards", "allow-wildcard-paths", "allow-build-scripts", "build", "workspace-dependencies", "std-replacements"]
+   ┌─ /tmp/claude-1000/-home-jayabratabasu-firma/25acd624-4575-4f2d-9fb5-645f7478f07e/scratchpad/h1_wt/deny.toml:25:1
+   │
+25 │ wildcard-dependencies = "deny"
+   │ ─────────────────────
+
+2026-10-02 05:08:46 [ERROR] failed to deserialize config from '/tmp/claude-1000/-home-jayabratabasu-firma/25acd624-4575-4f2d-9fb5-645f7478f07e/scratchpad/h1_wt/deny.toml'
+exit: 1

@@ -802,10 +802,10 @@ fn widened_uniqueness_check_distinguishes_by_slot() {
         World::new(
             vec![res("capital"), res("input")],
             RunSeeds {
-                mechanism: 1,
-                environment: 1,
-                shock: 1,
-                init: 1,
+                mechanism: 10001,
+                environment: 10001,
+                shock: 10001,
+                init: 10001,
             },
             agents,
             env,

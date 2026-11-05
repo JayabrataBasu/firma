@@ -857,3 +857,94 @@ fn adr0054_single_pin_panics() {
         .unwrap()
         .apply(&v, v.rng_key());
 }
+
+// --- corrupt persisted records fail loudly (review H-1; manual §19.5) ---
+
+/// A record no parser in this crate accepts — the one corrupt entry each
+/// fixture below contains.
+const CORRUPT: &str = r#"{"tick":"CORRUPT-RECORD"}"#;
+
+/// Run `f`, expect a panic, and return its message.
+fn panic_message(f: impl FnOnce()) -> String {
+    let r = std::panic::catch_unwind(std::panic::AssertUnwindSafe(f));
+    let payload =
+        r.expect_err("expected a panic on the corrupt record, but the rule returned normally");
+    payload
+        .downcast_ref::<String>()
+        .cloned()
+        .or_else(|| payload.downcast_ref::<&str>().map(|s| (*s).to_owned()))
+        .unwrap_or_default()
+}
+
+fn healthy_view() -> MockView {
+    MockView::new(5, Phase::Decide, 1, &[0])
+        .with_global_real(keys::THETA_LIMIT, 0.90)
+        .with_global_real(keys::THETA_CAP, 0.40)
+        .with_global_int(keys::THETA_Q, 100)
+        .with_global_int(keys::INPUT_PRICE, 2)
+        .with_global_int(keys::OUTPUT_PRICE, 3)
+        .with_stock(0, "capital", 400)
+        .with_stock(0, "input", 10)
+        .with_agent_real(0, keys::CAPABILITY, 0.9)
+}
+
+fn satisficing_default() -> Satisficing {
+    Satisficing::new(SatisficingParams::default()).unwrap()
+}
+
+fn assert_names(msg: &str, parts: &[&str]) {
+    for p in parts {
+        assert!(msg.contains(p), "panic message does not name {p:?}: {msg}");
+    }
+}
+
+#[test]
+fn corrupt_action_window_record_panics_naming_agent_key_and_record() {
+    let ok = |t, a| firma_domain::WindowEntry::new(t, a).to_json();
+    let v = healthy_view()
+        .with_agent_record(0, keys::ACTION_WINDOW, ok(3, 1))
+        .with_agent_record(0, keys::ACTION_WINDOW, CORRUPT.to_owned())
+        .with_agent_record(0, keys::ACTION_WINDOW, ok(4, 2));
+    let msg = panic_message(|| {
+        satisficing_default().apply(&v, v.rng_key());
+    });
+    assert_names(&msg, &["agent 0", keys::ACTION_WINDOW, "CORRUPT-RECORD"]);
+}
+
+#[test]
+fn corrupt_lagged_effect_record_panics_naming_agent_key_and_record() {
+    let v = healthy_view().with_agent_record(0, keys::LAGGED_EFFECTS, CORRUPT.to_owned());
+    let msg = panic_message(|| {
+        satisficing_default().apply(&v, v.rng_key());
+    });
+    assert_names(&msg, &["agent 0", keys::LAGGED_EFFECTS, "CORRUPT-RECORD"]);
+}
+
+#[test]
+fn corrupt_observed_env_record_panics_naming_agent_key_and_record() {
+    let v = healthy_view().with_agent_record(0, keys::OBSERVED_ENV, CORRUPT.to_owned());
+    let msg = panic_message(|| {
+        satisficing_default().apply(&v, v.rng_key());
+    });
+    assert_names(&msg, &["agent 0", keys::OBSERVED_ENV, "CORRUPT-RECORD"]);
+}
+
+#[test]
+fn corrupt_relation_edge_panics_in_satisficing_naming_key_and_record() {
+    let v = healthy_view().with_global_record(keys::RELATION_EDGES, CORRUPT.to_owned());
+    let msg = panic_message(|| {
+        satisficing_default().apply(&v, v.rng_key());
+    });
+    assert_names(&msg, &[keys::RELATION_EDGES, "CORRUPT-RECORD"]);
+}
+
+#[test]
+fn corrupt_relation_edge_panics_in_decision_random_naming_key_and_record() {
+    let v = healthy_view().with_global_record(keys::RELATION_EDGES, CORRUPT.to_owned());
+    let msg = panic_message(|| {
+        DecisionRandom::new(RandomParams::default())
+            .unwrap()
+            .apply(&v, v.rng_key());
+    });
+    assert_names(&msg, &[keys::RELATION_EDGES, "CORRUPT-RECORD"]);
+}

@@ -1,0 +1,45 @@
+   Compiling firma-conformance v0.1.0 (/home/jayabratabasu/firma/tests)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.31s
+     Running tests/sanity.rs (target/debug/deps/sanity-ed6e8b3179a305cb)
+
+running 1 test
+
+=== all-healthy (SC-2 floor) ===  (4 firms → 4 survivors)
+  SC-1 survival           = 1.000   [0.60, 0.90]   fail
+  SC-2 survival-attention = 0.005   [0.05, 0.25]   fail   (reconstructed h<h_crit = 0.005)
+  SC-3 binds [sol,cmp,scp,obl] = [false, false, false, false]   first@ [None, None, None, None]   fail
+  SC-4 shaping fraction    = 0.0000   (> 0.05)      fail   (0/1600 decisions)
+  SC-5 shaping success    = None   [0.10, 0.60]   fail   (0 commits)
+  SC-6 entropy variance   = 0.0116   (≥ 0.01)      PASS   (mean H_rep = 0.014 bits)
+  ALL SIX: fail
+
+=== threaded needle (closest) ===  (10 firms → 8 survivors)
+  SC-1 survival           = 0.800   [0.60, 0.90]   PASS
+  SC-2 survival-attention = 1.000   [0.05, 0.25]   fail   (reconstructed h<h_crit = 1.000)
+  SC-3 binds [sol,cmp,scp,obl] = [true, false, true, true]   first@ [Some(0), None, Some(0), Some(0)]   fail
+  SC-4 shaping fraction    = 0.0000   (> 0.05)      fail   (0/3202 decisions)
+  SC-5 shaping success    = None   [0.10, 0.60]   fail   (0 commits)
+  SC-6 entropy variance   = 0.0000   (≥ 0.01)      fail   (mean H_rep = -0.000 bits)
+  ALL SIX: fail
+
+=== decision.random + shaping (Arm C) ===  (2 firms → 2 survivors)
+  SC-1 survival           = 1.000   [0.60, 0.90]   fail
+  SC-2 survival-attention = 0.000   [0.05, 0.25]   fail   (reconstructed h<h_crit = 0.000)
+  SC-3 binds [sol,cmp,scp,obl] = [false, false, false, false]   first@ [None, None, None, None]   fail
+  SC-4 shaping fraction    = 0.3050   (> 0.05)      PASS   (61/200 decisions)
+  SC-5 shaping success    = Some(0.492)   [0.10, 0.60]   PASS   (61 commits)
+  SC-6 entropy variance   = 0.1275   (≥ 0.01)      PASS   (mean H_rep = 2.006 bits)
+  ALL SIX: fail
+
+=== Stage-6 SC gate outcome: SC-1…SC-6 NOT jointly satisfiable ===
+  SC-1  achievable   (threaded: 0.80)
+  SC-2  NOT achievable — bimodal: 0.005 (healthy) vs 1.000 (threaded); never in [0.05, 0.25]
+  SC-3  NOT achieved — threaded binds [sol,cmp,scp,obl] = [true, false, true, true], first@ [Some(0), None, Some(0), Some(0)]
+  SC-4  NOT achievable under decision.satisficing (0.0000) — incl. full §16.1 β×w_max sweep
+        (ADR-0042; see sc4_wmax_beta_probe); 0.305 under decision.random
+  SC-5  NOT achievable — no shaping ⇒ no success rate
+  SC-6  achievable   (healthy: 0.012)
+test sc16_gate ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 4 filtered out; finished in 1.00s
+

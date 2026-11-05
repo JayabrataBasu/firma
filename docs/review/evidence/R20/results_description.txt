@@ -1,0 +1,46 @@
+== Q2: shocked runs split by whether any firm died of compliance ==
+ low: 43 runs with no compliance death: survivors {8: 4, 9: 6, 10: 14, 11: 10, 12: 9}
+   57 runs with a compliance death: survivors {0: 50, 1: 7}; largest same-tick death count {6: 2, 7: 7, 8: 6, 9: 11, 10: 15, 11: 14, 12: 2}; compliance deaths per run {7: 4, 8: 4, 9: 12, 10: 14, 11: 19, 12: 4}
+   init seeds of the runs with a compliance death identical to the low level's: True
+   drawn shock magnitude: with a compliance death min 0.151 max 0.245; without min 0.006 max 0.335
+ medium: 43 runs with no compliance death: survivors {8: 4, 9: 6, 10: 14, 11: 10, 12: 9}
+   57 runs with a compliance death: survivors {0: 17, 1: 19, 2: 15, 3: 6}; largest same-tick death count {5: 5, 6: 6, 7: 9, 8: 9, 9: 16, 10: 7, 11: 4, 12: 1}; compliance deaths per run {5: 1, 6: 3, 7: 10, 8: 9, 9: 10, 10: 15, 11: 8, 12: 1}
+   init seeds of the runs with a compliance death identical to the low level's: True
+   drawn shock magnitude: with a compliance death min 0.151 max 0.245; without min 0.006 max 0.335
+ high: 43 runs with no compliance death: survivors {8: 4, 9: 6, 10: 14, 11: 10, 12: 9}
+   57 runs with a compliance death: survivors {0: 3, 1: 12, 2: 14, 3: 8, 4: 14, 5: 3, 6: 1, 7: 1, 8: 1}; largest same-tick death count {3: 2, 4: 5, 5: 10, 6: 10, 7: 10, 8: 8, 9: 6, 10: 5, 11: 1}; compliance deaths per run {3: 1, 4: 1, 5: 10, 6: 10, 7: 9, 8: 7, 9: 11, 10: 6, 11: 2}
+   init seeds of the runs with a compliance death identical to the low level's: True
+   drawn shock magnitude: with a compliance death min 0.151 max 0.245; without min 0.006 max 0.335
+
+== Q2/Q4: baseline deaths against the obligation draw ==
+ low: baseline dead firms == obligation-seeded firms in 100 of 100 baselines; dead is a subset of seeded in 100; baseline death causes {'solvency': 184}
+ medium: baseline dead firms == obligation-seeded firms in 100 of 100 baselines; dead is a subset of seeded in 100; baseline death causes {'solvency': 184}
+ high: baseline dead firms == obligation-seeded firms in 99 of 100 baselines; dead is a subset of seeded in 100; baseline death causes {'solvency': 183}
+ obligation-seeded firms per population (100 init seeds; the draw does not depend on the level): {0: 13, 1: 30, 2: 29, 3: 18, 4: 8, 5: 2}
+
+== Q5: what distinguishes the action sequences ==
+ drawn h 0.02 shortfall 0.0: distinct sequences among runs where the firm survived: 1
+    44 runs [138fec9c] decisions [120] H_rep [0.6552] obligation {'none': 44} deaths {'[]': 44}
+    6 runs [4f2bece2] decisions [41] H_rep [0.0] obligation {'seeded': 6} deaths {'[[40, 0, "solvency"]]': 6}
+ drawn h 0.02 shortfall 1.0: distinct sequences among runs where the firm survived: 1
+    44 runs [138fec9c] decisions [120] H_rep [0.6552] obligation {'none': 44} deaths {'[]': 44}
+    6 runs [4f2bece2] decisions [41] H_rep [0.0] obligation {'seeded': 6} deaths {'[[40, 0, "solvency"]]': 6}
+ drawn h 0.4 shortfall 0.0: distinct sequences among runs where the firm survived: 1
+    44 runs [71b89e79] decisions [120] H_rep [0.0] obligation {'none': 44} deaths {'[]': 44}
+    2 runs [16ce37a0] decisions [6] H_rep [0.0] obligation {'seeded': 2} deaths {'[[5, 0, "solvency"]]': 2}
+    1 runs [150188ba] decisions [4] H_rep [0.0] obligation {'seeded': 1} deaths {'[[3, 0, "solvency"]]': 1}
+    1 runs [8e671ae4] decisions [10] H_rep [0.0] obligation {'seeded': 1} deaths {'[[9, 0, "solvency"]]': 1}
+    1 runs [cbca8c6f] decisions [5] H_rep [0.0] obligation {'seeded': 1} deaths {'[[4, 0, "solvency"]]': 1}
+    1 runs [f91ebc87] decisions [9] H_rep [0.0] obligation {'seeded': 1} deaths {'[[8, 0, "solvency"]]': 1}
+ drawn h 0.4 shortfall 1.0: distinct sequences among runs where the firm survived: 1
+    48 runs [deb84443] decisions [5] H_rep [0.0] obligation {'none': 42, 'seeded': 6} deaths {'[[4, 0, "compliance"]]': 48}
+    2 runs [138fec9c] decisions [120] H_rep [0.6552] obligation {'none': 2} deaths {'[]': 2}
+ fixed h 0.02 shortfall 0.0: distinct sequences among runs where the firm survived: 1
+    50 runs [138fec9c] decisions [120] H_rep [0.6552] obligation {'none': 50} deaths {'[]': 50}
+ fixed h 0.02 shortfall 1.0: distinct sequences among runs where the firm survived: 1
+    50 runs [138fec9c] decisions [120] H_rep [0.6552] obligation {'none': 50} deaths {'[]': 50}
+ fixed h 0.4 shortfall 0.0: distinct sequences among runs where the firm survived: 1
+    50 runs [71b89e79] decisions [120] H_rep [0.0] obligation {'none': 50} deaths {'[]': 50}
+ fixed h 0.4 shortfall 1.0: distinct sequences among runs where the firm survived: 0
+    50 runs [deb84443] decisions [5] H_rep [0.0] obligation {'none': 50} deaths {'[[4, 0, "compliance"]]': 50}
+ drawn single firms (50 init seeds): capital min 22 median 102 max 233; capability min 0.290 max 0.753; distinct capital values 46; with an obligation: 6

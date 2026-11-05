@@ -1,0 +1,25 @@
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.02s
+     Running unittests src/lib.rs (target/debug/deps/firma_analysis-739a0f06af400215)
+
+running 18 tests
+test firm_ticks::tests::shortfall_is_the_value_at_the_decision_not_after_the_record_phase ... ok
+test firm_ticks::tests::a_corrupt_record_is_refused ... ok
+test firm_ticks::tests::one_record_per_live_firm_tick_and_the_death_tick_is_excluded ... ok
+test firm_ticks::tests::h_is_the_reconstructed_margin_at_the_end_of_the_tick ... ok
+test reconstruct::tests::a_well_formed_window_reports_no_parse_error ... ok
+test reconstruct::tests::max_shortfall_is_the_value_attend_reads ... ok
+test reconstruct::tests::an_absent_aspiration_gives_zero_shortfall_until_it_is_first_written ... ok
+test reconstruct::tests::infallible_constructor_panics_on_a_malformed_scales_param - should panic ... ok
+test reconstruct::tests::absent_scales_param_still_means_defaults ... ok
+test reconstruct::tests::one_corrupt_lagged_record_is_counted_and_named_not_silently_skipped ... ok
+test reconstruct::tests::malformed_scales_param_is_an_error_not_silent_defaults ... ok
+test reconstruct::tests::one_corrupt_window_record_is_counted_and_named_not_silently_dropped ... ok
+test reconstruct::tests::well_formed_scales_param_is_accepted ... ok
+test reconstruct::tests::shortfalls_match_the_manual_12_1_table_on_the_15_3_numbers ... ok
+test sanity::tests::reconstruct_checked_refuses_a_log_with_one_corrupt_record ... ok
+test sanity::tests::a_clean_log_reconstructs_and_reports ... ok
+test sanity::tests::sanity_from_run_panics_on_a_log_with_one_corrupt_record - should panic ... ok
+test sanity::tests::try_sanity_from_run_refuses_a_log_with_one_corrupt_record ... ok
+
+test result: ok. 18 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+

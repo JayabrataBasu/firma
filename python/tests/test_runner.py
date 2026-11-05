@@ -15,7 +15,14 @@ from pathlib import Path
 
 import pytest
 
-from firma_lab.spec import ArmDesign, ExperimentSpec, Factor, Hypothesis, build_synthetic_spec
+from firma_lab.spec import (
+    SYNTHETIC_FIRST_REPLICATE,
+    ArmDesign,
+    ExperimentSpec,
+    Factor,
+    Hypothesis,
+    build_synthetic_spec,
+)
 from firma_lab.runner import JobRecord, build_job_config, job_id, run_experiment
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
@@ -73,6 +80,7 @@ def _failing_spec() -> ExperimentSpec:
         arms=(arm,),
         model_config_template=template,
         num_replicates=1,
+        first_replicate=SYNTHETIC_FIRST_REPLICATE,  # outside the reserved 1-200
         interventions=(),
         observation=("n/a",),
         analysis_plan={"note": "pipeline failure-handling self-test"},

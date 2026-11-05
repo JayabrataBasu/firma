@@ -80,13 +80,22 @@ def test_attachments_are_hashed(tmp_path):
 # -- seed range / template identity (ADR-0053) -------------------------------
 
 
+def registered_stand_in(num_replicates):
+    """A spec standing in for a *registered* design: replicates 1..n, i.e.
+    seeds inside the reserved range, which is what ``check_seed_range`` is
+    about. Nothing in this file executes it -- configs are only built and
+    written to disk for the checker to read."""
+    return build_synthetic_spec(num_replicates=num_replicates, first_replicate=1)
+
+
+
 def a_registered_config(spec, replicate=2):
     job = next(j for j in spec.jobs() if j.replicate == replicate)
     return build_job_config(spec, job)
 
 
 def test_identical_config_is_a_collision():
-    spec = build_synthetic_spec(num_replicates=3)
+    spec = registered_stand_in(3)
     item = prereg.check_seed_range(spec, [("scratch/run", a_registered_config(spec))], [])
     assert item.status == prereg.FAIL
     assert any(e.startswith("IDENTITY COLLISION") for e in item.evidence)
@@ -95,7 +104,7 @@ def test_identical_config_is_a_collision():
 def test_collision_is_found_through_engine_filled_defaults():
     # A run manifest's resolved_config carries serde defaults the input
     # config omitted; the check must still see them as the same run.
-    spec = build_synthetic_spec(num_replicates=3)
+    spec = registered_stand_in(3)
     cfg = copy.deepcopy(a_registered_config(spec))
     cfg["interventions"] = []
     cfg["world"]["conflict_resolver"]["params"] = None
@@ -105,7 +114,7 @@ def test_collision_is_found_through_engine_filled_defaults():
 
 
 def test_seed_overlap_with_a_different_config_passes_but_is_listed():
-    spec = build_synthetic_spec(num_replicates=3)
+    spec = registered_stand_in(3)
     cfg = a_registered_config(spec)
     cfg["world"]["ticks"] = 99
     item = prereg.check_seed_range(spec, [("scratch/other", cfg)], [])
@@ -114,7 +123,7 @@ def test_seed_overlap_with_a_different_config_passes_but_is_listed():
 
 
 def test_seeds_outside_the_registered_range_are_ignored():
-    spec = build_synthetic_spec(num_replicates=3)
+    spec = registered_stand_in(3)
     cfg = a_registered_config(spec)
     n = spec.num_replicates + 1
     cfg["seeds"] = {"mechanism": n, "environment": n, "shock": n, "init": n}
@@ -133,14 +142,14 @@ def test_source_seed_literals_need_acknowledgement(tmp_path):
     ))
     literals = prereg.scan_seed_literals([tmp_path])
     assert (str(rs), 1, (n, n, n, n)) in literals
-    spec = build_synthetic_spec(num_replicates=3)
+    spec = registered_stand_in(3)
     assert prereg.check_seed_range(spec, [], literals).status == prereg.NEEDS_OWNER
     ok = prereg.check_seed_range(spec, [], literals, acknowledged=[(str(rs), (n, n, n, n))])
     assert ok.status == prereg.PASS
 
 
 def test_unbuildable_registered_config_fails_the_check():
-    spec = build_synthetic_spec(num_replicates=3)
+    spec = registered_stand_in(3)
     bad_arm = ArmDesign("T", (Factor("x", (1, 2), arm="T", apply_kind="rule_param",
                                      rule_id="decision.random", json_path=("x",)),))
     bad = dataclasses.replace(spec, arms=(bad_arm,))
@@ -151,7 +160,7 @@ def test_unbuildable_registered_config_fails_the_check():
 
 
 def test_scan_run_configs_reads_manifests_job_records_and_bare_configs(tmp_path):
-    spec = build_synthetic_spec(num_replicates=2)
+    spec = registered_stand_in(2)
     cfg = a_registered_config(spec, replicate=1)
     (tmp_path / "a").mkdir()
     (tmp_path / "a" / "manifest.json").write_text(json.dumps({"identity": {"resolved_config": cfg}}))
@@ -163,7 +172,7 @@ def test_scan_run_configs_reads_manifests_job_records_and_bare_configs(tmp_path)
 
 
 def test_render_is_computed_from_the_spec():
-    spec = build_synthetic_spec(num_replicates=3)
+    spec = registered_stand_in(3)
     items = [prereg.check_determinism_tests(cargo_out(DT_OK)), prereg.check_determinism_tests(None)]
     doc = prereg.render_prereg(spec, items)
     assert spec.content_hash() in doc

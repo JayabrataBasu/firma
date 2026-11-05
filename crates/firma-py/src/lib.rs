@@ -22,8 +22,9 @@ use pyo3::exceptions::PyValueError;
 use pyo3::prelude::*;
 use pyo3::types::PyDict;
 
-use firma_analysis::sanity::sanity_from_run as rust_sanity_from_run;
-use firma_analysis::Reconstruction;
+use firma_analysis::sanity::{
+    reconstruct_checked, try_sanity_from_run as rust_try_sanity_from_run,
+};
 use firma_config::RunConfig;
 
 fn load_config(config_json: &str) -> PyResult<RunConfig> {
@@ -47,12 +48,14 @@ fn read_events(run_dir: &str) -> PyResult<Vec<firma_core::Event>> {
 /// gate test would compute for the same log.
 ///
 /// # Errors
-/// A `ValueError` if `config_json` does not parse or `run_dir/events.ndjson`
-/// cannot be read.
+/// A `ValueError` if `config_json` does not parse, `run_dir/events.ndjson`
+/// cannot be read, the config's `scales` parameter is malformed, or the log
+/// contains an unparsable persisted record (the message names each one).
 #[pyfunction]
 fn sanity_report(py: Python<'_>, config_json: &str, run_dir: &str) -> PyResult<Py<PyDict>> {
     let cfg = load_config(config_json)?;
-    let report = rust_sanity_from_run(&cfg, std::path::Path::new(run_dir));
+    let report = rust_try_sanity_from_run(&cfg, std::path::Path::new(run_dir))
+        .map_err(PyValueError::new_err)?;
 
     let d = PyDict::new(py);
     d.set_item("initial_firms", report.initial_firms)?;
@@ -89,17 +92,15 @@ fn sanity_report(py: Python<'_>, config_json: &str, run_dir: &str) -> PyResult<P
 /// reconstruction `firma-tui`'s live panels use.
 ///
 /// # Errors
-/// A `ValueError` if `config_json` does not parse or `run_dir/events.ndjson`
-/// cannot be read.
+/// A `ValueError` if `config_json` does not parse, `run_dir/events.ndjson`
+/// cannot be read, the config's `scales` parameter is malformed, or the log
+/// contains an unparsable persisted record (the message names each one).
 #[pyfunction]
 fn final_margins(py: Python<'_>, config_json: &str, run_dir: &str) -> PyResult<Vec<Py<PyDict>>> {
     let cfg = load_config(config_json)?;
-    let mut recon = Reconstruction::new(&cfg);
-    for ev in read_events(run_dir)? {
-        recon.apply(&ev);
-    }
-    recon
-        .firms()
+    let events = read_events(run_dir)?;
+    final_firms(&cfg, &events)
+        .map_err(PyValueError::new_err)?
         .into_iter()
         .map(|f| {
             let d = PyDict::new(py);
@@ -117,6 +118,47 @@ fn final_margins(py: Python<'_>, config_json: &str, run_dir: &str) -> PyResult<V
                 "repertoire_entropy",
                 firma_analysis::repertoire_entropy(&f.window),
             )?;
+            Ok(d.into())
+        })
+        .collect()
+}
+
+/// Every firm's final snapshot, for `final_margins` — or an error if the
+/// config's `scales` parameter is malformed or the log holds an unparsable
+/// persisted record ([`reconstruct_checked`]). Margins are never returned
+/// from a reconstruction that had to leave records out.
+fn final_firms(
+    cfg: &RunConfig,
+    events: &[firma_core::Event],
+) -> Result<Vec<firma_analysis::FirmSnapshot>, String> {
+    Ok(reconstruct_checked(cfg, events)?.firms())
+}
+
+/// Every live firm-tick of a run ([`firma_analysis::firm_ticks`]) as a list
+/// of Python `dict`s in `(tick, agent)` order: `tick`, `agent`, `action`,
+/// `h` (reconstructed margin at the end of the tick), `shortfalls`
+/// (`[ς_1, ς_2, ς_3]` at the firm's decision in that tick) and
+/// `shortfall_max` (`max_j ς_j`). The arithmetic is entirely Rust-side; see
+/// the module docs of `firma_analysis::firm_ticks` for what each value is
+/// sampled at and what it does not cover.
+///
+/// # Errors
+/// A `ValueError` under the same conditions as `final_margins`.
+#[pyfunction]
+fn firm_ticks(py: Python<'_>, config_json: &str, run_dir: &str) -> PyResult<Vec<Py<PyDict>>> {
+    let cfg = load_config(config_json)?;
+    let events = read_events(run_dir)?;
+    firma_analysis::firm_ticks::firm_ticks(&cfg, &events)
+        .map_err(PyValueError::new_err)?
+        .into_iter()
+        .map(|f| {
+            let d = PyDict::new(py);
+            d.set_item("tick", f.tick)?;
+            d.set_item("agent", f.agent)?;
+            d.set_item("action", f.action)?;
+            d.set_item("h", f.h)?;
+            d.set_item("shortfalls", f.shortfalls.to_vec())?;
+            d.set_item("shortfall_max", f.shortfall_max)?;
             Ok(d.into())
         })
         .collect()
@@ -157,6 +199,63 @@ fn config_identity_hash(config_json: &str) -> PyResult<String> {
 fn _native(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(sanity_report, m)?)?;
     m.add_function(wrap_pyfunction!(final_margins, m)?)?;
+    m.add_function(wrap_pyfunction!(firm_ticks, m)?)?;
     m.add_function(wrap_pyfunction!(config_identity_hash, m)?)?;
     Ok(())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use firma_core::{AgentId, DeltaKind, DeltaTarget, Event, PluginId};
+
+    fn cfg() -> RunConfig {
+        RunConfig::from_json(
+            r#"{
+              "experiment": "unit", "schema_version": "1.0.0", "engine": ">=0.1.0, <0.2.0",
+              "seeds": {"mechanism": 910001, "environment": 910002, "shock": 910003, "init": 910004},
+              "world": {"ticks": 4, "resources": ["capital", "input"],
+                "conflict_resolver": {"id": "conflict.additive", "version": "^1"}},
+              "agents": [{"id": 0, "stocks": {"capital": 100}}],
+              "rules": [{"id": "constraint.action_window", "version": "^1", "params": {"l_w": 4}}]
+            }"#,
+        )
+        .unwrap()
+    }
+
+    fn window_event(records: Vec<String>) -> Event {
+        Event::DeltaApplied {
+            tick: 2,
+            phase: 7,
+            origin: PluginId::new("constraint.action_window"),
+            target: DeltaTarget::Agent(AgentId(0)),
+            kind: DeltaKind::ReplaceAgentList {
+                list: "action_window".to_owned(),
+                records_json: records,
+            },
+        }
+    }
+
+    #[test]
+    fn final_firms_returns_firms_for_a_clean_log() {
+        let ok = r#"{"tick":0,"action":1}"#.to_owned();
+        assert_eq!(
+            final_firms(&cfg(), &[window_event(vec![ok])])
+                .unwrap()
+                .len(),
+            1
+        );
+    }
+
+    #[test]
+    fn final_firms_refuses_a_log_with_one_corrupt_record() {
+        let ok = r#"{"tick":0,"action":1}"#.to_owned();
+        let bad = r#"{"tick":"CORRUPT-RECORD"}"#.to_owned();
+        let Err(err) = final_firms(&cfg(), &[window_event(vec![ok, bad])]) else {
+            panic!("a corrupt record must not yield firm margins");
+        };
+        for p in ["agent 0", "action_window", "CORRUPT-RECORD"] {
+            assert!(err.contains(p), "error does not name {p:?}: {err}");
+        }
+    }
 }

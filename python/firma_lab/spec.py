@@ -142,6 +142,21 @@ def derive_seeds(replicate: int) -> StreamSeeds:
     )
 
 
+#: Manual Sec 30.5 ("Seeds 1-200 per cell") / Sec 30.9 ("Seed range 1-200
+#: confirmed unused by any exploratory Phase 2 run"): the seed values reserved
+#: for the registered E1 design. ``firma_lab.runner.run_experiment`` refuses
+#: to execute a job with any stream seed in this range unless told to.
+RESERVED_SEED_RANGE = range(1, 201)
+
+
+def seeds_in_reserved_range(seeds: StreamSeeds) -> list[str]:
+    """Names of the stream seeds in ``seeds`` that fall in
+    ``RESERVED_SEED_RANGE`` (empty list = none). Checked per stream, not
+    only for the exact ``(n, n, n, n)`` shape ``derive_seeds`` produces:
+    each stream's draws are keyed by that stream's own seed (Sec 21.2)."""
+    return [k for k, v in seeds.to_dict().items() if v in RESERVED_SEED_RANGE]
+
+
 # ---------------------------------------------------------------------------
 # Part C1 -- ExperimentSpec
 # ---------------------------------------------------------------------------
@@ -368,6 +383,13 @@ class ExperimentSpec:
     analysis_plan: Mapping[str, Any]
     stopping_rules: str
     alternative_explanation: str
+    #: The first replicate index; replicates are ``first_replicate ..
+    #: first_replicate + num_replicates - 1`` and replicate ``n`` runs on
+    #: ``derive_seeds(n)``. The registered E1 design uses 1 (Sec 30.5); any
+    #: other spec that is meant to be executed should start above
+    #: ``RESERVED_SEED_RANGE`` (ADR-0053's "known limitation", now built).
+    #: Part of the canonical dict, so it is part of the spec's identity.
+    first_replicate: int = 1
 
     def __post_init__(self) -> None:
         _require_nonempty_str(self.id, "id")
@@ -392,6 +414,10 @@ class ExperimentSpec:
             raise ValueError(
                 f"num_replicates must be a positive int, got {self.num_replicates!r}"
             )
+        if not isinstance(self.first_replicate, int) or self.first_replicate < 1:
+            raise ValueError(
+                f"first_replicate must be an int >= 1, got {self.first_replicate!r}"
+            )
         if not isinstance(self.observation, tuple) or len(self.observation) == 0:
             raise ValueError("observation must be a non-empty tuple of DV names")
         _require_nonempty_mapping(self.analysis_plan, "analysis_plan")
@@ -412,18 +438,20 @@ class ExperimentSpec:
     def total_jobs(self) -> int:
         return self.total_cells() * self.num_replicates
 
+    def replicates(self) -> range:
+        """The replicate indices this spec runs, in order."""
+        return range(self.first_replicate, self.first_replicate + self.num_replicates)
+
     def jobs(self) -> Iterator[Job]:
         """Expand every (arm, cell, replicate) combination. ``derive_seeds``
         is called exactly once per replicate (not per cell) and the result
         is reused across every cell at that replicate -- the matched/CRN
         property enforced in code, not merely documented (see this
         module's Part B header comment)."""
-        seeds_by_replicate = {
-            n: derive_seeds(n) for n in range(1, self.num_replicates + 1)
-        }
+        seeds_by_replicate = {n: derive_seeds(n) for n in self.replicates()}
         for a in self.arms:
             for cell_index, levels in enumerate(a.cells()):
-                for n in range(1, self.num_replicates + 1):
+                for n in self.replicates():
                     yield Job(
                         arm=a.name,
                         cell_index=cell_index,
@@ -444,6 +472,7 @@ class ExperimentSpec:
             "arms": [a.to_dict() for a in self.arms],
             "model_config_template": json.loads(json.dumps(self.model_config_template)),
             "num_replicates": self.num_replicates,
+            "first_replicate": self.first_replicate,
             "interventions": [json.loads(json.dumps(i)) for i in self.interventions],
             "observation": list(self.observation),
             "analysis_plan": json.loads(json.dumps(self.analysis_plan)),
@@ -683,10 +712,16 @@ def build_narrowed_e1_spec(
     )
 
 
+#: Default first replicate of ``build_synthetic_spec`` -- outside
+#: ``RESERVED_SEED_RANGE`` because tests execute this spec for real.
+SYNTHETIC_FIRST_REPLICATE = 1001
+
+
 def build_synthetic_spec(
     model_config_template: Mapping[str, Any] | None = None,
     *,
     num_replicates: int = 3,
+    first_replicate: int = SYNTHETIC_FIRST_REPLICATE,
 ) -> ExperimentSpec:
     """A small, deliberately synthetic spec for pipeline testing -- 2
     factors x 2 levels in one arm x ``num_replicates`` replicates = 4 x
@@ -695,6 +730,10 @@ def build_synthetic_spec(
     their own dedicated tests instead, against ADR-0054's real pin keys and
     the real narrowed-E1 spec respectively). Not the real E1 design; never
     confuse this spec's ``id`` with ``build_narrowed_e1_spec``'s.
+
+    Its replicates start at ``SYNTHETIC_FIRST_REPLICATE`` by default, so the
+    pipeline tests that execute it never run on a seed in
+    ``RESERVED_SEED_RANGE`` (manual Sec 30.9).
     """
     # Uses `decision.satisficing` (a real `model_registry()` plugin), not a
     # `testkit.*` rule: `firma run --model` (the flag the real narrowed-E1
@@ -767,4 +806,5 @@ def build_synthetic_spec(
         analysis_plan={"note": "pipeline self-test only"},
         stopping_rules="All jobs execute to completion.",
         alternative_explanation="n/a -- synthetic pipeline test.",
+        first_replicate=first_replicate,
     )

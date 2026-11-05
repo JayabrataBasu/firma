@@ -1,0 +1,156 @@
+   Compiling firma-plugin-constraint v0.1.0 (/home/jayabratabasu/firma/crates/firma-plugins/firma-plugin-constraint)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.32s
+     Running unittests src/lib.rs (target/debug/deps/firma_plugin_constraint-c86faee873032ac1)
+
+running 1 test
+test phase_rules::tests::enforce_panics_on_a_corrupt_relation_edge_naming_key_and_record ... FAILED
+
+failures:
+
+---- phase_rules::tests::enforce_panics_on_a_corrupt_relation_edge_naming_key_and_record stdout ----
+
+thread 'phase_rules::tests::enforce_panics_on_a_corrupt_relation_edge_naming_key_and_record' (1065350) panicked at crates/firma-plugins/firma-plugin-constraint/src/phase_rules/tests.rs:590:11:
+expected a panic on the corrupt record, but the rule returned normally: ()
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    phase_rules::tests::enforce_panics_on_a_corrupt_relation_edge_naming_key_and_record
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 22 filtered out; finished in 0.00s
+
+error: test failed, to rerun pass `-p firma-plugin-constraint --lib`
+   Compiling firma-plugin-shock v1.0.0 (/home/jayabratabasu/firma/crates/firma-plugins/firma-plugin-shock)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.49s
+     Running unittests src/lib.rs (target/debug/deps/firma_plugin_shock-3ba8f2ad88227171)
+
+running 2 tests
+test tests::stochastic_panics_on_a_corrupt_active_shock_record_naming_key_and_record ... FAILED
+test tests::scheduled_panics_on_a_corrupt_active_shock_record_naming_key_and_record ... FAILED
+
+failures:
+
+---- tests::stochastic_panics_on_a_corrupt_active_shock_record_naming_key_and_record stdout ----
+
+thread 'tests::stochastic_panics_on_a_corrupt_active_shock_record_naming_key_and_record' (1065505) panicked at crates/firma-plugins/firma-plugin-shock/src/tests.rs:337:11:
+expected a panic on the corrupt record, but the rule returned normally: ()
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+---- tests::scheduled_panics_on_a_corrupt_active_shock_record_naming_key_and_record stdout ----
+
+thread 'tests::scheduled_panics_on_a_corrupt_active_shock_record_naming_key_and_record' (1065504) panicked at crates/firma-plugins/firma-plugin-shock/src/tests.rs:337:11:
+expected a panic on the corrupt record, but the rule returned normally: ()
+
+
+failures:
+    tests::scheduled_panics_on_a_corrupt_active_shock_record_naming_key_and_record
+    tests::stochastic_panics_on_a_corrupt_active_shock_record_naming_key_and_record
+
+test result: FAILED. 0 passed; 2 failed; 0 ignored; 0 measured; 7 filtered out; finished in 0.00s
+
+error: test failed, to rerun pass `-p firma-plugin-shock --lib`
+   Compiling firma-plugin-action-shaping v1.0.0 (/home/jayabratabasu/firma/crates/firma-plugins/firma-plugin-action-shaping)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.51s
+     Running unittests src/lib.rs (target/debug/deps/firma_plugin_action_shaping-d88a090b2dacf442)
+
+running 1 test
+test tests::shaping_rule_panics_on_a_corrupt_relation_edge_naming_key_and_record ... FAILED
+
+failures:
+
+---- tests::shaping_rule_panics_on_a_corrupt_relation_edge_naming_key_and_record stdout ----
+
+thread 'tests::shaping_rule_panics_on_a_corrupt_relation_edge_naming_key_and_record' (1065654) panicked at crates/firma-plugins/firma-plugin-action-shaping/src/tests.rs:371:11:
+expected a panic on the corrupt record, but the rule returned normally: ()
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    tests::shaping_rule_panics_on_a_corrupt_relation_edge_naming_key_and_record
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 15 filtered out; finished in 0.00s
+
+error: test failed, to rerun pass `-p firma-plugin-action-shaping --lib`
+   Compiling firma-analysis v0.1.0 (/home/jayabratabasu/firma/crates/firma-analysis)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.45s
+     Running unittests src/lib.rs (target/debug/deps/firma_analysis-739a0f06af400215)
+
+running 11 tests
+test reconstruct::tests::a_well_formed_window_reports_no_parse_error ... ok
+test reconstruct::tests::absent_scales_param_still_means_defaults ... ok
+test reconstruct::tests::one_corrupt_lagged_record_is_counted_and_named_not_silently_skipped ... FAILED
+test reconstruct::tests::malformed_scales_param_is_an_error_not_silent_defaults ... FAILED
+test reconstruct::tests::infallible_constructor_panics_on_a_malformed_scales_param - should panic ... FAILED
+test reconstruct::tests::one_corrupt_window_record_is_counted_and_named_not_silently_dropped ... ok
+test reconstruct::tests::well_formed_scales_param_is_accepted ... ok
+test sanity::tests::try_sanity_from_run_refuses_a_log_with_one_corrupt_record ... FAILED
+test sanity::tests::a_clean_log_reconstructs_and_reports ... ok
+test sanity::tests::sanity_from_run_panics_on_a_log_with_one_corrupt_record - should panic ... FAILED
+test sanity::tests::reconstruct_checked_refuses_a_log_with_one_corrupt_record ... FAILED
+
+failures:
+
+---- reconstruct::tests::one_corrupt_lagged_record_is_counted_and_named_not_silently_skipped stdout ----
+
+thread 'reconstruct::tests::one_corrupt_lagged_record_is_counted_and_named_not_silently_skipped' (1065807) panicked at crates/firma-analysis/src/reconstruct.rs:683:9:
+assertion `left == right` failed: one corrupt lagged record ⇒ one error
+  left: 0
+ right: 1
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+---- reconstruct::tests::malformed_scales_param_is_an_error_not_silent_defaults stdout ----
+
+thread 'reconstruct::tests::malformed_scales_param_is_an_error_not_silent_defaults' (1065806) panicked at crates/firma-analysis/src/reconstruct.rs:658:14:
+a malformed `scales` param must be an error, not ScaleFactors::default()
+
+---- reconstruct::tests::infallible_constructor_panics_on_a_malformed_scales_param stdout ----
+note: test did not panic as expected at crates/firma-analysis/src/reconstruct.rs:666:8
+---- sanity::tests::try_sanity_from_run_refuses_a_log_with_one_corrupt_record stdout ----
+
+thread 'sanity::tests::try_sanity_from_run_refuses_a_log_with_one_corrupt_record' (1065813) panicked at crates/firma-analysis/src/sanity.rs:366:14:
+a corrupt record must not yield a sanity report
+
+---- sanity::tests::sanity_from_run_panics_on_a_log_with_one_corrupt_record stdout ----
+note: test did not panic as expected at crates/firma-analysis/src/sanity.rs:375:8
+---- sanity::tests::reconstruct_checked_refuses_a_log_with_one_corrupt_record stdout ----
+
+thread 'sanity::tests::reconstruct_checked_refuses_a_log_with_one_corrupt_record' (1065811) panicked at crates/firma-analysis/src/sanity.rs:355:14:
+a corrupt record must make the checked fold fail
+
+
+failures:
+    reconstruct::tests::infallible_constructor_panics_on_a_malformed_scales_param
+    reconstruct::tests::malformed_scales_param_is_an_error_not_silent_defaults
+    reconstruct::tests::one_corrupt_lagged_record_is_counted_and_named_not_silently_skipped
+    sanity::tests::reconstruct_checked_refuses_a_log_with_one_corrupt_record
+    sanity::tests::sanity_from_run_panics_on_a_log_with_one_corrupt_record
+    sanity::tests::try_sanity_from_run_refuses_a_log_with_one_corrupt_record
+
+test result: FAILED. 5 passed; 6 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+error: test failed, to rerun pass `-p firma-analysis --lib`
+   Compiling pyo3 v0.29.2
+   Compiling firma-analysis v0.1.0 (/home/jayabratabasu/firma/crates/firma-analysis)
+   Compiling firma-py v0.1.0 (/home/jayabratabasu/firma/crates/firma-py)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 2.07s
+     Running unittests src/lib.rs (target/debug/deps/_native-da71d359ab7b8ba0)
+
+running 2 tests
+test tests::final_firms_returns_firms_for_a_clean_log ... ok
+test tests::final_firms_refuses_a_log_with_one_corrupt_record ... FAILED
+
+failures:
+
+---- tests::final_firms_refuses_a_log_with_one_corrupt_record stdout ----
+
+thread 'tests::final_firms_refuses_a_log_with_one_corrupt_record' (1066070) panicked at crates/firma-py/src/lib.rs:217:14:
+a corrupt record must not yield firm margins
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    tests::final_firms_refuses_a_log_with_one_corrupt_record
+
+test result: FAILED. 1 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+error: test failed, to rerun pass `-p firma-py --lib`

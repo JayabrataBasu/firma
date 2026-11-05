@@ -2456,3 +2456,59 @@ which case the thing titled "Experiment E1" in §30 will concretely be the
 195-cell/39,000-run design, and §30.4's literal 315/63,000 no longer
 describes it. Not resolved here; flagged for the owner, since it turns on
 which reading of "filed separately" was intended.
+
+### Audit fix batch 1 — run-safety and analysis guards (2026-10-01)
+
+Four direct fixes from `docs/audit/AUDIT-2026-10-01.md`. No simulation
+behaviour changed: the Rust changes are seed literals in four test
+fixtures; everything else is in `python/firma_lab` and its tests. Not
+committed.
+
+- **F06 — reserved-seed guard.** `firma_lab.runner.run_experiment` now
+  checks every job's `StreamSeeds` before anything is written or executed
+  and raises `ReservedSeedError` if any stream seed is in
+  `firma_lab.spec.RESERVED_SEED_RANGE` (1–200), unless
+  `allow_reserved_seed_range=True` is passed (default off; documented as
+  for the filed registered run only). **Coverage limit:** the guard is in
+  that one function. `firma run` on the command line, a hand-written
+  config, `_run_one_job`/`build_job_config` called directly, and Rust tests
+  calling `execute_run` all bypass it; the engine accepts any seeds.
+- **F06 — fixtures moved out of the range.** `(4,4,4,4)` →
+  `(10004,…)` in `determinism.rs:44`; `(1,1,1,1)` → `(10001,…)` in
+  `determinism.rs:437`, `integration.rs:624`, and
+  `crates/firma-kernel/src/tests.rs:805`. The last is a `RunSeeds { … }`
+  literal that neither ADR-0053 Part 4 nor `prereg.scan_seed_literals`
+  listed; the scanner now recognises `RunSeeds` too. None of the four
+  tests is hash-pinned. `build_synthetic_spec` now starts at replicate
+  1001 (`SYNTHETIC_FIRST_REPLICATE`), so `test_runner.py` no longer
+  executes seeds 1–3. With this, neither `cargo test` nor `pytest` runs an
+  exact reserved tuple. ADR-0053 Part 4's table describes the earlier
+  state; it is Accepted and not edited.
+- **F02 — stats refuse seed-invariant data.** `analyse_h1a_h1b`,
+  `analyse_h1c`, `analyse_h2` and `analyse_h4` raise
+  `InsufficientDataError("no between-seed variation …")` when every seed
+  contributes identical rows. Only the all-identical case is detected;
+  partial invariance is not. `cluster_bootstrap` called directly is not
+  guarded.
+- **F18 / OQ-14 — one firm per directly-manipulated job.**
+  `build_job_config` raises `ValueError` when an arm has a
+  `direct_intervention` factor and the template does not have exactly one
+  agent.
+
+**OQ-24 — `ExperimentSpec.first_replicate` was added to make the above
+possible, and it is part of the spec's content hash.** ADR-0053 named
+this field as a known limitation ("not built"). It defaults to 1, so the
+narrowed E1 spec still enumerates 1–200, but because the field is in
+`to_canonical_dict`, **every spec's `content_hash()` value changes**. No
+hash is pinned or filed anywhere in the repo, so nothing breaks today.
+The alternative (omit the field from the hash when it is 1) would keep old
+hashes stable at the cost of a special case; I chose the plain version.
+For the owner to confirm before any spec hash is recorded as filed.
+`prereg.check_seed_range` now takes the registered range from
+`spec.replicates()`.
+
+New tests: `python/tests/test_run_safety.py` (12 tests, none executes the
+binary — `run_experiment`'s executor is stubbed) and three in
+`test_stats.py`. Results: `cargo test --workspace` 237 passed, 0 failed,
+1 ignored; `pytest python/tests` 134 passed; clippy, fmt and the
+architecture lints clean.

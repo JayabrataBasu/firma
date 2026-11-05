@@ -1,0 +1,160 @@
+{
+  "axes_in_declared_order": [
+    {
+      "levels": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "meaning": "number of low-capability firms = round_half_up(fraction x 12) for fractions 0, 1/12, 2/12, 3/12",
+      "name": "n_type_L"
+    },
+    {
+      "levels": [
+        0,
+        2,
+        4
+      ],
+      "meaning": "number of thin-capital firms = round_half_up(fraction x 12) for fractions 0, 2/12, 4/12",
+      "name": "n_type_T"
+    },
+    {
+      "levels": [
+        2,
+        3,
+        5
+      ],
+      "meaning": "global int output_price; input_price fixed at 2 (ratio 1.0, 1.5, 2.5)",
+      "name": "output_price"
+    },
+    {
+      "levels": [
+        "none",
+        "seeded"
+      ],
+      "meaning": "none: theta_q = 100 (base config) and no firm has an obligation; seeded: theta_q = 40 and the first two type-O firms start with obligation q = 60",
+      "name": "obligation_seeding"
+    },
+    {
+      "levels": [
+        0.6,
+        0.7,
+        0.8,
+        0.9
+      ],
+      "meaning": "baseline theta_limit",
+      "name": "theta_limit"
+    }
+  ],
+  "cell_order": "itertools.product over the axes in the order listed; the last axis varies fastest; cell index = position in that product (0-based)",
+  "choices_made_by_the_builder_before_any_run": [
+    "the order in which types are assigned to ids (L, then T, then O)",
+    "the midpoint rule for a type with exactly one firm",
+    "which two type-O firms are seeded (the two lowest ids)",
+    "theta_q = 100 in the 'none' level (the base config's value)",
+    "the three grid-1 cells used in control (b)",
+    "a cell 'passes both' if any one of its three magnitude rows passes T2"
+  ],
+  "controls": {
+    "a_determinism": "grid-2 cell 0 baseline run twice; event logs byte-equal",
+    "b_unchanged_behaviour": "the R12 smoke config and grid-1 cells 0, 36 and 71 (first, first of the n = 12 half, last), baseline only, must reproduce the SC-1, SC-2, SC-3 and SC-6 values recorded in evidence/R16 exactly",
+    "c_each_sc_fail_and_pass": "for each of SC-1, SC-2, SC-3, SC-6: the first Stage-1 cell in declared order where it fails and the first where it passes, if any, with raw numbers"
+  },
+  "disclosure": "Grid 1 (72 cells, grid.json sha256 1371026b859b2da07e87ad5186fed47c9063ec96d6cf214d866670577701963a) passed 0 cells. The axes of grid 2 were chosen by the reviewer AFTER seeing grid 1's results (R17). Grid 1 stays in the record unchanged.",
+  "fixed_items_ASSUMPTIONS": {
+    "as_grid_1": "base config configs/experiments/phase2-stage5-smoke.json and its rule set; decision.satisficing (l_w = 4); observation.full in place of observation.delayed; shock.stochastic (regulatory/theta_limit, onset uniform 10..80, instant, permanent, sd = mean / 3); horizon 120; theta_cap 0.40; input_price 2; all other parameters as listed under kept_from_base_config in grid.json",
+    "seeds": {
+      "environment": 910002,
+      "init": 910004,
+      "mechanism": 910001,
+      "shock": "910001 for Stage 1 baselines; 910001..910020 in Stage 2"
+    }
+  },
+  "n_cells": 288,
+  "population_rule": {
+    "assignment_by_firm_id": "ids 0 .. n_L-1 are type L; the next n_T ids are type T; the remaining 12 - n_L - n_T ids are type O (never fewer than 5)",
+    "every_other_per_firm_field": "copied from firm 0 of the base config, as in grid 1 (input stock 40, legitimacy 1.0, aspiration_capital_growth 8.0)",
+    "n": 12,
+    "obligation_seeded_firms": "the two lowest-id type-O firms get ints.obligation = 60",
+    "spacing_within_a_type": "with k firms of a type, the j-th (j = 0 .. k-1, in id order) gets min + j * (max - min) / (k - 1); with k = 1 it gets the midpoint (min + max) / 2. Capital is rounded half up to an integer; capability is rounded to 6 decimals",
+    "type_L": {
+      "capability": [
+        0.25,
+        0.35
+      ],
+      "capital": [
+        200,
+        300
+      ]
+    },
+    "type_O": {
+      "capability": [
+        0.5,
+        0.8
+      ],
+      "capital": [
+        150,
+        300
+      ]
+    },
+    "type_T": {
+      "capability": [
+        0.5,
+        0.7
+      ],
+      "capital": [
+        8,
+        20
+      ]
+    }
+  },
+  "question": "does any cell give a stressed-but-alive population?",
+  "stage_1": {
+    "evaluates": "T1 only",
+    "reported": "all 288 rows in declared order; SC-4 and SC-5 for information only",
+    "runs": "one NO-SHOCK run per cell (shock rule removed, shock seed 910001)"
+  },
+  "stage_2": {
+    "cells": "every cell that passes T1; if more than 40 pass, the first 40 in declared order",
+    "evaluates": "T2, separately for each (cell, magnitude) row",
+    "passing_both": "a cell passes both iff it passes T1 and at least one of its three magnitude rows passes T2; all three rows are reported",
+    "runs": "per cell and magnitude: 20 shocked runs (shock seeds 910001..910020), each with its no-shock fork; matched firm-tick DeltaH per the R14 definition",
+    "shock_magnitude_means": [
+      0.1,
+      0.2,
+      0.3
+    ]
+  },
+  "targets": {
+    "T1_baseline": {
+      "SC-1": "sc1_survival in [0.60, 0.90]",
+      "SC-2": "sc2_reconstructed_h_below_crit in [0.05, 0.25]",
+      "SC-3": "sc3_pass from firma_analysis (each of the four constraints binds at least once)",
+      "SC-6": "sc6_pass from firma_analysis (entropy variance >= SC6_MIN_VARIANCE)",
+      "bounds": {
+        "sc1": [
+          0.6,
+          0.9
+        ],
+        "sc2": [
+          0.05,
+          0.25
+        ]
+      }
+    },
+    "T2_shocked": {
+      "bounds": {
+        "mean_survival": [
+          0.4,
+          0.9
+        ],
+        "min_nonzero_fraction": 0.5
+      },
+      "mean_survival": "mean over the 20 shocked runs of survivors / 12 in [0.40, 0.90]",
+      "nonzero_fraction": "at least 0.50 of the 20 shocked runs have matched DeltaH != 0"
+    },
+    "status": "fixed, identical to grid.json (R16)"
+  },
+  "task": "R18 REGIME-2 - DIAGNOSTIC-ONLY regime search, grid 2, two stages; not registered; not for tuning"
+}

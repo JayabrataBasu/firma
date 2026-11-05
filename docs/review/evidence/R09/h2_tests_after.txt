@@ -1,0 +1,56 @@
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.06s
+     Running unittests src/lib.rs (target/debug/deps/firma_plugin_constraint-c86faee873032ac1)
+
+running 1 test
+test phase_rules::tests::enforce_panics_on_a_corrupt_relation_edge_naming_key_and_record ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 22 filtered out; finished in 0.00s
+
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.02s
+     Running unittests src/lib.rs (target/debug/deps/firma_plugin_shock-3ba8f2ad88227171)
+
+running 2 tests
+test tests::stochastic_panics_on_a_corrupt_active_shock_record_naming_key_and_record ... ok
+test tests::scheduled_panics_on_a_corrupt_active_shock_record_naming_key_and_record ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 7 filtered out; finished in 0.00s
+
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.02s
+     Running unittests src/lib.rs (target/debug/deps/firma_plugin_action_shaping-d88a090b2dacf442)
+
+running 1 test
+test tests::shaping_rule_panics_on_a_corrupt_relation_edge_naming_key_and_record ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 15 filtered out; finished in 0.00s
+
+   Compiling firma-analysis v0.1.0 (/home/jayabratabasu/firma/crates/firma-analysis)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.26s
+     Running unittests src/lib.rs (target/debug/deps/firma_analysis-739a0f06af400215)
+
+running 11 tests
+test reconstruct::tests::a_well_formed_window_reports_no_parse_error ... ok
+test reconstruct::tests::absent_scales_param_still_means_defaults ... ok
+test reconstruct::tests::one_corrupt_lagged_record_is_counted_and_named_not_silently_skipped ... ok
+test reconstruct::tests::malformed_scales_param_is_an_error_not_silent_defaults ... ok
+test reconstruct::tests::one_corrupt_window_record_is_counted_and_named_not_silently_dropped ... ok
+test reconstruct::tests::infallible_constructor_panics_on_a_malformed_scales_param - should panic ... ok
+test sanity::tests::reconstruct_checked_refuses_a_log_with_one_corrupt_record ... ok
+test reconstruct::tests::well_formed_scales_param_is_accepted ... ok
+test sanity::tests::try_sanity_from_run_refuses_a_log_with_one_corrupt_record ... ok
+test sanity::tests::sanity_from_run_panics_on_a_log_with_one_corrupt_record - should panic ... ok
+test sanity::tests::a_clean_log_reconstructs_and_reports ... ok
+
+test result: ok. 11 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Compiling pyo3 v0.29.2
+   Compiling firma-analysis v0.1.0 (/home/jayabratabasu/firma/crates/firma-analysis)
+   Compiling firma-py v0.1.0 (/home/jayabratabasu/firma/crates/firma-py)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 2.06s
+     Running unittests src/lib.rs (target/debug/deps/_native-da71d359ab7b8ba0)
+
+running 2 tests
+test tests::final_firms_returns_firms_for_a_clean_log ... ok
+test tests::final_firms_refuses_a_log_with_one_corrupt_record ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+

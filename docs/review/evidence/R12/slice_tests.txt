@@ -1,0 +1,25 @@
+============================= test session starts ==============================
+platform linux -- Python 3.14.7, pytest-9.1.1, pluggy-1.6.0 -- /home/jayabratabasu/firma/.venv/bin/python
+rootdir: /home/jayabratabasu/firma
+configfile: pyproject.toml
+collecting ... collected 17 items
+
+python/tests/test_exploratory_slice.py::test_repertoire_entropy_matches_manual_example_15_4 PASSED [  5%]
+python/tests/test_exploratory_slice.py::test_repertoire_entropy_edge_cases PASSED [ 11%]
+python/tests/test_exploratory_slice.py::test_mean_entropy_uses_a_trailing_window_per_firm_tick PASSED [ 17%]
+python/tests/test_exploratory_slice.py::test_the_tick_a_firm_dies_in_is_not_a_live_firm_tick PASSED [ 23%]
+python/tests/test_exploratory_slice.py::test_decisions_and_deaths_are_read_from_an_event_frame PASSED [ 29%]
+python/tests/test_exploratory_slice.py::test_guard_refuses_any_seed_below_910000[1] PASSED [ 35%]
+python/tests/test_exploratory_slice.py::test_guard_refuses_any_seed_below_910000[200] PASSED [ 41%]
+python/tests/test_exploratory_slice.py::test_guard_refuses_any_seed_below_910000[909] PASSED [ 47%]
+python/tests/test_exploratory_slice.py::test_guard_refuses_any_seed_below_910000[909999] PASSED [ 52%]
+python/tests/test_exploratory_slice.py::test_guard_refuses_before_anything_is_written PASSED [ 58%]
+python/tests/test_exploratory_slice.py::test_the_designed_seeds_pass_the_guard PASSED [ 64%]
+python/tests/test_exploratory_slice.py::test_shocked_config_replaces_the_scheduled_shock_and_nothing_else PASSED [ 70%]
+python/tests/test_exploratory_slice.py::test_no_shock_fork_differs_from_its_shocked_run_only_by_the_shock_rule PASSED [ 76%]
+python/tests/test_exploratory_slice.py::test_null_arm_swaps_only_the_decision_plugin PASSED [ 82%]
+python/tests/test_exploratory_slice.py::test_known_answer_controls_give_supported_and_not_supported PASSED [ 88%]
+python/tests/test_exploratory_slice.py::test_known_answer_also_holds_on_the_existing_test_stats_fixture PASSED [ 94%]
+python/tests/test_exploratory_slice.py::test_one_seed_end_to_end_and_cross_check_against_firma_lab_metrics PASSED [100%]
+
+============================== 17 passed in 6.63s ==============================

@@ -226,3 +226,34 @@ fn registered_ids_and_phases() {
         assert!(!rule.assumption().trim().is_empty());
     }
 }
+
+// --- corrupt persisted history record fails loudly (review H-1; §19.5) ---
+
+#[test]
+fn delayed_panics_on_a_corrupt_history_record_naming_key_and_record() {
+    let h0 = EnvSnapshot {
+        tick: 0,
+        input_price: 2,
+        output_price: 3,
+        theta_limit: 0.30,
+        theta_cap: 0.4,
+        theta_q: 100,
+    };
+    let corrupt = r#"{"tick":"CORRUPT-RECORD"}"#;
+    let v = Mv::new(2, &[0])
+        .seeded_env()
+        .rec(keys::ENV_HISTORY, h0.to_json())
+        .rec(keys::ENV_HISTORY, corrupt.to_owned());
+    let r = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
+        Delayed::new(DelayedParams { k: 2 }).apply(&v, v.key());
+    }));
+    let payload =
+        r.expect_err("expected a panic on the corrupt record, but the rule returned normally");
+    let msg = payload
+        .downcast_ref::<String>()
+        .cloned()
+        .unwrap_or_default();
+    for p in [keys::ENV_HISTORY, "CORRUPT-RECORD"] {
+        assert!(msg.contains(p), "panic message does not name {p:?}: {msg}");
+    }
+}

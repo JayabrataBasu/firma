@@ -186,6 +186,33 @@ def _require_clusters(df: pd.DataFrame, seed_col: str, minimum: int = 2) -> None
         )
 
 
+def _require_seed_variation(df: pd.DataFrame, cols: Sequence[str], seed_col: str) -> None:
+    """Refuse data in which every seed contributes the identical set of rows.
+
+    Runs sharing a seed are CRN-matched, and all uncertainty in this module
+    comes from resampling seeds. If each seed's rows (over ``cols``, the
+    columns the analysis uses) are the same as every other seed's, the
+    seeds are copies of one another: every bootstrap resample reproduces
+    the same estimate, the CI has zero width, and any non-zero coefficient
+    would be reported as "supported". That is what a trajectory that does
+    not depend on its seed produces (audit 2026-10-01, F01/F02), and it is
+    not evidence. Only the all-identical case is refused; partial
+    seed-invariance (some cells identical, others not) is not detected here.
+    """
+    data_cols = [c for c in cols if c != seed_col]
+    signatures = {
+        tuple(sorted(map(tuple, g[data_cols].to_numpy().tolist())))
+        for _, g in df.groupby(seed_col, sort=False)
+    }
+    if len(signatures) < 2:
+        raise InsufficientDataError(
+            f"no between-seed variation: all {df[seed_col].nunique()} {seed_col!r} groups "
+            f"contain identical rows over {data_cols}. The seeds are copies of one run, so a "
+            "bootstrap over them has zero width and cannot support or refute anything. Check "
+            "that the model configuration draws on its seed at all."
+        )
+
+
 def _require_full_rank(df: pd.DataFrame, formula_rhs: str) -> None:
     import patsy
 
@@ -366,6 +393,7 @@ def analyse_h1a_h1b(
     _require_complete(df, cols)
     _require_variation(df, [outcome, shortfall_col, margin_col, beta_col])
     _require_clusters(df, seed_col)
+    _require_seed_variation(df, cols, seed_col)
     data = _centered(df[cols], centers)
     rhs = f"{shortfall_col} + {margin_col} + {shortfall_col}:{margin_col} + {beta_col}"
     _require_full_rank(data, rhs)
@@ -466,6 +494,7 @@ def analyse_h1c(
     _require_complete(df, cols)
     _require_variation(df, [outcome, predictor_col])
     _require_clusters(df, seed_col, minimum=max(2, cv_folds))
+    _require_seed_variation(df, cols, seed_col)
     if cv_folds < 2:
         raise ValueError("cv_folds must be >= 2")
     data = df[cols].copy()
@@ -564,6 +593,7 @@ def analyse_h2(
     _require_complete(df, cols)
     _require_variation(df, [outcome, novelty_col, magnitude_col])
     _require_clusters(df, seed_col)
+    _require_seed_variation(df, cols, seed_col)
     data = df[cols].copy()
     for c in (outcome, novelty_col, magnitude_col):
         data[c] = _zscore(data[c])
@@ -688,6 +718,7 @@ def analyse_h4(
     _require_complete(df, cols)
     _require_variation(df, [duration_col, narrowing_col, novelty_col])
     _require_clusters(df, seed_col)
+    _require_seed_variation(df, cols, seed_col)
     data = df[cols].copy()
     if not set(data[event_col].unique()) <= {0, 1}:
         raise InsufficientDataError(f"{event_col!r} must be 0/1")

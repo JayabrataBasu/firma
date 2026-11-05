@@ -1,0 +1,74 @@
+# R00 raw checks 2026-10-01T18:04:42Z
+## git
+## h3-satisficing-lookahead...origin/h3-satisficing-lookahead
+ M PROGRESS.md
+ M crates/firma-kernel/src/tests.rs
+ M python/firma_lab/prereg.py
+ M python/firma_lab/runner.py
+ M python/firma_lab/spec.py
+ M python/firma_lab/stats.py
+ M python/tests/test_prereg.py
+ M python/tests/test_runner.py
+ M python/tests/test_stats.py
+ M tests/tests/determinism.rs
+ M tests/tests/integration.rs
+?? docs/review/
+?? python/tests/test_run_safety.py
+2820610 Hope is a word
+c5eb8cd Hope is not just a word.
+89a4648 H3 will be back in the next movie. real tough. satisficibility is a pain
+17ba7bb pushing before diagnosis
+9c49c34 With this message, I commit to my github, quite possibly my most ambitious gimmick. H3 - Resource Dependency Theory to be tested. First Message
++ adr0057-survival-lookahead-u-fix c5eb8cd (/home/jayabratabasu/firma-adr0057-proto) Hope is not just a word.
+* h3-satisficing-lookahead         2820610 [origin/h3-satisficing-lookahead] Hope is a word
+  master                           9c49c34 [origin/master] With this message, I commit to my github, quite possibly my most ambitious gimmick. H3 - Resource Dependency Theory to be tested. First Message
+/home/jayabratabasu/firma               2820610 [h3-satisficing-lookahead]
+/home/jayabratabasu/firma-adr0057-proto c5eb8cd [adr0057-survival-lookahead-u-fix]
+ 11 files changed, 276 insertions(+), 26 deletions(-)
+.gitignore:9:CLAUDE.md	CLAUDE.md
+## worktree proto diff
+ .../firma-plugins/firma-plugin-decision/src/lib.rs | 49 ++++++++++++++++++++--
+ 1 file changed, 46 insertions(+), 3 deletions(-)
+## ADR status lines
+-- 0040
+**Status:** Accepted (2026-09-06). The SC-4/SC-5 row is **confirmed and
+-- 0042
+**Status:** Accepted (2026-09-06). **Evidence (a) — the `0 / 400` claim and its "`h` stays well above `h_crit`" premise — superseded by [ADR-0056](0056-sc4-probe-claims-correction.md) (DRAFT, pending 
+-- 0048
+**Status:** Accepted (2026-09-06) — **implemented on branch
+-- 0049
+**Status:** Accepted (2026-09-06) — **implemented on branch
+-- 0055
+**Status:** DRAFT — pending owner review. Not implemented: `firma_lab.spec`
+-- 0056
+**Status:** DRAFT — pending owner review. Paperwork only: no code, test or
+-- 0057
+**Status:** DRAFT — pending owner review. **Investigation and proposal only;
+## manual
+42:pub const MANUAL_VERSION: &str = "1.0.0";
+2001:Arm A: 125 cells. Arm B: 180. Arm C: 10. **Total 315 cells × 200 seeds = 63,000 runs.**
+2011:Seeds per cell: 200, chosen for survival-analysis power on H4, the most demanding outcome. **Stopping rule:** all 63,000 runs execute to completion or firm extinction. No interim analysis, no optional stopping.
+**Status: DRAFT — not to be filed until §30.9 conditions are met.**
+- [ ] All §25.4 validation tests pass, **including VT-8**, with evidence attached.
+- [ ] Sanity conditions SC-1…SC-6 satisfied for every hypothesis and Arm actually register
+- [ ] AT-1…AT-5 run and reported.
+- [ ] All DT tests green.
+- [ ] Seed range 1–200 confirmed unused by any exploratory Phase 2 run.
+- [ ] All attached documents content-hashed and hashes recorded.
+## CI
+0
+deny.toml
+
+.github/workflows:
+ci.yml
+## ADR-0051 totals
+| **Total** | | **315** | **195** |
+## CLAUDE.md stale
+Phase 0 (foundations) is complete: formal model, ADRs 0001–0009, translation
+contracts, literature verification, draft pre-registration — all in the
+manual. **Phase 1 (kernel) has not started.** Do not write model or plugin
+logic before the kernel exists and passes its gate (manual §26.3, §27).
+## backups
+9c49c34f02cf55862761f50feeffd33c442aac4f	HEAD
+2820610076bc9bf0317ffa0daaa49859ac8e430b	refs/heads/h3-satisficing-lookahead
+9c49c34f02cf55862761f50feeffd33c442aac4f	refs/heads/master

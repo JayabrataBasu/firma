@@ -1,0 +1,6 @@
+H-1 inertness HEAD vs working tree: equal 15 of 15 (scheduled, stochastic, decision.random; 5 seed sets each; 120 ticks)
+probe family HEAD vs working tree: equal 15 of 15
+S1 reviewer re-run satisficing: distinct action hashes 23 of 50; deaths distribution {3: 27, 1: 23}
+  deaths 1 runs 23 distinct action hashes within group 5
+  deaths 3 runs 27 distinct action hashes within group 18
+negative control (fixed onset, sd 0; 3 onsets x 10 seeds): distinct hashes 3 (builder: 1 per onset; expect <=3 across onsets)

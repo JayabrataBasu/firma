@@ -1,0 +1,21 @@
+### CI job commands replayed locally on the working tree with the workflow's env (RUSTFLAGS=-D warnings, RUSTDOCFLAGS=-D warnings), separate target dir
+--- format: cargo fmt --all --check
+exit 0
+--- lint: cargo clippy --all-targets --all-features -- -D warnings
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 7.34s
+exit 0
+--- lint: bash scripts/lint-architecture.sh
+architecture lints: passed
+exit 0
+--- test: cargo test --workspace --all-features
+passed 247 failed 0 ignored 1
+exit 0
+--- test: cargo test -p firma-conformance --test determinism -- --nocapture
+test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.15s
+exit 0
+--- test: cargo test -p firma-conformance --test validation -- --nocapture
+test result: ok. 10 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 4.09s
+exit 0
+--- test: cargo test -p firma-conformance --test golden -- --nocapture
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s
+exit 0

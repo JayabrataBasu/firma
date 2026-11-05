@@ -1,0 +1,9 @@
+### Remaining silent handling of unparsable persisted records in non-test code (grep, working tree after H-1)
+crates/firma-cli/src/orchestrator.rs:147:        .unwrap_or_default();
+crates/firma-cli/src/orchestrator.rs:174:        .unwrap_or_default();
+crates/firma-plugins/firma-plugin-shock/src/lib.rs:93:        serde_json::from_str(s).ok()
+crates/firma-plugins/firma-plugin-shock/src/lib.rs:243:        .filter_map(|s| ActiveShock::from_json(s))
+crates/firma-plugins/firma-plugin-shock/src/lib.rs:472:            .filter_map(|s| ActiveShock::from_json(s))
+crates/firma-analysis/src/reconstruct.rs:286:            .unwrap_or_default();
+crates/firma-analysis/src/reconstruct.rs:462:                if let Ok(rec) = LaggedRecord::from_json(record_json) {
+crates/firma-plugins/firma-plugin-action-shaping/src/lib.rs:248:            Err(_) => return Vec::new(), // corrupt store — do nothing rather than guess

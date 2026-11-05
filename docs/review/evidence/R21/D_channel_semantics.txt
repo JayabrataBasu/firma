@@ -1,0 +1,23 @@
+R21 part D: shock-channel semantics, read from the code BEFORE running (HEAD 2820610). No file changed.
+(The reading was done before step 0; this note itself was written up after the run.)
+
+Channel table           crates/firma-plugins/firma-plugin-shock/src/lib.rs:6-12 (module doc), ADR-0036 lines 28-31
+  Resource     input_price  += m   AdjustGlobalInt
+  Regulatory   theta_limit  -= m   AdjustGlobalReal   (ThetaLimit)
+  Competitive  output_price -= m   AdjustGlobalInt
+Sign                    crates/firma-domain/src/shock.rs:295-307 (channel_sign: Resource +1; ThetaLimit, Competitive -1)
+JSON                    shock.rs:19-40, serde tag "kind", snake_case:
+                          {"kind":"resource"}   {"kind":"competitive"}   {"kind":"regulatory","target":"theta_limit"}
+Where the price moves   lib.rs:181-193: one global AdjustGlobalInt on input_price (Resource) or output_price (otherwise);
+                        the CUMULATIVE target is rounded to an integer each tick ("so rounding never drifts").
+Magnitude draw          lib.rs:384-387 and :438-443: magnitude ~ |Normal(mean, sd)|; "sd = 0 => fixed at magnitude_mean".
+                        Onset is drawn first, so sd = 0 does not change the onset for a given shock seed.
+Validation              lib.rs:412-426: onset_min <= onset_max; mean, sd finite and >= 0; novelty in [0,1]. No bound on prices.
+Clamping                ADR-0036 line 74: the i64 price is unclamped.
+`targets`               not read on these channels (R20 Q6).
+
+Levels: resource 1 / 2 / 4 -> input_price 2 -> 3 / 4 / 6; competitive 1 / 2 -> output_price 3 -> 2 / 1.
+All are accepted by the plugin and leave both prices positive. NONE DROPPED.
+
+Not anticipated from this reading, found after running (price_path.txt): `resource.patchy` in the base rule set also writes
+input_price every tick (mean-reverting), so the resource shock's +m does not persist.

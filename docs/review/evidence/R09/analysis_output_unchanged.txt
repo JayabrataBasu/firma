@@ -1,0 +1,4 @@
+### analysis output on the CLEAN fixture log: HEAD example binary vs working-tree example binary
+e80917796eeb974ee032dd09af354031427e57fc7a579358ac1e210463918f27
+e80917796eeb974ee032dd09af354031427e57fc7a579358ac1e210463918f27
+BYTE-IDENTICAL

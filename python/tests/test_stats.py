@@ -284,6 +284,54 @@ def test_h3_is_excluded_by_adr_0051():
         stats.analyse_h3()
 
 
+# -- seed-invariant data (audit 2026-10-01, F02) ------------------------------
+
+
+def seed_invariant_arm_a() -> pd.DataFrame:
+    """The audit's planted-effect case: every seed yields the identical
+    outcome for a given cell (what a seed-independent trajectory produces),
+    with effects of 1e-6. Before the guard this returned "supported" for
+    H1a and H1b with a zero-width CI."""
+    rows = []
+    for s in range(1001, 1021):
+        for h in H_LEVELS:
+            for v in S_LEVELS:
+                for b in B_LEVELS:
+                    rows.append(dict(seed=s, h=h, varsigma=v, beta=b, y=1e-6 * v + 1e-6 * h))
+    return pd.DataFrame(rows)
+
+
+def test_seed_invariant_data_is_refused_not_given_a_verdict():
+    with pytest.raises(stats.InsufficientDataError, match="no between-seed variation"):
+        h1ab(seed_invariant_arm_a(), n_resamples=40, bootstrap_seed=7)
+
+
+def test_seed_invariance_is_refused_by_every_analysis():
+    seeds = range(1001, 1021)
+    quad = pd.DataFrame([dict(seed=s, x=x, y=-(x - 0.5) ** 2)
+                         for s in seeds for x in (0.0, 0.25, 0.5, 0.75, 1.0)])
+    with pytest.raises(stats.InsufficientDataError, match="no between-seed variation"):
+        stats.analyse_h1c(quad, outcome="y", outcome_direction=1, predictor_col="x", covariates=[],
+                          seed_col="seed", cv_folds=4, bootstrap_seed=3, n_resamples=FAST)
+    threat = pd.DataFrame([dict(seed=s, novelty=n, magnitude=m, y=-0.4 * n - 0.1 * m)
+                           for s in seeds for n in (0.0, 0.4, 0.8) for m in (1.0, 2.0, 3.0, 4.0)])
+    with pytest.raises(stats.InsufficientDataError, match="no between-seed variation"):
+        stats.analyse_h2(threat, outcome="y", outcome_direction=1, novelty_col="novelty",
+                         magnitude_col="magnitude", matching_cols=[], seed_col="seed",
+                         bootstrap_seed=3, n_resamples=FAST)
+    surv = pd.DataFrame([dict(seed=s, beta=b, novelty=n, survival_time=100 + int(40 * b * n), died=1)
+                         for s in seeds for b in B_LEVELS for n in (0.0, 0.4, 0.8)])
+    with pytest.raises(stats.InsufficientDataError, match="no between-seed variation"):
+        h4(surv)
+
+
+def test_one_differing_seed_is_enough_variation_to_proceed():
+    df = seed_invariant_arm_a()
+    df.loc[df["seed"] == 1001, "y"] += 0.5
+    h1a, _, _ = h1ab(df, n_resamples=20)
+    assert h1a.estimates["varsigma"].ci_low <= h1a.estimates["varsigma"].ci_high
+
+
 # -- H4 ----------------------------------------------------------------------
 
 

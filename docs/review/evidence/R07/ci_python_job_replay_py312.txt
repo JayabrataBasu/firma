@@ -1,0 +1,29 @@
+### CI python job steps replayed in a scratch copy of the working tree: fresh venv, Python 3.12, no pre-built _native. Each step run with 'bash -e' as GitHub Actions does.
+--- step: cargo build -p firma-cli
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.03s
+--- step: venv + maturin develop
+Activate with: source .venv/bin/activate
+Python 3.12.14
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.03s
+📦 Built wheel for CPython 3.12 to /tmp/.tmpn10yR1/firma_lab-0.1.0-cp312-cp312-linux_x86_64.whl
+✏️ Setting installed package as editable
+🛠 Installed firma-lab-0.1.0
+step exit: 0
+_native.cpython-312-x86_64-linux-gnu.so
+--- step: pytest with the not-built check
+SKIPPED [1] python/tests/test_metrics_cross_check.py:70: /tmp/claude-1000/-home-jayabratabasu-firma/25acd624-4575-4f2d-9fb5-645f7478f07e/scratchpad/h1_wt/target/debug/examples/sanity_report_json not built -- run `cargo build -p firma-analysis --example sanity_report_json` first
+SKIPPED [1] python/tests/test_metrics_cross_check.py:95: /tmp/claude-1000/-home-jayabratabasu-firma/25acd624-4575-4f2d-9fb5-645f7478f07e/scratchpad/h1_wt/target/debug/examples/sanity_report_json not built -- run `cargo build -p firma-analysis --example sanity_report_json` first
+132 passed, 2 skipped in 62.59s (0:01:02)
+::error::Python tests were skipped because the firma CLI was not built
+step exit: 1
+
+### After adding the example build to the workflow step (second replay, same venv):
+--- step: build the two binaries
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.03s
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.56s
+step exit: 0
+--- step: pytest with the not-built check
+........................................................................ [ 53%]
+..............................................................           [100%]
+134 passed in 49.25s
+step exit: 0

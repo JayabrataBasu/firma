@@ -1,0 +1,45 @@
+diff --git a/tests/tests/sanity.rs b/tests/tests/sanity.rs
+index e19dfa4..7cf8ee0 100644
+--- a/tests/tests/sanity.rs
++++ b/tests/tests/sanity.rs
+@@ -129,10 +129,15 @@ fn cfg_healthy() -> String {
+     )
+ }
+ 
+-/// The "threaded needle" — mostly healthy, a few stressed, `θ_limit = 0.40 /
+-/// L_W = 4` so a subset dies of `compliance`. This is the closest any config
+-/// gets: SC-1, SC-3 (solvency via a knife-edge seed + compliance + scope +
+-/// obligation), and SC-6 pass; SC-2 and SC-4/SC-5 fail.
++/// The "threaded needle" — `θ_limit = 0.40 / L_W = 4`, ten firms, two of them
++/// knife-edge solvency seeds. What it actually produces, as `sc16_gate`
++/// prints it: SC-1 passes (0.800 — 10 firms → 8 survivors); SC-2 = 1.000
++/// (survival attention on every decision), fail; SC-3 fails — binds
++/// `[sol, cmp, scp, obl] = [true, false, true, true]`, so `compliance` never
++/// binds; SC-4 = 0/3202 decisions, fail; SC-5 none, fail; SC-6 fails (entropy
++/// variance 0.0000). Only SC-1 passes. (An earlier version of this comment
++/// said a subset dies of `compliance` and that SC-3 and SC-6 pass; the
++/// printout does not show that.)
+ fn cfg_threaded() -> String {
+     format!(
+         r#"{{ "experiment": "sc-thread", "schema_version": "1.0.0", "engine": ">=0.1.0, <0.2.0",
+@@ -546,7 +551,19 @@ fn sc16_gate() {
+     );
+     eprintln!("  SC-2  NOT achievable — bimodal: {:.3} (healthy) vs {:.3} (threaded); never in [0.05, 0.25]",
+         healthy.sc2_survival_attention, threaded.sc2_survival_attention);
+-    eprintln!("  SC-3  partial — compliance/scope/obligation emerge; solvency only from a knife-edge seed");
++    // Printed from the report itself, not asserted in prose: an earlier
++    // hard-coded line here said compliance "emerges" while the same run's
++    // report showed it does not bind.
++    eprintln!(
++        "  SC-3  {} — threaded binds [sol,cmp,scp,obl] = {:?}, first@ {:?}",
++        if threaded.sc3_pass() {
++            "achieved"
++        } else {
++            "NOT achieved"
++        },
++        threaded.sc3_binds,
++        threaded.sc3_first_bind_tick
++    );
+     eprintln!(
+         "  SC-4  NOT achievable under decision.satisficing ({:.4}) — incl. full §16.1 β×w_max sweep\n\
+          \x20       (ADR-0042; see sc4_wmax_beta_probe); {:.3} under decision.random",

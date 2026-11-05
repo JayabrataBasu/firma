@@ -1,0 +1,14 @@
+A. inertness 9c49c34 vs HEAD, 4 firms, scheduled shocks+patchy+delayed obs, 120 ticks, unconfigured shaping
+ seed 910001 old (223, '9f3175fe3b', '350616b100', 3)  new (223, '9f3175fe3b', '350616b100', 3)  EQUAL
+ seed 910002 old (223, '9f3175fe3b', '5a4ee20a86', 3)  new (223, '9f3175fe3b', '5a4ee20a86', 3)  EQUAL
+ seed 910003 old (223, '9f3175fe3b', '12f6aeae95', 3)  new (223, '9f3175fe3b', '12f6aeae95', 3)  EQUAL
+B. shock.stochastic, vary ONLY shock seed (HEAD build); tuple=(selected_action count, action-hash, full-log-hash, deaths)
+ shock seed 910001 (241, 'b3e908669e', '0b0ac3ca99', 3) 
+ shock seed 910002 (273, 'c469df1115', '2c7ae0ecad', 3) 
+ shock seed 910003 (285, 'b51fef4755', '3c640fa63e', 3) 
+ shock seed 910004 (373, '267f0ca85d', '4b56bedd06', 1) 
+ shock seed 910005 (257, 'b830a017e5', '2061bf649e', 3) 
+ shock seed 910006 (373, '267f0ca85d', 'cc221d3e4e', 1) 
+ shock seed 910007 (373, '267f0ca85d', '21d0a1bc7d', 1) 
+ shock seed 910008 (263, '19e1122aa8', '44c39f9943', 3) 
+ distinct action hashes: 6 of 8 ; distinct full logs: 8

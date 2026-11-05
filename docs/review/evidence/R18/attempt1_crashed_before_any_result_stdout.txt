@@ -1,0 +1,16 @@
+DIAGNOSTIC-ONLY - REGIME SEARCH - NOT REGISTERED - NOT FOR TUNING
+grid 2: /home/jayabratabasu/firma/docs/review/evidence/R18/grid2.json  sha256 617239841e91e5c53cd9dc3a3ef46ad0b4b884ad281779c11b0082bae1dcf792  (288 cells, declared order)
+DISCLOSURE: Grid 1 (72 cells, grid.json sha256 1371026b859b2da07e87ad5186fed47c9063ec96d6cf214d866670577701963a) passed 0 cells. The axes of grid 2 were chosen by the reviewer AFTER seeing grid 1's results (R17). Grid 1 stays in the record unchanged.
+firma: /home/jayabratabasu/firma/target/debug/firma; output: /tmp/claude-1000/-home-jayabratabasu-firma/25acd624-4575-4f2d-9fb5-645f7478f07e/scratchpad/r18
+
+== control (a): determinism (grid-2 cell 0 baseline, run twice) ==
+  BYTE-EQUAL  16862c75948174f96a962a919e7afa7e49075ab1da12e4df7911cf5e15e21967  16862c75948174f96a962a919e7afa7e49075ab1da12e4df7911cf5e15e21967
+
+== control (b): R12 smoke config and grid-1 cells reproduce their R16 T1 numbers ==
+  R12 smoke config: EQUAL  now {'sc1_survival': 0.75, 'sc2_h_below_crit': 0.5913978494623656, 'sc3_binds': [True, False, True, False], 'sc6_entropy_variance': 0.3679443941353591, 'T1': False}  R16 {'sc1_survival': 0.75, 'sc2_h_below_crit': 0.5913978494623656, 'sc3_binds': [True, False, True, False], 'sc6_entropy_variance': 0.3679443941353591, 'T1': False}
+  grid-1 cell 0: EQUAL  now {'sc1_survival': 1.0, 'sc2_h_below_crit': 0.6729166666666667, 'sc3_binds': [False, False, True, False], 'sc6_entropy_variance': 0.3794108915125412, 'T1': False}  R16 {'sc1_survival': 1.0, 'sc2_h_below_crit': 0.6729166666666667, 'sc3_binds': [False, False, True, False], 'sc6_entropy_variance': 0.3794108915125412, 'T1': False}
+  grid-1 cell 36: EQUAL  now {'sc1_survival': 1.0, 'sc2_h_below_crit': 0.6847222222222222, 'sc3_binds': [False, False, True, False], 'sc6_entropy_variance': 0.36991329763905817, 'T1': False}  R16 {'sc1_survival': 1.0, 'sc2_h_below_crit': 0.6847222222222222, 'sc3_binds': [False, False, True, False], 'sc6_entropy_variance': 0.36991329763905817, 'T1': False}
+  grid-1 cell 71: EQUAL  now {'sc1_survival': 1.0, 'sc2_h_below_crit': 0.010416666666666666, 'sc3_binds': [False, True, False, False], 'sc6_entropy_variance': 0.1832961371612612, 'T1': False}  R16 {'sc1_survival': 1.0, 'sc2_h_below_crit': 0.010416666666666666, 'sc3_binds': [False, True, False, False], 'sc6_entropy_variance': 0.1832961371612612, 'T1': False}
+
+== STAGE 1: one no-shock baseline per cell, T1 only, declared order ==
+cell types price obligation theta_limit | SC-1 | SC-2 h<h_crit | SC-3 [sol,cmp,scp,obl] | SC-6 var | T1 | information only

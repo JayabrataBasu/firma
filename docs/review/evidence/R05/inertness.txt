@@ -1,0 +1,18 @@
+pre w_max=3 beta=0.0 EQUAL old=429646361489 new=429646361489
+pre w_max=3 beta=0.5 EQUAL old=c34dd6d2dc26 new=c34dd6d2dc26
+pre w_max=3 beta=1.0 EQUAL old=a54c96c84a9f new=a54c96c84a9f
+pre w_max=3 beta=2.0 EQUAL old=a54c96c84a9f new=a54c96c84a9f
+pre w_max=3 beta=4.0 EQUAL old=a54c96c84a9f new=a54c96c84a9f
+pre w_max=6 beta=0.0 EQUAL old=0effed0766bd new=0effed0766bd
+pre w_max=6 beta=0.5 EQUAL old=bb03e1cc9484 new=bb03e1cc9484
+pre w_max=6 beta=1.0 EQUAL old=b5cc7c175886 new=b5cc7c175886
+pre w_max=6 beta=2.0 EQUAL old=48f4c8e5a8b1 new=48f4c8e5a8b1
+pre w_max=6 beta=4.0 EQUAL old=48f4c8e5a8b1 new=48f4c8e5a8b1
+pre w_max=9 beta=0.0 EQUAL old=4ebde5f8003c new=4ebde5f8003c
+pre w_max=9 beta=0.5 EQUAL old=4f0793bfd62d new=4f0793bfd62d
+pre w_max=9 beta=1.0 EQUAL old=4dd3d2337c0c new=4dd3d2337c0c
+pre w_max=9 beta=2.0 EQUAL old=781a4f691f6c new=781a4f691f6c
+pre w_max=9 beta=4.0 EQUAL old=781a4f691f6c new=781a4f691f6c
+ERR old head 6 0.0
+CONTROL new-binary head vs pre (6,0.0): DIFFERENT-control-ok
+SUMMARY equal=15 different=0

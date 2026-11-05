@@ -1,0 +1,2 @@
+HEAD vs working tree after H-2, 200 ticks, 15 configs (fresh seeds 910101-910105): 15 of 15 equal
+400-tick stochastic: 3 of 3 equal

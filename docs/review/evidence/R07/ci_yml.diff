@@ -1,0 +1,82 @@
+diff --git a/.github/workflows/ci.yml b/.github/workflows/ci.yml
+index 7073c4d..df34606 100644
+--- a/.github/workflows/ci.yml
++++ b/.github/workflows/ci.yml
+@@ -5,7 +5,10 @@ name: ci
+ 
+ on:
+   push:
+-    branches: [main, master]
++    # The working branch is listed explicitly: before this, CI ran only on
++    # main/master and on pull requests, so it never ran on the branch where
++    # the work happens. Remove the entry when the branch is merged.
++    branches: [main, master, h3-satisficing-lookahead]
+   pull_request:
+ 
+ env:
+@@ -38,9 +41,23 @@ jobs:
+     runs-on: ubuntu-latest
+     steps:
+       - uses: actions/checkout@v4
+-      - uses: EmbarkStudios/cargo-deny-action@v2
++      # cargo-deny is installed on the runner, next to the toolchain that
++      # rust-toolchain.toml pins, instead of via the cargo-deny docker action:
++      # the action's container has only its own musl toolchain and stopped
++      # with "override toolchain '1.98.0-x86_64-unknown-linux-musl' is not
++      # installed" (run 33902141014, 2026-09-04).
++      # KNOWN: the same run also failed with `error[unexpected-keys]` at
++      # deny.toml:25 (`wildcard-dependencies` under [bans]). deny.toml is
++      # unchanged, so this job is expected to keep failing on that key until
++      # deny.toml is corrected. The version is printed so the failure can be
++      # matched to a cargo-deny release.
++      - run: rustup show          # honours rust-toolchain.toml
++      - uses: taiki-e/install-action@v2
+         with:
+-          command: check advisories bans licenses sources
++          tool: cargo-deny
++      - run: cargo deny --version
++      - name: cargo-deny — manual §24.1
++        run: cargo deny check advisories bans licenses sources
+ 
+   test:
+     runs-on: ubuntu-latest
+@@ -56,6 +73,39 @@ jobs:
+       - name: golden trace — manual §25.7
+         run: cargo test -p firma-conformance --test golden -- --nocapture
+ 
++  # firma_lab (manual §23.1): offline orchestration, metrics, stats, prereg.
++  # Two binaries are built first because 14 tests skip themselves when they
++  # are absent: target/debug/firma (test_runner.py, test_metrics_cross_check.py)
++  # and target/debug/examples/sanity_report_json (test_metrics_cross_check.py).
++  # A skip for that reason fails the job instead of passing quietly.
++  python:
++    runs-on: ubuntu-latest
++    steps:
++      - uses: actions/checkout@v4
++      - run: rustup show          # honours rust-toolchain.toml
++      - uses: actions/setup-python@v5
++        with:
++          python-version: "3.12"
++      - name: build the two binaries the Python tests execute
++        run: |
++          cargo build -p firma-cli
++          cargo build -p firma-analysis --example sanity_report_json
++      - name: build firma_lab._native and install firma_lab's dependencies
++        run: |
++          python -m venv .venv
++          . .venv/bin/activate
++          pip install "maturin>=1.5,<2.0" pytest
++          maturin develop
++      - name: pytest — a test skipped because a binary is "not built" is a failure
++        run: |
++          . .venv/bin/activate
++          set -o pipefail
++          python -m pytest python/tests -rs -p no:cacheprovider | tee pytest-output.txt
++          if grep -q "not built" pytest-output.txt; then
++            echo "::error::Python tests were skipped because a required binary was not built"
++            exit 1
++          fi
++
+   # Manual §21.4: cross-platform bit-identity is verified per-platform, not assumed.
+   determinism-macos:
+     runs-on: macos-latest

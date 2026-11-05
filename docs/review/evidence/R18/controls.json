@@ -1,0 +1,120 @@
+{
+ "a_events_sha256": [
+  "16862c75948174f96a962a919e7afa7e49075ab1da12e4df7911cf5e15e21967",
+  "16862c75948174f96a962a919e7afa7e49075ab1da12e4df7911cf5e15e21967"
+ ],
+ "b": [
+  {
+   "name": "R12 smoke config",
+   "now": {
+    "sc1_survival": 0.75,
+    "sc2_h_below_crit": 0.5913978494623656,
+    "sc3_binds": [
+     true,
+     false,
+     true,
+     false
+    ],
+    "sc6_entropy_variance": 0.3679443941353591,
+    "T1": false
+   },
+   "r16": {
+    "sc1_survival": 0.75,
+    "sc2_h_below_crit": 0.5913978494623656,
+    "sc3_binds": [
+     true,
+     false,
+     true,
+     false
+    ],
+    "sc6_entropy_variance": 0.3679443941353591,
+    "T1": false
+   },
+   "equal": true
+  },
+  {
+   "name": "grid-1 cell 0",
+   "now": {
+    "sc1_survival": 1.0,
+    "sc2_h_below_crit": 0.6729166666666667,
+    "sc3_binds": [
+     false,
+     false,
+     true,
+     false
+    ],
+    "sc6_entropy_variance": 0.3794108915125412,
+    "T1": false
+   },
+   "r16": {
+    "sc1_survival": 1.0,
+    "sc2_h_below_crit": 0.6729166666666667,
+    "sc3_binds": [
+     false,
+     false,
+     true,
+     false
+    ],
+    "sc6_entropy_variance": 0.3794108915125412,
+    "T1": false
+   },
+   "equal": true
+  },
+  {
+   "name": "grid-1 cell 36",
+   "now": {
+    "sc1_survival": 1.0,
+    "sc2_h_below_crit": 0.6847222222222222,
+    "sc3_binds": [
+     false,
+     false,
+     true,
+     false
+    ],
+    "sc6_entropy_variance": 0.36991329763905817,
+    "T1": false
+   },
+   "r16": {
+    "sc1_survival": 1.0,
+    "sc2_h_below_crit": 0.6847222222222222,
+    "sc3_binds": [
+     false,
+     false,
+     true,
+     false
+    ],
+    "sc6_entropy_variance": 0.36991329763905817,
+    "T1": false
+   },
+   "equal": true
+  },
+  {
+   "name": "grid-1 cell 71",
+   "now": {
+    "sc1_survival": 1.0,
+    "sc2_h_below_crit": 0.010416666666666666,
+    "sc3_binds": [
+     false,
+     true,
+     false,
+     false
+    ],
+    "sc6_entropy_variance": 0.1832961371612612,
+    "T1": false
+   },
+   "r16": {
+    "sc1_survival": 1.0,
+    "sc2_h_below_crit": 0.010416666666666666,
+    "sc3_binds": [
+     false,
+     true,
+     false,
+     false
+    ],
+    "sc6_entropy_variance": 0.1832961371612612,
+    "T1": false
+   },
+   "equal": true
+  }
+ ]
+}
