@@ -1,0 +1,6 @@
+### CLI absent (scratch copy of the working tree, no target/):
+SKIPPED [1] python/tests/test_runner.py:266: /tmp/claude-1000/-home-jayabratabasu-firma/25acd624-4575-4f2d-9fb5-645f7478f07e/scratchpad/h1_nocli/target/debug/firma not built -- run `cargo build` first
+SKIPPED [1] python/tests/test_runner.py:292: /tmp/claude-1000/-home-jayabratabasu-firma/25acd624-4575-4f2d-9fb5-645f7478f07e/scratchpad/h1_nocli/target/debug/firma not built -- run `cargo build` first
+120 passed, 14 skipped in 57.30s
+::error::Python tests were skipped because the firma CLI was not built (14 skip lines)
+CHECK EXIT 1

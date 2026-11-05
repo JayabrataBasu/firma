@@ -1,0 +1,31 @@
+diff --git a/crates/firma-plugins/firma-plugin-decision/src/lib.rs b/crates/firma-plugins/firma-plugin-decision/src/lib.rs
+index 77ecbb5..e71e06f 100644
+--- a/crates/firma-plugins/firma-plugin-decision/src/lib.rs
++++ b/crates/firma-plugins/firma-plugin-decision/src/lib.rs
+@@ -989,6 +989,26 @@ impl Satisficing {
+                         return result;
+                     }
+                 }
++                if a < 6 {
++                    // ADR 0057 Option A (PROTOTYPE, branch
++                    // `adr0057-survival-lookahead-u-fix`, not adopted): a
++                    // market action's expected `h_{t+1}` uses the `u` the
++                    // firm's window will actually have after this tick's
++                    // `constrain` records `a` — the same `advance_window` +
++                    // `u_from_window` the real `constrain` rule and
++                    // `time_to_boundary` (ADR 0049) use — instead of holding
++                    // `u` at its current value. Shaping actions keep their
++                    // existing comparisons above/below, unchanged.
++                    let next_window = firma_domain::advance_window(&dc.window, dc.tick, a, dc.l_w);
++                    let next_aux = FirmAuxState {
++                        regulated_intensity: firma_domain::margin::u_from_window(
++                            &next_window,
++                            dc.l_w,
++                        ),
++                        ..*aux
++                    };
++                    return dc.margin_at(&n, &next_aux, scales) > h_t;
++                }
+                 dc.margin_at(&n, aux, scales) > h_t
+             }
+             Focus::Goal(j) => {

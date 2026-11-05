@@ -1,0 +1,33 @@
+============================= test session starts ==============================
+platform linux -- Python 3.14.7, pytest-9.1.1, pluggy-1.6.0 -- /home/jayabratabasu/firma/.venv/bin/python
+rootdir: /home/jayabratabasu/firma
+configfile: pyproject.toml
+collecting ... collected 25 items
+
+python/tests/test_exploratory_slice.py::test_repertoire_entropy_matches_manual_example_15_4 PASSED [  4%]
+python/tests/test_exploratory_slice.py::test_repertoire_entropy_edge_cases PASSED [  8%]
+python/tests/test_exploratory_slice.py::test_mean_entropy_uses_a_trailing_window_per_firm_tick PASSED [ 12%]
+python/tests/test_exploratory_slice.py::test_the_tick_a_firm_dies_in_is_not_a_live_firm_tick PASSED [ 16%]
+python/tests/test_exploratory_slice.py::test_decisions_and_deaths_are_read_from_an_event_frame PASSED [ 20%]
+python/tests/test_exploratory_slice.py::test_firm_tick_entropies_are_keyed_by_agent_and_tick_and_skip_the_death_tick PASSED [ 24%]
+python/tests/test_exploratory_slice.py::test_a_firm_dying_earlier_in_the_shocked_branch_drops_out_of_matching PASSED [ 28%]
+python/tests/test_exploratory_slice.py::test_matching_also_drops_ticks_missing_from_the_fork_and_handles_no_overlap PASSED [ 32%]
+python/tests/test_exploratory_slice.py::test_identical_branches_give_exactly_zero_matched_delta PASSED [ 36%]
+python/tests/test_exploratory_slice.py::test_a_matched_firm_tick_without_a_rust_record_is_an_error PASSED [ 40%]
+python/tests/test_exploratory_slice.py::test_an_arm_with_no_outcome_variation_is_uninterpretable_not_a_verdict PASSED [ 44%]
+python/tests/test_exploratory_slice.py::test_guard_refuses_any_seed_below_910000[1] PASSED [ 48%]
+python/tests/test_exploratory_slice.py::test_guard_refuses_any_seed_below_910000[200] PASSED [ 52%]
+python/tests/test_exploratory_slice.py::test_guard_refuses_any_seed_below_910000[909] PASSED [ 56%]
+python/tests/test_exploratory_slice.py::test_guard_refuses_any_seed_below_910000[909999] PASSED [ 60%]
+python/tests/test_exploratory_slice.py::test_guard_refuses_before_anything_is_written PASSED [ 64%]
+python/tests/test_exploratory_slice.py::test_the_designed_seeds_pass_the_guard PASSED [ 68%]
+python/tests/test_exploratory_slice.py::test_shocked_config_replaces_the_scheduled_shock_and_nothing_else PASSED [ 72%]
+python/tests/test_exploratory_slice.py::test_no_shock_fork_differs_from_its_shocked_run_only_by_the_shock_rule PASSED [ 76%]
+python/tests/test_exploratory_slice.py::test_null_arm_swaps_only_the_decision_plugin PASSED [ 80%]
+python/tests/test_exploratory_slice.py::test_known_answer_frames_have_the_real_frames_columns PASSED [ 84%]
+python/tests/test_exploratory_slice.py::test_known_answer_controls_give_supported_and_not_supported PASSED [ 88%]
+python/tests/test_exploratory_slice.py::test_known_answer_also_holds_on_the_existing_test_stats_fixture PASSED [ 92%]
+python/tests/test_exploratory_slice.py::test_one_seed_end_to_end_and_cross_check_against_firma_lab_metrics PASSED [ 96%]
+python/tests/test_exploratory_slice.py::test_rust_shortfall_equals_the_plugins_own_decision_time_value PASSED [100%]
+
+============================== 25 passed in 8.36s ==============================

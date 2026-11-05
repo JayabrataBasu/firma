@@ -1,0 +1,72 @@
+EXPLORATORY - DIAGNOSTIC-ONLY - NOT REGISTERED - NOT FOR TUNING
+command: python scripts/exploratory_e1_slice.py --out /tmp/claude-1000/-home-jayabratabasu-firma/25acd624-4575-4f2d-9fb5-645f7478f07e/scratchpad/slice2
+base config: configs/experiments/phase2-stage5-smoke.json; ticks = 120; firma: /home/jayabratabasu/firma/target/debug/firma
+seeds: mechanism 910001, environment 910002, init 910004, shock 910001..910050 (50 runs per arm)
+output directory: /tmp/claude-1000/-home-jayabratabasu-firma/25acd624-4575-4f2d-9fb5-645f7478f07e/scratchpad/slice2
+
+== MAIN ARM - decision.satisficing ==
+  runs completed: 50 shocked + 50 no-shock forks; failed: 0
+  deaths per shocked run: 1 deaths in 23 runs, 3 deaths in 27 runs
+  no-shock fork: 1 distinct action sequence(s) across 50 shock seeds; H_rep(no-shock) = [0.907236210099]
+  shocked runs: 23 distinct action sequences
+  DeltaH_rep (L_W = 8): mean -0.180936, range [-0.407790, -0.012097], sample sd 0.139210, 23 distinct values
+  cross-check vs firma_lab.metrics sanity_report sc6_entropy_mean (my mean at the model's own window): max |difference| over 50 runs = 2.220e-16
+  DeltaH_rep MATCHED (per firm over firm-ticks alive in both branches, then mean over firms): mean -0.021773, range [-0.155386, +0.000000], sample sd 0.045762, 6 distinct values
+  matched firm-ticks per run: min 218, median 291, max 372 (live firm-ticks in the shocked run: 218..372; in the fork: [372]); firms with a matched tick: [4]
+  DeltaH_rep by number of deaths in the shocked run:
+    deaths  runs  unmatched mean [min, max]            matched mean [min, max]
+    1       23    -0.061 [-0.200, -0.012]            -0.047 [-0.155, -0.009]
+    3       27    -0.283 [-0.408, -0.159]            +0.000 [+0.000, +0.000]
+  regressor: mean h over matched firm-ticks: range [-0.0561, 0.0845], 50 distinct values
+  covariate: mean max-shortfall over matched firm-ticks: range [2.0000, 3.2715], 23 distinct values
+
+== NULL CONTROL - decision.random ==
+  runs completed: 50 shocked + 50 no-shock forks; failed: 0
+  deaths per shocked run: 3 deaths in 2 runs, 4 deaths in 48 runs
+  no-shock fork: 1 distinct action sequence(s) across 50 shock seeds; H_rep(no-shock) = [1.826503580338]
+  shocked runs: 32 distinct action sequences
+  DeltaH_rep (L_W = 8): mean -0.103947, range [-0.185591, +0.000000], sample sd 0.054687, 32 distinct values
+  cross-check vs firma_lab.metrics sanity_report sc6_entropy_mean (my mean at the model's own window): max |difference| over 50 runs = 6.661e-16
+  DeltaH_rep MATCHED (per firm over firm-ticks alive in both branches, then mean over firms): mean +0.000000, range [+0.000000, +0.000000], sample sd 0.000000, 1 distinct values
+  matched firm-ticks per run: min 82, median 139, max 227 (live firm-ticks in the shocked run: 82..227; in the fork: [227]); firms with a matched tick: [4]
+  DeltaH_rep by number of deaths in the shocked run:
+    deaths  runs  unmatched mean [min, max]            matched mean [min, max]
+    3       2     +0.000 [+0.000, +0.000]            +0.000 [+0.000, +0.000]
+    4       48    -0.108 [-0.186, -0.049]            +0.000 [+0.000, +0.000]
+  regressor: mean h over matched firm-ticks: range [0.1519, 0.2774], 49 distinct values
+  covariate: mean max-shortfall over matched firm-ticks: range [7.4721, 8.3915], 33 distinct values
+
+per-run table: /tmp/claude-1000/-home-jayabratabasu-firma/25acd624-4575-4f2d-9fb5-645f7478f07e/scratchpad/slice2/per_run_table.csv (100 rows)
+
+== KNOWN-ANSWER CONTROL - the same H1c call on synthetic frames ==
+  (one row per seed, 50 seeds, same columns and covariate; 10000 resamples)
+  planted inverted-U: verdict supported (expected supported) -> OK; linear +0.275 [+0.231, +0.314], quadratic -1.058 [-1.145, -0.973]
+  planted monotone: verdict not_supported (expected not_supported) -> OK; linear +0.275 [+0.231, +0.314], quadratic -0.058 [-0.145, +0.027]
+
+== H1c FIT - MAIN ARM (satisficing) ==
+  delta_h_rep_matched ~ h_mean_matched + h_mean_matched^2 + shortfall_max_mean_matched + (1 | seed), 50 runs
+  fitted linear term (h):      +1.8303  95% CI [+0.1284, +4.0367]
+  fitted quadratic term (h^2): -5.7128  95% CI [-28.5862, +2.9728]
+  quadratic negative with CI excluding zero: False; seed-grouped 5-fold CV MSE linear 0.001665 vs quadratic 0.001824 -> quadratic preferred: False
+  bootstrap resamples: 10000 (0 failed to fit)
+
+== H1c FIT - NULL CONTROL (random) ==
+  delta_h_rep_matched ~ h_mean_matched + h_mean_matched^2 + shortfall_max_mean_matched + (1 | seed), 50 runs
+  the analysis refused the data: column(s) with no variation: ['delta_h_rep_matched']
+
+VERDICT (satisficing arm): H1c not_supported in this exploratory run
+VERDICT (null control, decision.random): UNINTERPRETABLE (column(s) with no variation: ['delta_h_rep_matched'])
+VERDICT (known-answer controls): both as expected (supported / not_supported)
+
+caveats:
+  - the model's focus rule switches at h_crit (decision/lib.rs:175): below it shortfall is never read, above it h is never read, so a discontinuity at h_crit is expected by construction
+  - 4-firm population in which firm 2 dies at tick 12 in every satisficing run (checked below against this run's own death records)
+  - one variance source: the shock stream. The no-shock fork does not depend on the shock seed at all, so every run is paired with the same fork
+  - h is the reconstructed TRUE margin at the end of each tick, not the margin the firm perceived when deciding (observation is delayed in this config)
+  - H_rep counts SELECTED actions; an action selected under NONE-focus inertia is recorded even when it is not executed (audit F03)
+  - this is one exploratory run on a non-registered config; the verdict lines say what the existing H1c analysis returned here and nothing more
+    (firm 2 died of solvency at tick 12 in 50 of 50 satisficing shocked runs)
+
+wall-clock time: 396.0 s
+EXPLORATORY - DIAGNOSTIC-ONLY - NOT REGISTERED - NOT FOR TUNING
+exit status: 2 (0 = both verdict lines computed; 1 = a run or control failed; 2 = the analysis refused an arm's data)

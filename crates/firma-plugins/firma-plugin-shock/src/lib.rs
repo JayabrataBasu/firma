@@ -89,9 +89,32 @@ impl ActiveShock {
     fn to_json(&self) -> String {
         serde_json::to_string(self).expect("ActiveShock serialises")
     }
-    fn from_json(s: &str) -> Option<ActiveShock> {
-        serde_json::from_str(s).ok()
+    fn from_json(s: &str) -> Result<ActiveShock, String> {
+        serde_json::from_str(s).map_err(|e| format!("invalid ActiveShock: {e}"))
     }
+}
+
+/// Every record under `keys::ACTIVE_SHOCKS`, parsed. A record that is not a
+/// valid [`ActiveShock`] is a loud failure naming the key and the offending
+/// string: dropping it would silently forget a shock in progress (its
+/// cumulative applied shift, and for `shock.stochastic` the drawn onset and
+/// magnitude), and the next rewrite of the list would delete it. There is no
+/// repair-and-continue path (manual §19.5) and `Rule::apply` has no `Result`
+/// return, so the failure is a panic (precedent: the partial Arm-A pin,
+/// ADR 0054).
+fn active_shocks(view: &dyn View) -> Vec<ActiveShock> {
+    view.global_records(keys::ACTIVE_SHOCKS)
+        .iter()
+        .map(|s| {
+            ActiveShock::from_json(s).unwrap_or_else(|e| {
+                panic!(
+                    "global: corrupt persisted record under `{}` ({e}); offending record: \
+                     {s:?}. Refusing to drop it and continue (manual §19.5).",
+                    keys::ACTIVE_SHOCKS
+                )
+            })
+        })
+        .collect()
 }
 
 /// The channel's world-effect for a target cumulative shift of `target`
@@ -237,11 +260,7 @@ fn run_owner(owner: &str, origin: &PluginId, shocks: &[Shock], view: &dyn View) 
     // semantics would clobber each other (last-writer-wins, and neither sees
     // the other's step) — so this rewrites the whole list from *its own*
     // shocks. The `owner` field is kept only for log legibility.
-    let old: Vec<ActiveShock> = view
-        .global_records(keys::ACTIVE_SHOCKS)
-        .iter()
-        .filter_map(|s| ActiveShock::from_json(s))
-        .collect();
+    let old: Vec<ActiveShock> = active_shocks(view);
 
     let mut out = Vec::new();
     let mut new_records: Vec<ActiveShock> = Vec::new();
@@ -466,10 +485,8 @@ impl Rule for Stochastic {
         // lives in `ACTIVE_SHOCKS`. Every later tick reuses the record's shock
         // — re-`draw()`ing would use that tick's key and produce a different
         // onset/magnitude.
-        let existing: Option<Shock> = view
-            .global_records(keys::ACTIVE_SHOCKS)
-            .iter()
-            .filter_map(|s| ActiveShock::from_json(s))
+        let existing: Option<Shock> = active_shocks(view)
+            .into_iter()
             .find(|a| a.shock.id == self.p.id)
             .map(|a| a.shock);
         let shock = match existing {

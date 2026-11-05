@@ -1,0 +1,6 @@
+/tmp/claude-1000/-home-jayabratabasu-firma/25acd624-4575-4f2d-9fb5-645f7478f07e/scratchpad/r14eq/shock910001/shocked: decisions 241; s_1 replayed with an exact float parser is bit-equal to the plugin's on 241; max |difference| 0.0
+/tmp/claude-1000/-home-jayabratabasu-firma/25acd624-4575-4f2d-9fb5-645f7478f07e/scratchpad/r14eq/shock910002/shocked: decisions 273; s_1 replayed with an exact float parser is bit-equal to the plugin's on 273; max |difference| 0.0
+/tmp/claude-1000/-home-jayabratabasu-firma/25acd624-4575-4f2d-9fb5-645f7478f07e/scratchpad/r14eq/shock910003/shocked: decisions 285; s_1 replayed with an exact float parser is bit-equal to the plugin's on 285; max |difference| 0.0
+
+serde_json dependency line (workspace Cargo.toml): 63:serde_json = "1"
+float_roundtrip feature enabled anywhere in Cargo.toml / Cargo.lock: Cargo.toml:0 Cargo.lock:0 

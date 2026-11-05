@@ -1,0 +1,38 @@
+============================= test session starts ==============================
+platform linux -- Python 3.14.7, pytest-9.1.1, pluggy-1.6.0 -- /home/jayabratabasu/firma/.venv/bin/python
+rootdir: /home/jayabratabasu/firma
+configfile: pyproject.toml
+collecting ... collected 30 items
+
+python/tests/test_population_generator.py::test_uniform_matches_the_coreutils_known_answer_vectors[key0-fa918c34ab083bc7] PASSED [  3%]
+python/tests/test_population_generator.py::test_uniform_matches_the_coreutils_known_answer_vectors[key1-c509fa6fc458083b] PASSED [  6%]
+python/tests/test_population_generator.py::test_uniform_matches_the_coreutils_known_answer_vectors[key2-bbd32b8e7167e5fb] PASSED [ 10%]
+python/tests/test_population_generator.py::test_uniform_matches_the_coreutils_known_answer_vectors[key3-93edf476472956e2] PASSED [ 13%]
+python/tests/test_population_generator.py::test_uniform_matches_the_coreutils_known_answer_vectors[key4-49da2142b3410851] PASSED [ 16%]
+python/tests/test_population_generator.py::test_uniform_matches_the_coreutils_known_answer_vectors[key5-a80aa919648b7565] PASSED [ 20%]
+python/tests/test_population_generator.py::test_uniform_matches_bc_arithmetic_to_15_digits PASSED [ 23%]
+python/tests/test_population_generator.py::test_uniform_equals_an_independently_composed_second_implementation PASSED [ 26%]
+python/tests/test_population_generator.py::test_the_five_purposes_and_neighbouring_keys_give_different_draws PASSED [ 30%]
+python/tests/test_population_generator.py::test_standard_normal_is_the_inverse_cdf_of_the_uniform PASSED [ 33%]
+python/tests/test_population_generator.py::test_draw_values_follow_the_declared_formulas PASSED [ 36%]
+python/tests/test_population_generator.py::test_values_stay_inside_their_declared_ranges_at_every_level PASSED [ 40%]
+python/tests/test_population_generator.py::test_population_moments_are_near_the_declared_ones PASSED [ 43%]
+python/tests/test_population_generator.py::test_generation_order_does_not_change_any_firms_values PASSED [ 46%]
+python/tests/test_population_generator.py::test_adding_a_firm_does_not_change_the_others PASSED [ 50%]
+python/tests/test_population_generator.py::test_a_different_seed_or_level_gives_a_different_population PASSED [ 53%]
+python/tests/test_population_generator.py::test_firms_keep_the_template_fields_and_only_seeded_firms_have_an_obligation PASSED [ 56%]
+python/tests/test_population_generator.py::test_the_step_0_spec_file_is_exactly_the_spec_the_script_declares PASSED [ 60%]
+python/tests/test_population_generator.py::test_step_0_never_overwrites_and_the_check_refuses_a_changed_spec PASSED [ 63%]
+python/tests/test_population_generator.py::test_spread_levels_are_the_three_declared_ones_in_order PASSED [ 66%]
+python/tests/test_population_generator.py::test_q2_config_fixed_items_and_fork_differs_only_by_the_shock_rule PASSED [ 70%]
+python/tests/test_population_generator.py::test_a_reserved_or_low_seed_is_refused PASSED [ 73%]
+python/tests/test_population_generator.py::test_q5_config_has_one_firm_all_four_pins_beta_one_and_no_shock PASSED [ 76%]
+python/tests/test_population_generator.py::test_death_metrics_see_a_synchronised_cliff PASSED [ 80%]
+python/tests/test_population_generator.py::test_death_metrics_on_spread_out_deaths_and_on_no_deaths PASSED [ 83%]
+python/tests/test_population_generator.py::test_collapse_is_at_most_two_survivors_of_twelve PASSED [ 86%]
+python/tests/test_population_generator.py::test_the_q3_difference_rule PASSED [ 90%]
+python/tests/test_population_generator.py::test_the_q4_verdict_needs_all_three_criteria PASSED [ 93%]
+python/tests/test_population_generator.py::test_one_drawn_population_end_to_end_and_byte_equal_on_rerun PASSED [ 96%]
+python/tests/test_population_generator.py::test_one_pinned_single_firm_run PASSED [100%]
+
+============================== 30 passed in 2.02s ==============================

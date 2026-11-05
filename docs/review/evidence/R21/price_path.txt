@@ -1,0 +1,16 @@
+== resource magnitude 4: onset 52 ==
+  deltas with a shock.* origin: [(52, 'shock.stochastic', 'input_price', 4)]
+  origins writing global ints: ['resource.patchy', 'shock.stochastic']
+  input_price, ticks 49..63: shocked  [4, 3, 4, 7, 6, 5, 5, 4, 3, 3, 3, 1, 1, 1, 1]
+  input_price, ticks 49..63: no-shock [4, 3, 4, 3, 3, 3, 4, 3, 2, 2, 2, 1, 1, 1, 1]
+  input_price at the last tick: shocked 1, no-shock 1; shocked minus no-shock from onset on: [0, 1, 2, 3, 4]
+  min/max of input_price over the run: shocked 1/7; no-shock 1/5
+  firms whose selected actions differ from the no-shock run: 0 of 12; first differences (tick, action) shocked vs no-shock: {}
+== competitive magnitude 2: onset 52 ==
+  deltas with a shock.* origin: [(52, 'shock.stochastic', 'output_price', -2)]
+  origins writing global ints: ['resource.patchy', 'shock.stochastic']
+  output_price, ticks 49..63: shocked  [3, 3, 3, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+  output_price, ticks 49..63: no-shock [3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3]
+  output_price at the last tick: shocked 1, no-shock 3; shocked minus no-shock from onset on: [-2]
+  min/max of output_price over the run: shocked 1/3; no-shock 3/3
+  firms whose selected actions differ from the no-shock run: 1 of 12; first differences (tick, action) shocked vs no-shock: {10: [((54, 3), (54, 2)), ((55, 2), (55, 3)), ((57, 3), (57, 2))]}

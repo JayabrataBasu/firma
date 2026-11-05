@@ -1,0 +1,99 @@
+### R14 EVIDENCE FIRST (recorded before any edit): where the shortfall formula lives
+git rev 2820610076bc9bf0317ffa0daaa49859ac8e430b; working tree as of R12
+
+--- every definition/use of shortfall in non-test Rust:
+crates/firma-domain/src/keys.rs:39:pub const REALIZED_CAPITAL_GROWTH: &str = "realized_capital_growth";
+crates/firma-domain/src/keys.rs:71:pub const ASPIRATION_CAPITAL_GROWTH: &str = "aspiration_capital_growth";
+crates/firma-domain/src/keys.rs:74:pub const ASPIRATION_CAPABILITY: &str = "aspiration_capability";
+crates/firma-domain/src/keys.rs:78:pub const ASPIRATION_OBLIGATION_CLEARANCE: &str = "aspiration_obligation_clearance";
+crates/firma-plugins/firma-plugin-decision/src/lib.rs:128:    pub const ASPIRATION_UPDATE_ID: &str = "decision.aspiration_update";
+crates/firma-plugins/firma-plugin-decision/src/lib.rs:175:    pub fn attend(h: f64, shortfalls: [f64; 3], h_crit: f64) -> Focus {
+crates/firma-plugins/firma-plugin-decision/src/lib.rs:181:                if shortfalls[j] > shortfalls[best] {
+crates/firma-plugins/firma-plugin-decision/src/lib.rs:185:            if shortfalls[best] > 0.0 {
+crates/firma-plugins/firma-plugin-decision/src/lib.rs:269:/// `ς_j` (`A_j − v_j`) from firm state and calls this; the **VT-8 harness**
+crates/firma-plugins/firma-plugin-decision/src/lib.rs:912:    /// The `[ς_1, ς_2, ς_3]` shortfalls (§12.1: `ς_j = A_j − v_j`). An
+crates/firma-plugins/firma-plugin-decision/src/lib.rs:914:    fn shortfalls(view: &dyn View, agent: AgentId, s: &FirmState) -> [f64; 3] {
+crates/firma-plugins/firma-plugin-decision/src/lib.rs:916:            .agent_int(agent, keys::REALIZED_CAPITAL_GROWTH)
+crates/firma-plugins/firma-plugin-decision/src/lib.rs:922:            keys::ASPIRATION_CAPITAL_GROWTH,
+crates/firma-plugins/firma-plugin-decision/src/lib.rs:923:            keys::ASPIRATION_CAPABILITY,
+crates/firma-plugins/firma-plugin-decision/src/lib.rs:924:            keys::ASPIRATION_OBLIGATION_CLEARANCE,
+crates/firma-plugins/firma-plugin-decision/src/lib.rs:929:                sc[j] = a - v[j];
+crates/firma-plugins/firma-plugin-decision/src/lib.rs:1096:            //     `standard_margin`; `sc` only from `A_j − v_j` — unless Arm
+crates/firma-plugins/firma-plugin-decision/src/lib.rs:1105:                    Self::shortfalls(view, agent, &dc.state),
+crates/firma-plugins/firma-plugin-decision/src/lib.rs:1334:            id: PluginId::new(catalog::ASPIRATION_UPDATE_ID),
+crates/firma-plugins/firma-plugin-decision/src/lib.rs:1370:                keys::ASPIRATION_CAPITAL_GROWTH,
+crates/firma-plugins/firma-plugin-decision/src/lib.rs:1371:                keys::ASPIRATION_CAPABILITY,
+crates/firma-plugins/firma-plugin-decision/src/lib.rs:1372:                keys::ASPIRATION_OBLIGATION_CLEARANCE,
+crates/firma-plugins/firma-plugin-decision/src/lib.rs:1404:            out.push(set(keys::REALIZED_CAPITAL_GROWTH, v1));
+crates/firma-plugins/firma-plugin-decision/src/lib.rs:1461:            catalog::ASPIRATION_UPDATE_ID,
+
+--- the formula itself (private method of the decision plugin):
+911-
+912-    /// The `[ς_1, ς_2, ς_3]` shortfalls (§12.1: `ς_j = A_j − v_j`). An
+913-    /// **absent** aspiration ⇒ `ς_j = 0` (no shortfall for that goal yet).
+914:    fn shortfalls(view: &dyn View, agent: AgentId, s: &FirmState) -> [f64; 3] {
+915-        let v1 = view
+916-            .agent_int(agent, keys::REALIZED_CAPITAL_GROWTH)
+917-            .unwrap_or(0) as f64;
+918-        let v2 = s.capability;
+919-        let v3 = -(s.obligation as f64);
+920-        let v = [v1, v2, v3];
+921-        let a_keys = [
+922-            keys::ASPIRATION_CAPITAL_GROWTH,
+923-            keys::ASPIRATION_CAPABILITY,
+924-            keys::ASPIRATION_OBLIGATION_CLEARANCE,
+925-        ];
+926-        let mut sc = [0.0; 3];
+927-        for j in 0..3 {
+928-            if let Some(a) = view.agent_real(agent, a_keys[j]) {
+929-                sc[j] = a - v[j];
+930-            }
+931-        }
+932-        sc
+933-    }
+934-
+
+--- how attend() reduces the three to one:
+    pub fn attend(h: f64, shortfalls: [f64; 3], h_crit: f64) -> Focus {
+        if h < h_crit {
+            Focus::Survival
+        } else {
+            let mut best = 0usize;
+            for j in 1..3 {
+                if shortfalls[j] > shortfalls[best] {
+                    best = j;
+                }
+            }
+            if shortfalls[best] > 0.0 {
+                Focus::Goal((best + 1) as u8)
+            } else {
+                Focus::None
+            }
+        }
+    }
+
+--- anything shortfall-related in firma-domain (the only crate firma-analysis could reuse it from):
+crates/firma-domain/src/keys.rs:94:/// Overrides `ς_1` (capital-growth shortfall) for Arm A (ADR 0054). Paired
+crates/firma-domain/src/keys.rs:95:/// with [`PINNED_SHORTFALL_CAPABILITY`]/[`PINNED_SHORTFALL_OBLIGATION_
+crates/firma-domain/src/keys.rs:97:pub const PINNED_SHORTFALL_CAPITAL_GROWTH: &str = "pinned_shortfall_capital_growth";
+crates/firma-domain/src/keys.rs:98:/// Overrides `ς_2` (capability shortfall) for Arm A (ADR 0054).
+crates/firma-domain/src/keys.rs:99:pub const PINNED_SHORTFALL_CAPABILITY: &str = "pinned_shortfall_capability";
+crates/firma-domain/src/keys.rs:100:/// Overrides `ς_3` (obligation-clearance shortfall) for Arm A (ADR 0054).
+crates/firma-domain/src/keys.rs:101:pub const PINNED_SHORTFALL_OBLIGATION_CLEARANCE: &str = "pinned_shortfall_obligation_clearance";
+crates/firma-domain/src/dynamics.rs:205:/// (§12.3). A firm evaluating a shaping action for a positive shortfall
+(end of firma-domain hits)
+
+--- firma-analysis dependencies (ADR-0045):
+[dependencies]
+firma-core = { workspace = true }
+firma-domain = { workspace = true }
+firma-config = { workspace = true }
+firma-io = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+
+--- plugin's decision-time values are available in the diagnostic trace:
+1023:                                "e_h": e_h, "h_t": h_t, "result": result,
+1140:                            "focus": format!("{focus:?}"), "h_t": h_t, "result": r,
+1151:                    "action": sel.action, "prev_action": prev, "h_t": h_t,
+1152:                    "shortfalls": sc, "scan_order": Focus::scan_order(sel.focus),

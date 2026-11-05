@@ -1,0 +1,24 @@
+============================= test session starts ==============================
+platform linux -- Python 3.14.7, pytest-9.1.1, pluggy-1.6.0 -- /home/jayabratabasu/firma/.venv/bin/python
+rootdir: /home/jayabratabasu/firma
+configfile: pyproject.toml
+collecting ... collected 16 items
+
+python/tests/test_diag_cliff.py::test_the_step_0_spec_file_is_exactly_the_spec_the_script_declares PASSED [  6%]
+python/tests/test_diag_cliff.py::test_step_0_never_overwrites_and_a_changed_or_missing_spec_is_refused PASSED [ 12%]
+python/tests/test_diag_cliff.py::test_declared_seed_sets_and_cells PASSED [ 18%]
+python/tests/test_diag_cliff.py::test_relative_aspiration_is_eight_times_one_plus_a_uniform_in_plus_minus_a PASSED [ 25%]
+python/tests/test_diag_cliff.py::test_the_relative_reading_changes_only_the_aspiration_and_keeps_the_same_uniform PASSED [ 31%]
+python/tests/test_diag_cliff.py::test_default_config_is_the_r20_config PASSED [ 37%]
+python/tests/test_diag_cliff.py::test_crossing_changes_only_the_shock_seed PASSED [ 43%]
+python/tests/test_diag_cliff.py::test_channel_cells_set_the_declared_shock_and_nothing_else PASSED [ 50%]
+python/tests/test_diag_cliff.py::test_variance_is_all_shock_when_columns_decide PASSED [ 56%]
+python/tests/test_diag_cliff.py::test_variance_is_all_population_when_rows_decide PASSED [ 62%]
+python/tests/test_diag_cliff.py::test_variance_is_all_interaction_for_a_checkerboard PASSED [ 68%]
+python/tests/test_diag_cliff.py::test_variance_shares_hand_computed_example PASSED [ 75%]
+python/tests/test_diag_cliff.py::test_the_attribution_reading_uses_a_factor_of_three PASSED [ 81%]
+python/tests/test_diag_cliff.py::test_firm_sequences_count_identical_firms_once_and_respect_the_window PASSED [ 87%]
+python/tests/test_diag_cliff.py::test_graded_needs_few_runs_at_the_extremes_and_four_distinct_counts PASSED [ 93%]
+python/tests/test_diag_cliff.py::test_one_resource_channel_pair_end_to_end PASSED [100%]
+
+============================== 16 passed in 1.34s ==============================

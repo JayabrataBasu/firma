@@ -1,0 +1,239 @@
+{
+ "label": "control_b_r12_smoke",
+ "failed": [],
+ "n_firms": 4,
+ "n_shocked_runs": 20,
+ "forks_identical_to_baseline": 20,
+ "baseline_survivors": 3,
+ "baseline_survivors_from_log": 3,
+ "baseline_decisions": 373,
+ "distinct_action_sequences": 13,
+ "shocked_runs": [
+  {
+   "shock_seed": 910001,
+   "delta_h_rep_matched": 0.0,
+   "n_matched_firm_ticks": 238,
+   "survivors": 1,
+   "deaths": 3,
+   "action_sha": "c4f5c5aa4bf2442cc3bb1ca04d2dca2b58b46de038edab5c580635332d187997",
+   "drawn_onset": 52,
+   "drawn_magnitude": 0.32911546249328144
+  },
+  {
+   "shock_seed": 910002,
+   "delta_h_rep_matched": 0.0,
+   "n_matched_firm_ticks": 270,
+   "survivors": 1,
+   "deaths": 3,
+   "action_sha": "e71135da135912c67581e79e6210cf48de9fb913b72200e308c6c2632afa6107",
+   "drawn_onset": 68,
+   "drawn_magnitude": 0.4290768512039589
+  },
+  {
+   "shock_seed": 910003,
+   "delta_h_rep_matched": 0.0,
+   "n_matched_firm_ticks": 282,
+   "survivors": 1,
+   "deaths": 3,
+   "action_sha": "8a3155ad1a553fdedd47fa02b54e31935e77e8973bdb83606feee43b21e2c826",
+   "drawn_onset": 74,
+   "drawn_magnitude": 0.0975023738874907
+  },
+  {
+   "shock_seed": 910004,
+   "delta_h_rep_matched": -0.019057338784261947,
+   "n_matched_firm_ticks": 372,
+   "survivors": 3,
+   "deaths": 1,
+   "action_sha": "99a0cab4074d3f639e8aea6a32e2e08bffceaf672b16d7aeba28ba00dc50a585",
+   "drawn_onset": 37,
+   "drawn_magnitude": 0.24524387960460245
+  },
+  {
+   "shock_seed": 910005,
+   "delta_h_rep_matched": 0.0,
+   "n_matched_firm_ticks": 254,
+   "survivors": 1,
+   "deaths": 3,
+   "action_sha": "31d6af04e9bb1b22d0c83e38394f9225dd48ebdc1ec7edec91cfbed20f7e3d93",
+   "drawn_onset": 60,
+   "drawn_magnitude": 0.38148450482964347
+  },
+  {
+   "shock_seed": 910006,
+   "delta_h_rep_matched": -0.019057338784261947,
+   "n_matched_firm_ticks": 372,
+   "survivors": 3,
+   "deaths": 1,
+   "action_sha": "99a0cab4074d3f639e8aea6a32e2e08bffceaf672b16d7aeba28ba00dc50a585",
+   "drawn_onset": 13,
+   "drawn_magnitude": 0.256865967073069
+  },
+  {
+   "shock_seed": 910007,
+   "delta_h_rep_matched": -0.019057338784261947,
+   "n_matched_firm_ticks": 372,
+   "survivors": 3,
+   "deaths": 1,
+   "action_sha": "99a0cab4074d3f639e8aea6a32e2e08bffceaf672b16d7aeba28ba00dc50a585",
+   "drawn_onset": 27,
+   "drawn_magnitude": 0.22633196207452372
+  },
+  {
+   "shock_seed": 910008,
+   "delta_h_rep_matched": 0.0,
+   "n_matched_firm_ticks": 260,
+   "survivors": 1,
+   "deaths": 3,
+   "action_sha": "12f1729e916aa77a9540a5ec5e2bf1842ba0620802a572ea822fe175ccceba5f",
+   "drawn_onset": 63,
+   "drawn_magnitude": 0.27415290976728685
+  },
+  {
+   "shock_seed": 910009,
+   "delta_h_rep_matched": -0.019057338784261947,
+   "n_matched_firm_ticks": 372,
+   "survivors": 3,
+   "deaths": 1,
+   "action_sha": "99a0cab4074d3f639e8aea6a32e2e08bffceaf672b16d7aeba28ba00dc50a585",
+   "drawn_onset": 26,
+   "drawn_magnitude": 0.2739148777699385
+  },
+  {
+   "shock_seed": 910010,
+   "delta_h_rep_matched": 0.0,
+   "n_matched_firm_ticks": 236,
+   "survivors": 1,
+   "deaths": 3,
+   "action_sha": "46eca3e45d426cf51e33c57acc7077f3d8c5f66e2fd9d10c2c9ff803d06dc69e",
+   "drawn_onset": 51,
+   "drawn_magnitude": 0.36155018060749966
+  },
+  {
+   "shock_seed": 910011,
+   "delta_h_rep_matched": -0.019057338784261947,
+   "n_matched_firm_ticks": 372,
+   "survivors": 3,
+   "deaths": 1,
+   "action_sha": "99a0cab4074d3f639e8aea6a32e2e08bffceaf672b16d7aeba28ba00dc50a585",
+   "drawn_onset": 13,
+   "drawn_magnitude": 0.2052425068151863
+  },
+  {
+   "shock_seed": 910012,
+   "delta_h_rep_matched": 0.0,
+   "n_matched_firm_ticks": 290,
+   "survivors": 1,
+   "deaths": 3,
+   "action_sha": "fd1b5df52a9ae505d2fb9f01c79dca236855935bf2fa9c0c533af8ed5a80b8be",
+   "drawn_onset": 78,
+   "drawn_magnitude": 0.16097752796241768
+  },
+  {
+   "shock_seed": 910013,
+   "delta_h_rep_matched": -0.019057338784261947,
+   "n_matched_firm_ticks": 372,
+   "survivors": 3,
+   "deaths": 1,
+   "action_sha": "99a0cab4074d3f639e8aea6a32e2e08bffceaf672b16d7aeba28ba00dc50a585",
+   "drawn_onset": 23,
+   "drawn_magnitude": 0.16734877665996503
+  },
+  {
+   "shock_seed": 910014,
+   "delta_h_rep_matched": -0.1553858331993655,
+   "n_matched_firm_ticks": 372,
+   "survivors": 3,
+   "deaths": 1,
+   "action_sha": "143d30df98841d8c5cdf22c66987d9f7b8d705d1a8593d39c076073fc0521219",
+   "drawn_onset": 33,
+   "drawn_magnitude": 0.4273244033967103
+  },
+  {
+   "shock_seed": 910015,
+   "delta_h_rep_matched": -0.1553858331993655,
+   "n_matched_firm_ticks": 372,
+   "survivors": 3,
+   "deaths": 1,
+   "action_sha": "143d30df98841d8c5cdf22c66987d9f7b8d705d1a8593d39c076073fc0521219",
+   "drawn_onset": 18,
+   "drawn_magnitude": 0.45733235360180685
+  },
+  {
+   "shock_seed": 910016,
+   "delta_h_rep_matched": 0.0,
+   "n_matched_firm_ticks": 228,
+   "survivors": 1,
+   "deaths": 3,
+   "action_sha": "c89d85c001a7e2d5d49018cf862ff6f04c69d7d5b7dcf28cabf97f14540d6083",
+   "drawn_onset": 47,
+   "drawn_magnitude": 0.36437188858734065
+  },
+  {
+   "shock_seed": 910017,
+   "delta_h_rep_matched": 0.0,
+   "n_matched_firm_ticks": 218,
+   "survivors": 1,
+   "deaths": 3,
+   "action_sha": "187fc3bd3539c41bacd94ff1045f2f2f597f4a64aa43e7c4eb2c642f3b2657e0",
+   "drawn_onset": 21,
+   "drawn_magnitude": 0.3917718057657778
+  },
+  {
+   "shock_seed": 910018,
+   "delta_h_rep_matched": 0.0,
+   "n_matched_firm_ticks": 264,
+   "survivors": 1,
+   "deaths": 3,
+   "action_sha": "4b0a68f4745fe1edae30ed8be853fa234b673d17c6461da853dd2cfa5c6bb3d1",
+   "drawn_onset": 65,
+   "drawn_magnitude": 0.35811352663623747
+  },
+  {
+   "shock_seed": 910019,
+   "delta_h_rep_matched": 0.0,
+   "n_matched_firm_ticks": 218,
+   "survivors": 1,
+   "deaths": 3,
+   "action_sha": "187fc3bd3539c41bacd94ff1045f2f2f597f4a64aa43e7c4eb2c642f3b2657e0",
+   "drawn_onset": 31,
+   "drawn_magnitude": 0.36762333766238825
+  },
+  {
+   "shock_seed": 910020,
+   "delta_h_rep_matched": 0.0,
+   "n_matched_firm_ticks": 278,
+   "survivors": 1,
+   "deaths": 3,
+   "action_sha": "86f237b02a636985323f971f33b20faa31796e4288710b10fbb474f388458daf",
+   "drawn_onset": 72,
+   "drawn_magnitude": 0.4882595748358681
+  }
+ ],
+ "sc1_survival": 0.75,
+ "sc1_ok": true,
+ "sc2_h_below_crit": 0.5913978494623656,
+ "sc2_ok": false,
+ "sc3_binds": [
+  true,
+  false,
+  true,
+  false
+ ],
+ "sc3_ok": false,
+ "sc6_entropy_variance": 0.3679443941353591,
+ "sc6_ok": true,
+ "T1": false,
+ "nonzero_matched_fraction": 0.4,
+ "nonzero_ok": false,
+ "mean_survival_shocked": 0.45,
+ "survival_ok": true,
+ "T2": false,
+ "stressed_but_alive": false,
+ "info_sc2_survival_attention": 0.5844504021447721,
+ "info_sc2_pass_focus_based": false,
+ "info_sc1_pass_rust": true,
+ "info_sc4_shaping_fraction": 0.0,
+ "info_sc5_shaping_success": null,
+ "info_T1_without_obligation_leg": false
+}

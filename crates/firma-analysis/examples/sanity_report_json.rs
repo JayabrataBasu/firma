@@ -12,8 +12,7 @@
 
 use std::path::PathBuf;
 
-use firma_analysis::sanity::sanity_from_run;
-use firma_analysis::Reconstruction;
+use firma_analysis::sanity::{reconstruct_checked, try_sanity_from_run};
 use firma_config::RunConfig;
 use serde_json::json;
 
@@ -28,15 +27,21 @@ fn main() {
     let cfg = RunConfig::from_json(&cfg_json).expect("parse config");
     let run_dir = PathBuf::from(run_dir);
 
-    let report = sanity_from_run(&cfg, &run_dir);
+    // A malformed `scales` parameter or an unparsable persisted record in the
+    // log is an error with a non-zero exit, never a report computed without
+    // the offending records.
+    let fail = |e: String| -> ! {
+        eprintln!("sanity_report_json: {e}");
+        std::process::exit(1);
+    };
+    let report = try_sanity_from_run(&cfg, &run_dir).unwrap_or_else(|e| fail(e));
 
-    let mut recon = Reconstruction::new(&cfg);
-    for ev in firma_io::read_events::<firma_core::Event>(&run_dir.join("events.ndjson"))
-        .expect("read events")
-        .map(|e| e.expect("parse event"))
-    {
-        recon.apply(&ev);
-    }
+    let events: Vec<firma_core::Event> =
+        firma_io::read_events::<firma_core::Event>(&run_dir.join("events.ndjson"))
+            .expect("read events")
+            .map(|e| e.expect("parse event"))
+            .collect();
+    let recon = reconstruct_checked(&cfg, &events).unwrap_or_else(|e| fail(e));
 
     let out = json!({
         "sanity": report,

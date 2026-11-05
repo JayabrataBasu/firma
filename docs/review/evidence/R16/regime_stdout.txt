@@ -1,0 +1,102 @@
+DIAGNOSTIC-ONLY - REGIME SEARCH - NOT REGISTERED - NOT FOR TUNING
+grid: /home/jayabratabasu/firma/docs/review/evidence/R16/grid.json  sha256 1371026b859b2da07e87ad5186fed47c9063ec96d6cf214d866670577701963a  (72 cells, declared order)
+firma: /home/jayabratabasu/firma/target/debug/firma; output: /tmp/claude-1000/-home-jayabratabasu-firma/25acd624-4575-4f2d-9fb5-645f7478f07e/scratchpad/r16; shock seeds 910001..910020
+
+== control (a): determinism ==
+  cell 0 baseline: BYTE-EQUAL  15c2140bf4a3595285a0fb11255c095dfabab4ba234b38559c5f974cd4c902e1  15c2140bf4a3595285a0fb11255c095dfabab4ba234b38559c5f974cd4c902e1
+  cell 0 shocked (shock seed 910001): BYTE-EQUAL  4dbe359fb37719f41f8e1f9c8e7888fec34bb40d8b45d5129a4c8cd5799a268d  4dbe359fb37719f41f8e1f9c8e7888fec34bb40d8b45d5129a4c8cd5799a268d
+
+== control (b): the R12 slice config under the same targets (expected: fails) ==
+  SC-1 0.750 PASS; SC-2 0.591 fail; SC-3 binds [True, False, True, False] fail; SC-6 0.3679 PASS; T1 fail
+  non-zero matched DeltaH in 0.40 of 20 runs fail; mean survival 0.450 PASS; T2 fail; stressed-but-alive: False
+
+== every cell, in the declared order ==
+cell n capital    capability   mag  thL  | SC-1        | SC-2 h<h_crit | SC-3 [sol,cmp,scp,obl] | SC-6 var     | T1      || nonzero dH | mean surv   | T2      || distinct | both
+  0  8 [50, 100]  [0.3, 0.6]   0.1  0.55 | 1.000 fail | 0.673 fail | nnYn fail | 0.3794 PASS | T1 fail || 0.10 fail | 0.456 PASS | T2 fail || seqs 12 | -
+  1  8 [50, 100]  [0.3, 0.6]   0.1  0.9  | 1.000 fail | 0.426 fail | nYYn fail | 0.2000 PASS | T1 fail || 1.00 PASS | 0.938 fail | T2 fail || seqs 11 | -
+  2  8 [50, 100]  [0.3, 0.6]   0.2  0.55 | 1.000 fail | 0.673 fail | nnYn fail | 0.3794 PASS | T1 fail || 0.75 PASS | 0.787 PASS | T2 PASS || seqs 13 | -
+  3  8 [50, 100]  [0.3, 0.6]   0.2  0.9  | 1.000 fail | 0.426 fail | nYYn fail | 0.2000 PASS | T1 fail || 1.00 PASS | 0.688 PASS | T2 PASS || seqs 13 | -
+  4  8 [50, 100]  [0.3, 0.6]   0.3  0.55 | 1.000 fail | 0.673 fail | nnYn fail | 0.3794 PASS | T1 fail || 0.80 PASS | 0.706 PASS | T2 PASS || seqs 13 | -
+  5  8 [50, 100]  [0.3, 0.6]   0.3  0.9  | 1.000 fail | 0.426 fail | nYYn fail | 0.2000 PASS | T1 fail || 0.85 PASS | 0.719 PASS | T2 PASS || seqs 13 | -
+  6  8 [50, 100]  [0.45, 0.9]  0.1  0.55 | 1.000 fail | 0.415 fail | nnnn fail | 0.4441 PASS | T1 fail || 0.10 fail | 0.150 fail | T2 fail || seqs 12 | -
+  7  8 [50, 100]  [0.45, 0.9]  0.1  0.9  | 1.000 fail | 0.010 fail | nYnn fail | 0.1838 PASS | T1 fail || 1.00 PASS | 0.900 PASS | T2 PASS || seqs 12 | -
+  8  8 [50, 100]  [0.45, 0.9]  0.2  0.55 | 1.000 fail | 0.415 fail | nnnn fail | 0.4441 PASS | T1 fail || 0.75 PASS | 0.694 PASS | T2 PASS || seqs 13 | -
+  9  8 [50, 100]  [0.45, 0.9]  0.2  0.9  | 1.000 fail | 0.010 fail | nYnn fail | 0.1838 PASS | T1 fail || 1.00 PASS | 0.500 PASS | T2 PASS || seqs 13 | -
+ 10  8 [50, 100]  [0.45, 0.9]  0.3  0.55 | 1.000 fail | 0.415 fail | nnnn fail | 0.4441 PASS | T1 fail || 0.75 PASS | 0.550 PASS | T2 PASS || seqs 13 | -
+ 11  8 [50, 100]  [0.45, 0.9]  0.3  0.9  | 1.000 fail | 0.010 fail | nYnn fail | 0.1838 PASS | T1 fail || 0.90 PASS | 0.550 PASS | T2 PASS || seqs 13 | -
+ 12  8 [100, 200] [0.3, 0.6]   0.1  0.55 | 1.000 fail | 0.676 fail | nnYn fail | 0.3787 PASS | T1 fail || 0.10 fail | 0.463 PASS | T2 fail || seqs 12 | -
+ 13  8 [100, 200] [0.3, 0.6]   0.1  0.9  | 1.000 fail | 0.427 fail | nYYn fail | 0.1992 PASS | T1 fail || 1.00 PASS | 0.938 fail | T2 fail || seqs 11 | -
+ 14  8 [100, 200] [0.3, 0.6]   0.2  0.55 | 1.000 fail | 0.676 fail | nnYn fail | 0.3787 PASS | T1 fail || 0.75 PASS | 0.787 PASS | T2 PASS || seqs 13 | -
+ 15  8 [100, 200] [0.3, 0.6]   0.2  0.9  | 1.000 fail | 0.427 fail | nYYn fail | 0.1992 PASS | T1 fail || 1.00 PASS | 0.688 PASS | T2 PASS || seqs 13 | -
+ 16  8 [100, 200] [0.3, 0.6]   0.3  0.55 | 1.000 fail | 0.676 fail | nnYn fail | 0.3787 PASS | T1 fail || 0.80 PASS | 0.694 PASS | T2 PASS || seqs 13 | -
+ 17  8 [100, 200] [0.3, 0.6]   0.3  0.9  | 1.000 fail | 0.427 fail | nYYn fail | 0.1992 PASS | T1 fail || 0.90 PASS | 0.719 PASS | T2 PASS || seqs 13 | -
+ 18  8 [100, 200] [0.45, 0.9]  0.1  0.55 | 1.000 fail | 0.418 fail | nnnn fail | 0.4438 PASS | T1 fail || 0.10 fail | 0.150 fail | T2 fail || seqs 11 | -
+ 19  8 [100, 200] [0.45, 0.9]  0.1  0.9  | 1.000 fail | 0.011 fail | nYnn fail | 0.1834 PASS | T1 fail || 1.00 PASS | 0.900 PASS | T2 PASS || seqs 11 | -
+ 20  8 [100, 200] [0.45, 0.9]  0.2  0.55 | 1.000 fail | 0.418 fail | nnnn fail | 0.4438 PASS | T1 fail || 0.75 PASS | 0.688 PASS | T2 PASS || seqs 13 | -
+ 21  8 [100, 200] [0.45, 0.9]  0.2  0.9  | 1.000 fail | 0.011 fail | nYnn fail | 0.1834 PASS | T1 fail || 1.00 PASS | 0.500 PASS | T2 PASS || seqs 13 | -
+ 22  8 [100, 200] [0.45, 0.9]  0.3  0.55 | 1.000 fail | 0.418 fail | nnnn fail | 0.4438 PASS | T1 fail || 0.80 PASS | 0.531 PASS | T2 PASS || seqs 13 | -
+ 23  8 [100, 200] [0.45, 0.9]  0.3  0.9  | 1.000 fail | 0.011 fail | nYnn fail | 0.1834 PASS | T1 fail || 0.90 PASS | 0.550 PASS | T2 PASS || seqs 13 | -
+ 24  8 [150, 300] [0.3, 0.6]   0.1  0.55 | 1.000 fail | 0.676 fail | nnYn fail | 0.3787 PASS | T1 fail || 0.10 fail | 0.463 PASS | T2 fail || seqs 12 | -
+ 25  8 [150, 300] [0.3, 0.6]   0.1  0.9  | 1.000 fail | 0.427 fail | nYYn fail | 0.1992 PASS | T1 fail || 1.00 PASS | 0.938 fail | T2 fail || seqs 11 | -
+ 26  8 [150, 300] [0.3, 0.6]   0.2  0.55 | 1.000 fail | 0.676 fail | nnYn fail | 0.3787 PASS | T1 fail || 0.75 PASS | 0.787 PASS | T2 PASS || seqs 13 | -
+ 27  8 [150, 300] [0.3, 0.6]   0.2  0.9  | 1.000 fail | 0.427 fail | nYYn fail | 0.1992 PASS | T1 fail || 1.00 PASS | 0.688 PASS | T2 PASS || seqs 13 | -
+ 28  8 [150, 300] [0.3, 0.6]   0.3  0.55 | 1.000 fail | 0.676 fail | nnYn fail | 0.3787 PASS | T1 fail || 0.80 PASS | 0.694 PASS | T2 PASS || seqs 13 | -
+ 29  8 [150, 300] [0.3, 0.6]   0.3  0.9  | 1.000 fail | 0.427 fail | nYYn fail | 0.1992 PASS | T1 fail || 0.90 PASS | 0.719 PASS | T2 PASS || seqs 13 | -
+ 30  8 [150, 300] [0.45, 0.9]  0.1  0.55 | 1.000 fail | 0.418 fail | nnnn fail | 0.4438 PASS | T1 fail || 0.10 fail | 0.150 fail | T2 fail || seqs 11 | -
+ 31  8 [150, 300] [0.45, 0.9]  0.1  0.9  | 1.000 fail | 0.011 fail | nYnn fail | 0.1834 PASS | T1 fail || 1.00 PASS | 0.900 PASS | T2 PASS || seqs 11 | -
+ 32  8 [150, 300] [0.45, 0.9]  0.2  0.55 | 1.000 fail | 0.418 fail | nnnn fail | 0.4438 PASS | T1 fail || 0.75 PASS | 0.688 PASS | T2 PASS || seqs 13 | -
+ 33  8 [150, 300] [0.45, 0.9]  0.2  0.9  | 1.000 fail | 0.011 fail | nYnn fail | 0.1834 PASS | T1 fail || 1.00 PASS | 0.500 PASS | T2 PASS || seqs 13 | -
+ 34  8 [150, 300] [0.45, 0.9]  0.3  0.55 | 1.000 fail | 0.418 fail | nnnn fail | 0.4438 PASS | T1 fail || 0.80 PASS | 0.531 PASS | T2 PASS || seqs 13 | -
+ 35  8 [150, 300] [0.45, 0.9]  0.3  0.9  | 1.000 fail | 0.011 fail | nYnn fail | 0.1834 PASS | T1 fail || 0.90 PASS | 0.550 PASS | T2 PASS || seqs 13 | -
+ 36 12 [50, 100]  [0.3, 0.6]   0.1  0.55 | 1.000 fail | 0.685 fail | nnYn fail | 0.3699 PASS | T1 fail || 0.10 fail | 0.496 PASS | T2 fail || seqs 12 | -
+ 37 12 [50, 100]  [0.3, 0.6]   0.1  0.9  | 1.000 fail | 0.452 fail | nYYn fail | 0.2009 PASS | T1 fail || 1.00 PASS | 0.942 fail | T2 fail || seqs 11 | -
+ 38 12 [50, 100]  [0.3, 0.6]   0.2  0.55 | 1.000 fail | 0.685 fail | nnYn fail | 0.3699 PASS | T1 fail || 0.75 PASS | 0.808 PASS | T2 PASS || seqs 13 | -
+ 39 12 [50, 100]  [0.3, 0.6]   0.2  0.9  | 1.000 fail | 0.452 fail | nYYn fail | 0.2009 PASS | T1 fail || 1.00 PASS | 0.708 PASS | T2 PASS || seqs 13 | -
+ 40 12 [50, 100]  [0.3, 0.6]   0.3  0.55 | 1.000 fail | 0.685 fail | nnYn fail | 0.3699 PASS | T1 fail || 0.80 PASS | 0.729 PASS | T2 PASS || seqs 13 | -
+ 41 12 [50, 100]  [0.3, 0.6]   0.3  0.9  | 1.000 fail | 0.452 fail | nYYn fail | 0.2009 PASS | T1 fail || 0.85 PASS | 0.738 PASS | T2 PASS || seqs 13 | -
+ 42 12 [50, 100]  [0.45, 0.9]  0.1  0.55 | 1.000 fail | 0.415 fail | nnnn fail | 0.4436 PASS | T1 fail || 0.10 fail | 0.150 fail | T2 fail || seqs 12 | -
+ 43 12 [50, 100]  [0.45, 0.9]  0.1  0.9  | 1.000 fail | 0.010 fail | nYnn fail | 0.1836 PASS | T1 fail || 1.00 PASS | 0.900 PASS | T2 PASS || seqs 12 | -
+ 44 12 [50, 100]  [0.45, 0.9]  0.2  0.55 | 1.000 fail | 0.415 fail | nnnn fail | 0.4436 PASS | T1 fail || 0.75 PASS | 0.696 PASS | T2 PASS || seqs 13 | -
+ 45 12 [50, 100]  [0.45, 0.9]  0.2  0.9  | 1.000 fail | 0.010 fail | nYnn fail | 0.1836 PASS | T1 fail || 1.00 PASS | 0.500 PASS | T2 PASS || seqs 13 | -
+ 46 12 [50, 100]  [0.45, 0.9]  0.3  0.55 | 1.000 fail | 0.415 fail | nnnn fail | 0.4436 PASS | T1 fail || 0.75 PASS | 0.550 PASS | T2 PASS || seqs 13 | -
+ 47 12 [50, 100]  [0.45, 0.9]  0.3  0.9  | 1.000 fail | 0.010 fail | nYnn fail | 0.1836 PASS | T1 fail || 0.90 PASS | 0.550 PASS | T2 PASS || seqs 13 | -
+ 48 12 [100, 200] [0.3, 0.6]   0.1  0.55 | 1.000 fail | 0.687 fail | nnYn fail | 0.3695 PASS | T1 fail || 0.10 fail | 0.500 PASS | T2 fail || seqs 12 | -
+ 49 12 [100, 200] [0.3, 0.6]   0.1  0.9  | 1.000 fail | 0.453 fail | nYYn fail | 0.2004 PASS | T1 fail || 1.00 PASS | 0.942 fail | T2 fail || seqs 11 | -
+ 50 12 [100, 200] [0.3, 0.6]   0.2  0.55 | 1.000 fail | 0.687 fail | nnYn fail | 0.3695 PASS | T1 fail || 0.75 PASS | 0.808 PASS | T2 PASS || seqs 13 | -
+ 51 12 [100, 200] [0.3, 0.6]   0.2  0.9  | 1.000 fail | 0.453 fail | nYYn fail | 0.2004 PASS | T1 fail || 1.00 PASS | 0.708 PASS | T2 PASS || seqs 13 | -
+ 52 12 [100, 200] [0.3, 0.6]   0.3  0.55 | 1.000 fail | 0.687 fail | nnYn fail | 0.3695 PASS | T1 fail || 0.80 PASS | 0.721 PASS | T2 PASS || seqs 13 | -
+ 53 12 [100, 200] [0.3, 0.6]   0.3  0.9  | 1.000 fail | 0.453 fail | nYYn fail | 0.2004 PASS | T1 fail || 0.90 PASS | 0.738 PASS | T2 PASS || seqs 13 | -
+ 54 12 [100, 200] [0.45, 0.9]  0.1  0.55 | 1.000 fail | 0.417 fail | nnnn fail | 0.4434 PASS | T1 fail || 0.10 fail | 0.150 fail | T2 fail || seqs 11 | -
+ 55 12 [100, 200] [0.45, 0.9]  0.1  0.9  | 1.000 fail | 0.010 fail | nYnn fail | 0.1833 PASS | T1 fail || 1.00 PASS | 0.900 PASS | T2 PASS || seqs 11 | -
+ 56 12 [100, 200] [0.45, 0.9]  0.2  0.55 | 1.000 fail | 0.417 fail | nnnn fail | 0.4434 PASS | T1 fail || 0.75 PASS | 0.692 PASS | T2 PASS || seqs 13 | -
+ 57 12 [100, 200] [0.45, 0.9]  0.2  0.9  | 1.000 fail | 0.010 fail | nYnn fail | 0.1833 PASS | T1 fail || 1.00 PASS | 0.500 PASS | T2 PASS || seqs 13 | -
+ 58 12 [100, 200] [0.45, 0.9]  0.3  0.55 | 1.000 fail | 0.417 fail | nnnn fail | 0.4434 PASS | T1 fail || 0.80 PASS | 0.537 PASS | T2 PASS || seqs 13 | -
+ 59 12 [100, 200] [0.45, 0.9]  0.3  0.9  | 1.000 fail | 0.010 fail | nYnn fail | 0.1833 PASS | T1 fail || 0.90 PASS | 0.550 PASS | T2 PASS || seqs 13 | -
+ 60 12 [150, 300] [0.3, 0.6]   0.1  0.55 | 1.000 fail | 0.687 fail | nnYn fail | 0.3695 PASS | T1 fail || 0.10 fail | 0.500 PASS | T2 fail || seqs 12 | -
+ 61 12 [150, 300] [0.3, 0.6]   0.1  0.9  | 1.000 fail | 0.453 fail | nYYn fail | 0.2004 PASS | T1 fail || 1.00 PASS | 0.942 fail | T2 fail || seqs 11 | -
+ 62 12 [150, 300] [0.3, 0.6]   0.2  0.55 | 1.000 fail | 0.687 fail | nnYn fail | 0.3695 PASS | T1 fail || 0.75 PASS | 0.808 PASS | T2 PASS || seqs 13 | -
+ 63 12 [150, 300] [0.3, 0.6]   0.2  0.9  | 1.000 fail | 0.453 fail | nYYn fail | 0.2004 PASS | T1 fail || 1.00 PASS | 0.708 PASS | T2 PASS || seqs 13 | -
+ 64 12 [150, 300] [0.3, 0.6]   0.3  0.55 | 1.000 fail | 0.687 fail | nnYn fail | 0.3695 PASS | T1 fail || 0.80 PASS | 0.721 PASS | T2 PASS || seqs 13 | -
+ 65 12 [150, 300] [0.3, 0.6]   0.3  0.9  | 1.000 fail | 0.453 fail | nYYn fail | 0.2004 PASS | T1 fail || 0.90 PASS | 0.738 PASS | T2 PASS || seqs 13 | -
+ 66 12 [150, 300] [0.45, 0.9]  0.1  0.55 | 1.000 fail | 0.417 fail | nnnn fail | 0.4434 PASS | T1 fail || 0.10 fail | 0.150 fail | T2 fail || seqs 11 | -
+ 67 12 [150, 300] [0.45, 0.9]  0.1  0.9  | 1.000 fail | 0.010 fail | nYnn fail | 0.1833 PASS | T1 fail || 1.00 PASS | 0.900 PASS | T2 PASS || seqs 11 | -
+ 68 12 [150, 300] [0.45, 0.9]  0.2  0.55 | 1.000 fail | 0.417 fail | nnnn fail | 0.4434 PASS | T1 fail || 0.75 PASS | 0.692 PASS | T2 PASS || seqs 13 | -
+ 69 12 [150, 300] [0.45, 0.9]  0.2  0.9  | 1.000 fail | 0.010 fail | nYnn fail | 0.1833 PASS | T1 fail || 1.00 PASS | 0.500 PASS | T2 PASS || seqs 13 | -
+ 70 12 [150, 300] [0.45, 0.9]  0.3  0.55 | 1.000 fail | 0.417 fail | nnnn fail | 0.4434 PASS | T1 fail || 0.80 PASS | 0.537 PASS | T2 PASS || seqs 13 | -
+ 71 12 [150, 300] [0.45, 0.9]  0.3  0.9  | 1.000 fail | 0.010 fail | nYnn fail | 0.1833 PASS | T1 fail || 0.90 PASS | 0.550 PASS | T2 PASS || seqs 13 | -
+
+== summary ==
+cells evaluated: 72 of 72; failed runs: 0
+pass T1 only: 0; pass T2 only: 54; pass both: 0; neither: 18
+  SC-1: fails in 72 of 72 cells
+  SC-2: fails in 72 of 72 cells
+  SC-3: fails in 72 of 72 cells
+  SC-6: fails in 0 of 72 cells
+  T2 non-zero matched DeltaH >= 50%: fails in 12 of 72 cells
+  T2 mean survival in [0.40, 0.90]: fails in 12 of 72 cells
+  information only - T1 with the obligation leg of SC-3 left out would hold in 0 cells; of those, T2 also holds in 0
+ANSWER: 0 of 72 cells are stressed-but-alive under the declared targets
+
+written: /tmp/claude-1000/-home-jayabratabasu-firma/25acd624-4575-4f2d-9fb5-645f7478f07e/scratchpad/r16/cells.csv, /tmp/claude-1000/-home-jayabratabasu-firma/25acd624-4575-4f2d-9fb5-645f7478f07e/scratchpad/r16/cells_full.json, /tmp/claude-1000/-home-jayabratabasu-firma/25acd624-4575-4f2d-9fb5-645f7478f07e/scratchpad/r16/control_b.json
+wall-clock time: 216.3 s
+DIAGNOSTIC-ONLY - REGIME SEARCH - NOT REGISTERED - NOT FOR TUNING

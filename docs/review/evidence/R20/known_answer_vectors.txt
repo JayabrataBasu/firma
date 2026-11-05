@@ -1,0 +1,10 @@
+# Known-answer vectors computed WITHOUT Python: printf '<seed>|<firm>|<tag>' | sha256sum (GNU coreutils), first 16 hex digits = first 8 bytes
+910001|0|capital  c509fa6fc458083b
+910001|0|capability  fa918c34ab083bc7
+910001|11|capital  49da2142b3410851
+911050|7|aspiration_capital_growth  a80aa919648b7565
+910001|3|obligation_flag  bbd32b8e7167e5fb
+910001|3|obligation_q  93edf476472956e2
+# u = that hex as an integer / 2**64, computed with bc (20 digits):
+910001|0|capital  .76968350628553150780
+911050|7|aspiration_capital_growth  .65641266698780305891

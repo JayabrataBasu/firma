@@ -1,0 +1,11 @@
+    Checking firma-plugin-observation v1.0.0 (/home/jayabratabasu/firma/crates/firma-plugins/firma-plugin-observation)
+    Checking firma-analysis v0.1.0 (/home/jayabratabasu/firma/crates/firma-analysis)
+    Checking firma-plugin-decision v1.0.0 (/home/jayabratabasu/firma/crates/firma-plugins/firma-plugin-decision)
+    Checking firma-plugin-constraint v0.1.0 (/home/jayabratabasu/firma/crates/firma-plugins/firma-plugin-constraint)
+    Checking pyo3-ffi v0.29.2
+    Checking firma-tui v0.1.0 (/home/jayabratabasu/firma/crates/firma-tui)
+    Checking firma-cli v0.1.0 (/home/jayabratabasu/firma/crates/firma-cli)
+    Checking pyo3 v0.29.2
+    Checking firma-conformance v0.1.0 (/home/jayabratabasu/firma/tests)
+    Checking firma-py v0.1.0 (/home/jayabratabasu/firma/crates/firma-py)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 2.01s

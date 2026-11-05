@@ -404,3 +404,547 @@ fn every_registered_rule_has_a_nonempty_assumption_and_right_phase() {
         assert_eq!(r.phase(), expected, "{id}");
     }
 }
+
+// --------------------------------------------------------------------------
+// ADR 0047 (H3 revision) — Part B2: the channel actually opens, responds to
+// the action's real economics, and — reported honestly — does NOT read lag
+// length (a deliberate design choice, not an oversight; see the ADR).
+// --------------------------------------------------------------------------
+
+use firma_domain::shaping::{LagRange, SuccessModel};
+
+/// A `SURVIVAL`-focus firm whose *binding* constraint is `compliance`
+/// (`u` close to `θ_limit`), everything else slack, so every market action
+/// ahead of `lobby` in the `SURVIVAL` order `[1,3,5,2,0,4,6,7,8]` is
+/// admissible but does not satisfice (none of them move `u`, which the
+/// one-step lookahead holds fixed — §9.3) — the scan genuinely *reaches*
+/// `lobby` rather than falling back to it. `w_max=9`, `beta` small enough
+/// that `w_eff ≥ 7` (needed to even consider position 6 after scanning the
+/// six actions ahead of it).
+fn cfg_compliance_bound_survival() -> MockView {
+    seed_common(MockView::new(5, Phase::Decide, 1, &[0]))
+        .with_global_real(keys::THETA_LIMIT, 0.5) // overrides seed_common's 0.90
+        .with_stock(0, "capital", 500)
+        .with_stock(0, "input", 20) // < R^I_max(40): keeps `acquire_input` admissible too
+        .with_agent_real(0, keys::CAPABILITY, 0.9)
+        .with_agent_int(0, keys::OBLIGATION, 3) // > 0: keeps `deliver` admissible
+        .with_agent_real(0, keys::REGULATED_INTENSITY, 0.4) // u; empty window ⇒ read directly
+        .with_agent_real(0, keys::LEGITIMACY, 1.0)
+    // h = -max(g_solvency/100, g_compliance/1, g_scope/0.5, g_obligation/50)
+    //   g_solvency = -500 (slack), g_scope = 0.4-0.9=-0.5/0.5=-1.0 (slack),
+    //   g_obligation = (3-100)/50 ≈ -1.94 (slack), g_compliance = 0.4-0.5 = -0.1
+    //   ⇒ h_t = 0.10 < h_crit(0.15) ⇒ SURVIVAL.
+}
+
+fn lobby_shaping(delta_theta: f64, p0: f64, lag: LagRange) -> ShapingScanParams {
+    lobby_shaping_with_time_margin(delta_theta, p0, lag, true)
+}
+
+fn lobby_shaping_with_time_margin(
+    delta_theta: f64,
+    p0: f64,
+    lag: LagRange,
+    require_time_margin: bool,
+) -> ShapingScanParams {
+    ShapingScanParams {
+        lobby_cost: 25,
+        contract_cost: None,
+        diversify_cost: None,
+        lobby_success: Some(LobbyParams {
+            lag,
+            success: SuccessModel {
+                p0,
+                b_lambda: 0.2,
+                b_kappa: 0.1,
+                p_max: 0.75,
+                kappa_min: 25,
+            },
+            delta_theta,
+        }),
+        contract_success: None,
+        require_time_margin,
+    }
+}
+
+/// **The channel opens.** `p0=0.25` (§16.1 default) ⇒ `p_success =
+/// 0.25+0.2·1.0 = 0.45`; `δ_θ=0.10` (§16.1 default) ⇒
+/// `E[h] = 0.45·h_success + 0.55·h_failure`. Computed by hand in the ADR:
+/// `h_success=0.20` (compliance relief: `u-θ_limit = 0.4-0.6=-0.2`),
+/// `h_failure=0.10` (cost only, `u-θ_limit` unchanged) ⇒
+/// `E[h]=0.45·0.20+0.55·0.10=0.145 > h_t=0.10` ⇒ **lobby satisfices**,
+/// reached genuinely within `w_eff`, not via the fallback (verified
+/// separately below).
+#[test]
+fn h3_lobby_satisfices_survival_when_expected_relief_clears_h_t() {
+    let v = cfg_compliance_bound_survival();
+    let params = SatisficingParams {
+        beta: 0.5, // small: ψ=(0.10/0.15)^0.5≈0.816 ⇒ w_eff=⌈9·0.816⌉=8 ≥ 7
+        w_max: 9,
+        shaping: Some(lobby_shaping(0.10, 0.25, LagRange { min: 2, max: 6 })),
+        ..Default::default()
+    };
+    let d = Satisficing::new(params).unwrap().apply(&v, v.rng_key());
+    assert_eq!(
+        field_value(&d, 0, keys::FOCUS),
+        Some(0),
+        "expected SURVIVAL"
+    );
+    assert_eq!(field_value(&d, 0, keys::W_EFF), Some(8));
+    assert_eq!(
+        selected(&d, 0),
+        Some(6),
+        "lobby should satisfice SURVIVAL once its expected relief is modelled (ADR 0047)"
+    );
+}
+
+/// **The mirror case: the channel does NOT open when the economics don't
+/// support it.** Same scenario, `δ_θ=0.0` (a lobby that, even on success,
+/// does nothing) ⇒ `h_success = h_failure = h_t` exactly ⇒
+/// `E[h] = h_t`, which fails the *strict* `>` test — lobby does not
+/// satisfice, and the scan falls through to the fallback (first
+/// admissible in order = `1`, `produce_ordinary`). This is the check that
+/// the fix is a genuine threshold test responsive to the action's actual
+/// merit, not "shaping is reachable somehow now" regardless of it.
+#[test]
+fn h3_lobby_does_not_satisfice_when_its_payoff_is_worthless() {
+    let v = cfg_compliance_bound_survival();
+    let params = SatisficingParams {
+        beta: 0.5,
+        w_max: 9,
+        shaping: Some(lobby_shaping(0.0, 0.25, LagRange { min: 2, max: 6 })),
+        ..Default::default()
+    };
+    let d = Satisficing::new(params).unwrap().apply(&v, v.rng_key());
+    assert_eq!(
+        field_value(&d, 0, keys::FOCUS),
+        Some(0),
+        "expected SURVIVAL"
+    );
+    assert_eq!(
+        selected(&d, 0),
+        Some(1),
+        "a worthless lobby (δ_θ=0) must not satisfice — fallback picks the \
+         first admissible action (produce_ordinary), same as pre-ADR-0047"
+    );
+}
+
+/// **Reported honestly, not glossed over: the mechanism does not read lag
+/// length.** ADR-0047 deliberately does not discount the expected payoff by
+/// `Δ_a` (reasoning in the ADR: no manual anchor for a discount rate; the
+/// existing `invest_capability` lag-collapse precedent, §9.3, is also
+/// undiscounted). The *same* clears-the-threshold scenario, run with a
+/// short lag range `(1,1)` and a long one `(8,16)`, selects `lobby`
+/// identically either way — the decision procedure is not lag-sensitive.
+/// H3's lag-vs-time-to-boundary comparison is therefore an **emergent,
+/// downstream** property (whether a firm survives long enough to actually
+/// receive a matured, lagged effect — the existing, unchanged
+/// `resolve_lagged`/`LaggedRecord` machinery already handles that;
+/// ADR-0041), measured across `Δ_min/Δ_max` config settings via §30.4's
+/// own experimental design (a swept factor across *runs*), not a property
+/// this ADR builds into a single decision.
+#[test]
+fn h3_the_survival_test_is_not_lag_sensitive_by_design() {
+    let short = LagRange { min: 1, max: 1 };
+    let long = LagRange { min: 8, max: 16 };
+
+    let v_short = cfg_compliance_bound_survival();
+    let params_short = SatisficingParams {
+        beta: 0.5,
+        w_max: 9,
+        shaping: Some(lobby_shaping(0.10, 0.25, short)),
+        ..Default::default()
+    };
+    let d_short = Satisficing::new(params_short)
+        .unwrap()
+        .apply(&v_short, v_short.rng_key());
+
+    let v_long = cfg_compliance_bound_survival();
+    let params_long = SatisficingParams {
+        beta: 0.5,
+        w_max: 9,
+        shaping: Some(lobby_shaping(0.10, 0.25, long)),
+        ..Default::default()
+    };
+    let d_long = Satisficing::new(params_long)
+        .unwrap()
+        .apply(&v_long, v_long.rng_key());
+
+    assert_eq!(selected(&d_short, 0), Some(6));
+    assert_eq!(
+        selected(&d_long, 0),
+        selected(&d_short, 0),
+        "the decision does not vary with lag length — expected and documented \
+         (ADR 0047): lag's consequence is downstream (survival to maturity), \
+         not decision-time"
+    );
+}
+
+// --------------------------------------------------------------------------
+// ADR 0048 (H3 revision, round 2) — Part D: the actual race, and the toggle.
+// --------------------------------------------------------------------------
+
+/// Same shape as `cfg_compliance_bound_survival` (entry via `compliance`,
+/// `h_t = 0.10 < h_crit`), but with a **finite** `time_to_boundary`: `prev`
+/// is seeded to `invest_capability` (4, `κ_c = 20`/tick), so the projection
+/// drains `capital` (200 → 180 → … → 0) until `solvency` overtakes
+/// `compliance` as the binding constraint at exactly `capital = 0`
+/// (`g_solvency = 0 ≥ g_compliance = -0.10`) — `time_to_boundary = 10`
+/// (verified independently by `firma-domain`'s own
+/// `time_to_boundary_counts_an_exact_crossing`-style unit tests). Same
+/// scan-reaches-`lobby` shape as round 1 (`w_eff = 8`).
+fn cfg_solvency_race_survival() -> MockView {
+    seed_common(MockView::new(5, Phase::Decide, 1, &[0]))
+        .with_global_real(keys::THETA_LIMIT, 0.5)
+        .with_stock(0, "capital", 200) // 200/20 = 10 ticks of invest_capability to hit 0
+        .with_stock(0, "input", 20)
+        .with_agent_real(0, keys::CAPABILITY, 0.9)
+        .with_agent_int(0, keys::OBLIGATION, 3)
+        .with_agent_real(0, keys::REGULATED_INTENSITY, 0.4)
+        .with_agent_real(0, keys::LEGITIMACY, 1.0)
+        .with_agent_int(0, keys::SELECTED_ACTION, 4) // prev = invest_capability
+}
+
+/// **The race, won**: `Δ_min = 2 < time_to_boundary = 10` ⇒ the payoff is
+/// evaluated (ADR 0047's expected-relief calculation) ⇒ `lobby` satisfices,
+/// exactly as round 1, because the payoff genuinely *can* arrive before the
+/// projected boundary.
+#[test]
+fn h3_race_short_lag_wins_lobby_satisfices() {
+    let v = cfg_solvency_race_survival();
+    let params = SatisficingParams {
+        beta: 0.5,
+        w_max: 9,
+        shaping: Some(lobby_shaping(0.10, 0.25, LagRange { min: 2, max: 6 })),
+        ..Default::default()
+    };
+    let d = Satisficing::new(params).unwrap().apply(&v, v.rng_key());
+    assert_eq!(
+        field_value(&d, 0, keys::FOCUS),
+        Some(0),
+        "expected SURVIVAL"
+    );
+    assert_eq!(field_value(&d, 0, keys::W_EFF), Some(8));
+    assert_eq!(
+        selected(&d, 0),
+        Some(6),
+        "short lag (min=2) comfortably beats time_to_boundary=10 ⇒ lobby should satisfice"
+    );
+}
+
+/// **The race, lost**: `Δ_min = 12 ≥ time_to_boundary = 10` ⇒ the payoff
+/// cannot possibly arrive before the projected boundary ⇒ falls back to the
+/// pre-ADR-0047 cost-only evaluation for `lobby` (which never satisfices,
+/// same as ADR-0042's original finding) ⇒ the scan continues past `lobby`
+/// and the true fallback lands on the first admissible action in the full
+/// `SURVIVAL` order — `produce_ordinary` (1), a cheaper, cost-only-viable
+/// action — **not** `lobby`. This is H3's "increases narrowing" direction
+/// as a real mechanical consequence, not an emergent one.
+#[test]
+fn h3_race_long_lag_loses_falls_back_to_cost_only() {
+    let v = cfg_solvency_race_survival();
+    let params = SatisficingParams {
+        beta: 0.5,
+        w_max: 9,
+        shaping: Some(lobby_shaping(0.10, 0.25, LagRange { min: 12, max: 16 })),
+        ..Default::default()
+    };
+    let d = Satisficing::new(params).unwrap().apply(&v, v.rng_key());
+    assert_eq!(
+        field_value(&d, 0, keys::FOCUS),
+        Some(0),
+        "expected SURVIVAL"
+    );
+    assert_eq!(
+        selected(&d, 0),
+        Some(1),
+        "long lag (min=12) cannot beat time_to_boundary=10 ⇒ lobby must NOT \
+         satisfice ⇒ fallback picks produce_ordinary, not lobby"
+    );
+}
+
+/// **The toggle reverts to ADR-0047's payoff-only behaviour**: the exact
+/// same long-lag scenario that just lost the race above, but with
+/// `require_time_margin = false` — the timing check is skipped entirely,
+/// the payoff is evaluated regardless of `time_to_boundary`, and `lobby`
+/// satisfices again (identical arithmetic to the short-lag case) despite
+/// the long lag. Proves the switch is a genuine behavioural toggle, not a
+/// cosmetic config field.
+#[test]
+fn h3_toggle_off_reverts_to_payoff_only_despite_long_lag() {
+    let v = cfg_solvency_race_survival();
+    let params = SatisficingParams {
+        beta: 0.5,
+        w_max: 9,
+        shaping: Some(lobby_shaping_with_time_margin(
+            0.10,
+            0.25,
+            LagRange { min: 12, max: 16 }, // the same "losing" lag as above
+            false,                         // require_time_margin = false
+        )),
+        ..Default::default()
+    };
+    let d = Satisficing::new(params).unwrap().apply(&v, v.rng_key());
+    assert_eq!(
+        field_value(&d, 0, keys::FOCUS),
+        Some(0),
+        "expected SURVIVAL"
+    );
+    assert_eq!(
+        selected(&d, 0),
+        Some(6),
+        "require_time_margin=false must ignore the race and restore ADR-0047's \
+         payoff-only satisficing test — a config-only switch, no code change"
+    );
+}
+
+// --------------------------------------------------------------------------
+// ADR 0054 — Arm A direct manipulation (`PINNED_MARGIN`/`PINNED_SHORTFALL_*`)
+// --------------------------------------------------------------------------
+// Test plan items 2 (independence), 6 (rare-quadrant construction), and 7
+// (shortfall-mapping cross-check against VT-8's own construction), plus the
+// partial-pin validation contract (ADR-0054 Part A item 1). Items 1
+// (RNG-non-interference), 3 (persistence across ticks), and 4 (real-state
+// independence) are kernel/conformance-level and live in
+// `crates/firma-kernel/src/tests.rs` and `tests/tests/*.rs` respectively —
+// not duplicated here. Item 5 (backward compatibility) is this crate's
+// existing 22-test suite (none of which sets a `PINNED_*` key) staying
+// green, re-confirmed, not a new test.
+
+/// Item 2 — independence: a "fat margin, no shortfall" *real* state (the
+/// same shape as `attend_none_when_no_shortfall_and_margin_fat`, which
+/// would resolve to `Focus::None` unpinned) with all four pins set to
+/// SURVIVAL-triggering values must resolve to `Focus::Survival` — proving
+/// the override is *total*, not blended with the real state.
+#[test]
+fn adr0054_pins_override_real_state_totally() {
+    let v = seed_common(MockView::new(3, Phase::Decide, 1, &[0]))
+        .with_stock(0, "capital", 400) // real state: healthy, no shortfall
+        .with_stock(0, "input", 10)
+        .with_agent_real(0, keys::CAPABILITY, 0.9)
+        .with_agent_int(0, keys::OBLIGATION, 0)
+        .with_agent_real(0, keys::PINNED_MARGIN, 0.02) // pinned: thin margin
+        .with_agent_real(0, keys::PINNED_SHORTFALL_CAPITAL_GROWTH, 0.0)
+        .with_agent_real(0, keys::PINNED_SHORTFALL_CAPABILITY, 0.0)
+        .with_agent_real(0, keys::PINNED_SHORTFALL_OBLIGATION_CLEARANCE, 0.0);
+    let d = Satisficing::new(SatisficingParams::default())
+        .unwrap()
+        .apply(&v, v.rng_key());
+    assert_eq!(
+        field_value(&d, 0, keys::FOCUS),
+        Some(Focus::Survival.code()),
+        "real state alone (fat margin) would give Focus::None — the pin must win totally"
+    );
+}
+
+/// Item 6 — rare-quadrant construction: a *healthy* pinned margin
+/// (`h = 0.40`, comfortably above `h_crit = 0.15`) combined with a *high*
+/// pinned shortfall (`ς_1 = 1.0`) — a combination real organic dynamics
+/// would rarely produce (a firm doing well on viability but badly on
+/// goals) — must be directly constructible and resolve to `Focus::Goal(1)`.
+#[test]
+fn adr0054_rare_quadrant_healthy_margin_high_shortfall_is_constructible() {
+    let v = seed_common(MockView::new(3, Phase::Decide, 1, &[0]))
+        .with_stock(0, "capital", 5) // real state: actually thin (irrelevant once pinned)
+        .with_stock(0, "input", 3)
+        .with_agent_real(0, keys::CAPABILITY, 0.9)
+        .with_agent_int(0, keys::OBLIGATION, 0)
+        .with_agent_real(0, keys::PINNED_MARGIN, 0.40)
+        .with_agent_real(0, keys::PINNED_SHORTFALL_CAPITAL_GROWTH, 1.0)
+        .with_agent_real(0, keys::PINNED_SHORTFALL_CAPABILITY, 0.0)
+        .with_agent_real(0, keys::PINNED_SHORTFALL_OBLIGATION_CLEARANCE, 0.0);
+    let d = Satisficing::new(SatisficingParams::default())
+        .unwrap()
+        .apply(&v, v.rng_key());
+    assert_eq!(
+        field_value(&d, 0, keys::FOCUS),
+        Some(Focus::Goal(1).code()),
+        "healthy pinned h (0.40 >= h_crit) + high pinned ς_1 (1.0) must reach GOAL(1), \
+         not SURVIVAL — a real-state margin of 5/100 would give SURVIVAL unpinned"
+    );
+}
+
+/// Item 7 — shortfall-mapping cross-check against
+/// `vt8_orthogonal_manipulation_of_h_and_shortfall`'s own construction
+/// (`tests/tests/validation.rs`, `select(h, [s1, 0.0, 0.0], ...)`): the
+/// accepted Option-B mapping (ADR-0054) pins `ς_1` to the swept value and
+/// `ς_2`/`ς_3` at `0.0` — confirm `Satisficing::apply()`'s pin-read path
+/// produces the *same* `Focus`/`w_eff` as calling `select()` directly with
+/// VT-8's own `[s1, 0.0, 0.0]` shape, for representative values drawn from
+/// VT-8's actual grid (`h_levels`/`s_levels` in that test).
+#[test]
+fn adr0054_shortfall_mapping_matches_vt8_construction() {
+    let h_crit = default_h_crit();
+    let beta = default_beta();
+    let w_max = default_w_max();
+    // A sample from VT-8's own h_levels x s_levels grid, spanning both
+    // SURVIVAL and GOAL(1) regimes.
+    for &(h, s1) in &[
+        (0.02_f64, 0.25_f64),
+        (0.05, -0.25),
+        (0.20, 0.50),
+        (0.20, -1.0),
+        (0.40, 2.0),
+    ] {
+        let direct = select(
+            h,
+            [s1, 0.0, 0.0],
+            beta,
+            h_crit,
+            w_max,
+            0,
+            |a| a <= 5,
+            |_a, _f| false,
+        );
+
+        let v = seed_common(MockView::new(3, Phase::Decide, 1, &[0]))
+            .with_stock(0, "capital", 400)
+            .with_stock(0, "input", 10)
+            .with_agent_real(0, keys::CAPABILITY, 0.9)
+            .with_agent_int(0, keys::OBLIGATION, 0)
+            .with_agent_real(0, keys::PINNED_MARGIN, h)
+            .with_agent_real(0, keys::PINNED_SHORTFALL_CAPITAL_GROWTH, s1)
+            .with_agent_real(0, keys::PINNED_SHORTFALL_CAPABILITY, 0.0)
+            .with_agent_real(0, keys::PINNED_SHORTFALL_OBLIGATION_CLEARANCE, 0.0);
+        let d = Satisficing::new(SatisficingParams::default())
+            .unwrap()
+            .apply(&v, v.rng_key());
+
+        assert_eq!(
+            field_value(&d, 0, keys::FOCUS),
+            Some(direct.focus.code()),
+            "h={h}, ς_1={s1}: Focus diverged from VT-8's own [s1,0,0] construction"
+        );
+        assert_eq!(
+            field_value(&d, 0, keys::W_EFF),
+            Some(i64::from(direct.w_eff)),
+            "h={h}, ς_1={s1}: w_eff diverged from VT-8's own [s1,0,0] construction"
+        );
+    }
+}
+
+/// Partial-pin contract (ADR-0054 Part A item 1): three of the four
+/// `PINNED_*` keys present, one missing, must panic loudly rather than
+/// silently compute a mix of pinned and real values.
+#[test]
+#[should_panic(expected = "partial Arm-A pin state")]
+fn adr0054_partial_pin_panics() {
+    let v = seed_common(MockView::new(3, Phase::Decide, 1, &[0]))
+        .with_stock(0, "capital", 400)
+        .with_stock(0, "input", 10)
+        .with_agent_real(0, keys::CAPABILITY, 0.9)
+        .with_agent_int(0, keys::OBLIGATION, 0)
+        .with_agent_real(0, keys::PINNED_MARGIN, 0.02)
+        .with_agent_real(0, keys::PINNED_SHORTFALL_CAPITAL_GROWTH, 0.0)
+        .with_agent_real(0, keys::PINNED_SHORTFALL_CAPABILITY, 0.0);
+    // PINNED_SHORTFALL_OBLIGATION_CLEARANCE deliberately omitted.
+    let _ = Satisficing::new(SatisficingParams::default())
+        .unwrap()
+        .apply(&v, v.rng_key());
+}
+
+/// The complementary partial-pin case — exactly one of four present —
+/// confirmed to panic too (not just the three-of-four case above).
+#[test]
+#[should_panic(expected = "partial Arm-A pin state")]
+fn adr0054_single_pin_panics() {
+    let v = seed_common(MockView::new(3, Phase::Decide, 1, &[0]))
+        .with_stock(0, "capital", 400)
+        .with_stock(0, "input", 10)
+        .with_agent_real(0, keys::CAPABILITY, 0.9)
+        .with_agent_int(0, keys::OBLIGATION, 0)
+        .with_agent_real(0, keys::PINNED_MARGIN, 0.02);
+    let _ = Satisficing::new(SatisficingParams::default())
+        .unwrap()
+        .apply(&v, v.rng_key());
+}
+
+// --- corrupt persisted records fail loudly (review H-1; manual §19.5) ---
+
+/// A record no parser in this crate accepts — the one corrupt entry each
+/// fixture below contains.
+const CORRUPT: &str = r#"{"tick":"CORRUPT-RECORD"}"#;
+
+/// Run `f`, expect a panic, and return its message.
+fn panic_message(f: impl FnOnce()) -> String {
+    let r = std::panic::catch_unwind(std::panic::AssertUnwindSafe(f));
+    let payload =
+        r.expect_err("expected a panic on the corrupt record, but the rule returned normally");
+    payload
+        .downcast_ref::<String>()
+        .cloned()
+        .or_else(|| payload.downcast_ref::<&str>().map(|s| (*s).to_owned()))
+        .unwrap_or_default()
+}
+
+fn healthy_view() -> MockView {
+    MockView::new(5, Phase::Decide, 1, &[0])
+        .with_global_real(keys::THETA_LIMIT, 0.90)
+        .with_global_real(keys::THETA_CAP, 0.40)
+        .with_global_int(keys::THETA_Q, 100)
+        .with_global_int(keys::INPUT_PRICE, 2)
+        .with_global_int(keys::OUTPUT_PRICE, 3)
+        .with_stock(0, "capital", 400)
+        .with_stock(0, "input", 10)
+        .with_agent_real(0, keys::CAPABILITY, 0.9)
+}
+
+fn satisficing_default() -> Satisficing {
+    Satisficing::new(SatisficingParams::default()).unwrap()
+}
+
+fn assert_names(msg: &str, parts: &[&str]) {
+    for p in parts {
+        assert!(msg.contains(p), "panic message does not name {p:?}: {msg}");
+    }
+}
+
+#[test]
+fn corrupt_action_window_record_panics_naming_agent_key_and_record() {
+    let ok = |t, a| firma_domain::WindowEntry::new(t, a).to_json();
+    let v = healthy_view()
+        .with_agent_record(0, keys::ACTION_WINDOW, ok(3, 1))
+        .with_agent_record(0, keys::ACTION_WINDOW, CORRUPT.to_owned())
+        .with_agent_record(0, keys::ACTION_WINDOW, ok(4, 2));
+    let msg = panic_message(|| {
+        satisficing_default().apply(&v, v.rng_key());
+    });
+    assert_names(&msg, &["agent 0", keys::ACTION_WINDOW, "CORRUPT-RECORD"]);
+}
+
+#[test]
+fn corrupt_lagged_effect_record_panics_naming_agent_key_and_record() {
+    let v = healthy_view().with_agent_record(0, keys::LAGGED_EFFECTS, CORRUPT.to_owned());
+    let msg = panic_message(|| {
+        satisficing_default().apply(&v, v.rng_key());
+    });
+    assert_names(&msg, &["agent 0", keys::LAGGED_EFFECTS, "CORRUPT-RECORD"]);
+}
+
+#[test]
+fn corrupt_observed_env_record_panics_naming_agent_key_and_record() {
+    let v = healthy_view().with_agent_record(0, keys::OBSERVED_ENV, CORRUPT.to_owned());
+    let msg = panic_message(|| {
+        satisficing_default().apply(&v, v.rng_key());
+    });
+    assert_names(&msg, &["agent 0", keys::OBSERVED_ENV, "CORRUPT-RECORD"]);
+}
+
+#[test]
+fn corrupt_relation_edge_panics_in_satisficing_naming_key_and_record() {
+    let v = healthy_view().with_global_record(keys::RELATION_EDGES, CORRUPT.to_owned());
+    let msg = panic_message(|| {
+        satisficing_default().apply(&v, v.rng_key());
+    });
+    assert_names(&msg, &[keys::RELATION_EDGES, "CORRUPT-RECORD"]);
+}
+
+#[test]
+fn corrupt_relation_edge_panics_in_decision_random_naming_key_and_record() {
+    let v = healthy_view().with_global_record(keys::RELATION_EDGES, CORRUPT.to_owned());
+    let msg = panic_message(|| {
+        DecisionRandom::new(RandomParams::default())
+            .unwrap()
+            .apply(&v, v.rng_key());
+    });
+    assert_names(&msg, &[keys::RELATION_EDGES, "CORRUPT-RECORD"]);
+}

@@ -287,7 +287,19 @@ impl Rule for Delayed {
         let mut hist: Vec<EnvSnapshot> = view
             .global_records(keys::ENV_HISTORY)
             .iter()
-            .filter_map(|s| EnvSnapshot::from_json(s).ok())
+            .map(|s| {
+                // A history entry that does not parse is a loud failure, not
+                // a shorter history: dropping it would silently change which
+                // tick's environment every firm observes (manual §19.5: no
+                // repair-and-continue; `Rule::apply` has no `Result`).
+                EnvSnapshot::from_json(s).unwrap_or_else(|e| {
+                    panic!(
+                        "global: corrupt persisted record under `{}` ({e}); offending \
+                         record: {s:?}. Refusing to drop it and continue (manual §19.5).",
+                        keys::ENV_HISTORY
+                    )
+                })
+            })
             .collect();
         hist.push(truth);
         let cap = (self.k + 1) as usize;

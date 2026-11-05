@@ -1,0 +1,26 @@
+============================= test session starts ==============================
+platform linux -- Python 3.14.7, pytest-9.1.1, pluggy-1.6.0 -- /home/jayabratabasu/firma/.venv/bin/python
+rootdir: /home/jayabratabasu/firma
+configfile: pyproject.toml
+collecting ... collected 18 items
+
+python/tests/test_diag_blindspot.py::test_the_step_0_spec_file_is_exactly_the_spec_the_script_declares PASSED [  5%]
+python/tests/test_diag_blindspot.py::test_step_0_never_overwrites_and_a_changed_or_missing_spec_is_refused PASSED [ 11%]
+python/tests/test_diag_blindspot.py::test_the_grid_is_the_declared_one_and_the_predictions_are_in_the_spec_verbatim PASSED [ 16%]
+python/tests/test_diag_blindspot.py::test_l_w_is_set_in_all_three_rules_and_h_crit_in_the_decision_rule[4-0.15] PASSED [ 22%]
+python/tests/test_diag_blindspot.py::test_l_w_is_set_in_all_three_rules_and_h_crit_in_the_decision_rule[4-0.3] PASSED [ 27%]
+python/tests/test_diag_blindspot.py::test_l_w_is_set_in_all_three_rules_and_h_crit_in_the_decision_rule[8-0.15] PASSED [ 33%]
+python/tests/test_diag_blindspot.py::test_l_w_is_set_in_all_three_rules_and_h_crit_in_the_decision_rule[8-0.3] PASSED [ 38%]
+python/tests/test_diag_blindspot.py::test_part_1_shock_has_fixed_onset_and_magnitude_and_the_fork_differs_only_by_the_shock PASSED [ 44%]
+python/tests/test_diag_blindspot.py::test_with_l_w_4_and_h_crit_015_only_the_explicit_h_crit_key_differs_from_r21 PASSED [ 50%]
+python/tests/test_diag_blindspot.py::test_part_2_config_is_the_r21_relative_config_with_l_w_8 PASSED [ 55%]
+python/tests/test_diag_blindspot.py::test_part_3_replaces_patchy_by_constant_in_both_branches PASSED [ 61%]
+python/tests/test_diag_blindspot.py::test_strike_summary_takes_the_first_strike_at_or_after_onset PASSED [ 66%]
+python/tests/test_diag_blindspot.py::test_cell_summary_shares_and_means PASSED [ 72%]
+python/tests/test_diag_blindspot.py::test_all_three_predictions_hold_on_the_hypothesised_pattern_whatever_the_edges_do PASSED [ 77%]
+python/tests/test_diag_blindspot.py::test_p1_is_falsified_by_a_weak_interior_level_or_any_outside_level PASSED [ 83%]
+python/tests/test_diag_blindspot.py::test_p2_and_p3_are_falsified_by_a_single_magnitude_above_ten_percent PASSED [ 88%]
+python/tests/test_diag_blindspot.py::test_price_series_accumulates_logged_deltas_per_tick PASSED [ 94%]
+python/tests/test_diag_blindspot.py::test_one_part_1_population_end_to_end PASSED [100%]
+
+============================== 18 passed in 1.25s ==============================

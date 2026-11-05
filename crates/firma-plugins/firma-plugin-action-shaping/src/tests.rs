@@ -362,3 +362,30 @@ fn every_registered_rule_has_a_nonempty_assumption() {
         assert!(!r.assumption().trim().is_empty(), "{}", r.id().as_str());
     }
 }
+
+// --- review H-2: a corrupt relation store is a loud failure, not "do nothing" ---
+
+fn h2_panic_message(f: impl FnOnce()) -> String {
+    let r = std::panic::catch_unwind(std::panic::AssertUnwindSafe(f));
+    let payload =
+        r.expect_err("expected a panic on the corrupt record, but the rule returned normally");
+    payload
+        .downcast_ref::<String>()
+        .cloned()
+        .or_else(|| payload.downcast_ref::<&str>().map(|s| (*s).to_owned()))
+        .unwrap_or_default()
+}
+
+#[test]
+fn shaping_rule_panics_on_a_corrupt_relation_edge_naming_key_and_record() {
+    let v = view_for_lobby(0, 42).with_global_record(
+        keys::RELATION_EDGES,
+        r#"{"source":"CORRUPT-RECORD"}"#.to_owned(),
+    );
+    let msg = h2_panic_message(|| {
+        lobby_rule().apply(&v, v.rng_key());
+    });
+    for p in [keys::RELATION_EDGES, "CORRUPT-RECORD"] {
+        assert!(msg.contains(p), "panic message does not name {p:?}: {msg}");
+    }
+}

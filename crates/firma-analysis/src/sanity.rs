@@ -117,7 +117,59 @@ fn ratio(num: usize, den: usize) -> f64 {
 /// harness should fail loudly.
 #[must_use]
 pub fn sanity_from_run(cfg: &RunConfig, run_dir: &Path) -> SanityReport {
-    let mut r = Reconstruction::new(cfg);
+    try_sanity_from_run(cfg, run_dir).unwrap_or_else(|e| panic!("{e}"))
+}
+
+/// One error message for a reconstruction that met unparsable persisted
+/// records, or `Ok(())` if it met none. The message lists every record
+/// ([`Reconstruction::parse_errors`]: tick, agent, key, offending string).
+pub(crate) fn refuse_parse_errors(r: &Reconstruction) -> Result<(), String> {
+    let errs = r.parse_errors();
+    if errs.is_empty() {
+        Ok(())
+    } else {
+        Err(format!(
+            "event log contains {} unparsable persisted record(s); every quantity derived \
+             from them (u, h, repertoire entropy, shaping counts) would be wrong, so no \
+             result is returned:\n  {}",
+            errs.len(),
+            errs.join("\n  ")
+        ))
+    }
+}
+
+/// Fold `events` through a [`Reconstruction`] and return it **only if** the
+/// log was well-formed: a malformed `scales` parameter
+/// ([`Reconstruction::try_new`]) or any unparsable persisted record
+/// ([`Reconstruction::parse_errors`]) is an error. Use this instead of
+/// `Reconstruction::new` + `apply` wherever the result becomes a reported
+/// number.
+///
+/// # Errors
+/// As described above; the message names each offending record.
+pub fn reconstruct_checked<'a>(
+    cfg: &RunConfig,
+    events: impl IntoIterator<Item = &'a Event>,
+) -> Result<Reconstruction, String> {
+    let mut r = Reconstruction::try_new(cfg)?;
+    for ev in events {
+        r.apply(ev);
+    }
+    refuse_parse_errors(&r)?;
+    Ok(r)
+}
+
+/// As [`sanity_from_run`], but a malformed `scales` parameter or an event log
+/// containing unparsable persisted records is returned as an error instead
+/// of a panic — and never as a report computed without those records.
+///
+/// # Errors
+/// As described above.
+///
+/// # Panics
+/// If the event log cannot be read or an event line fails to parse.
+pub fn try_sanity_from_run(cfg: &RunConfig, run_dir: &Path) -> Result<SanityReport, String> {
+    let mut r = Reconstruction::try_new(cfg)?;
     let initial_firms = cfg.agents.len();
 
     let mut focus_total = 0usize;
@@ -226,7 +278,9 @@ pub fn sanity_from_run(cfg: &RunConfig, run_dir: &Path) -> SanityReport {
             / entropies.len() as f64
     };
 
-    SanityReport {
+    refuse_parse_errors(&r)?;
+
+    Ok(SanityReport {
         initial_firms,
         survivors,
         sc1_survival: survivors as f64 / initial_firms.max(1) as f64,
@@ -244,5 +298,118 @@ pub fn sanity_from_run(cfg: &RunConfig, run_dir: &Path) -> SanityReport {
         sc6_entropy_mean: ent_mean,
         decisions,
         shaping_commits,
+    })
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use firma_core::{AgentId, DeltaKind, DeltaTarget, PluginId};
+    use firma_domain::{keys, WindowEntry};
+
+    fn cfg() -> RunConfig {
+        RunConfig::from_json(
+            r#"{
+              "experiment": "unit", "schema_version": "1.0.0", "engine": ">=0.1.0, <0.2.0",
+              "seeds": {"mechanism": 910001, "environment": 910002, "shock": 910003, "init": 910004},
+              "world": {"ticks": 4, "resources": ["capital", "input"],
+                "conflict_resolver": {"id": "conflict.additive", "version": "^1"}},
+              "agents": [{"id": 0, "stocks": {"capital": 100}}],
+              "rules": [{"id": "constraint.action_window", "version": "^1", "params": {"l_w": 4}}]
+            }"#,
+        )
+        .unwrap()
+    }
+
+    /// A minimal event log whose one window record list holds `records`.
+    fn events(records: Vec<String>) -> Vec<Event> {
+        vec![
+            Event::RunStarted {
+                manual_version: "1.0.0".into(),
+                engine_version: "0.1.0".into(),
+                horizon: 4,
+            },
+            Event::DeltaApplied {
+                tick: 2,
+                phase: 7,
+                origin: PluginId::new("constraint.action_window"),
+                target: DeltaTarget::Agent(AgentId(0)),
+                kind: DeltaKind::ReplaceAgentList {
+                    list: keys::ACTION_WINDOW.to_owned(),
+                    records_json: records,
+                },
+            },
+        ]
+    }
+
+    fn clean() -> Vec<String> {
+        vec![
+            WindowEntry::new(0, 1).to_json(),
+            WindowEntry::new(1, 2).to_json(),
+        ]
+    }
+
+    fn one_corrupt() -> Vec<String> {
+        vec![
+            WindowEntry::new(0, 1).to_json(),
+            r#"{"tick":"CORRUPT-RECORD"}"#.to_owned(),
+            WindowEntry::new(1, 2).to_json(),
+        ]
+    }
+
+    fn run_dir(tag: &str, evs: &[Event]) -> std::path::PathBuf {
+        let d =
+            std::env::temp_dir().join(format!("firma-analysis-h2-{tag}-{}", std::process::id()));
+        std::fs::create_dir_all(&d).unwrap();
+        let body: String = evs
+            .iter()
+            .map(|e| serde_json::to_string(e).unwrap() + "\n")
+            .collect();
+        std::fs::write(d.join("events.ndjson"), body).unwrap();
+        d
+    }
+
+    #[test]
+    fn a_clean_log_reconstructs_and_reports() {
+        let evs = events(clean());
+        assert!(reconstruct_checked(&cfg(), &evs).is_ok());
+        let d = run_dir("clean", &evs);
+        assert!(try_sanity_from_run(&cfg(), &d).is_ok());
+        let _ = std::fs::remove_dir_all(&d);
+    }
+
+    #[test]
+    fn reconstruct_checked_refuses_a_log_with_one_corrupt_record() {
+        let evs = events(one_corrupt());
+        let Err(err) = reconstruct_checked(&cfg(), &evs) else {
+            panic!("a corrupt record must make the checked fold fail");
+        };
+        for p in [
+            "1 unparsable",
+            "agent 0",
+            keys::ACTION_WINDOW,
+            "CORRUPT-RECORD",
+        ] {
+            assert!(err.contains(p), "error does not name {p:?}: {err}");
+        }
+    }
+
+    #[test]
+    fn try_sanity_from_run_refuses_a_log_with_one_corrupt_record() {
+        let d = run_dir("corrupt", &events(one_corrupt()));
+        let Err(err) = try_sanity_from_run(&cfg(), &d) else {
+            panic!("a corrupt record must not yield a sanity report");
+        };
+        let _ = std::fs::remove_dir_all(&d);
+        for p in ["agent 0", keys::ACTION_WINDOW, "CORRUPT-RECORD"] {
+            assert!(err.contains(p), "error does not name {p:?}: {err}");
+        }
+    }
+
+    #[test]
+    #[should_panic(expected = "CORRUPT-RECORD")]
+    fn sanity_from_run_panics_on_a_log_with_one_corrupt_record() {
+        let d = run_dir("corrupt-panic", &events(one_corrupt()));
+        let _ = sanity_from_run(&cfg(), &d);
     }
 }

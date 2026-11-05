@@ -1,0 +1,4 @@
+34c34
+<   SC-3  partial — compliance/scope/obligation emerge; solvency only from a knife-edge seed
+---
+>   SC-3  NOT achieved — threaded binds [sol,cmp,scp,obl] = [true, false, true, true], first@ [Some(0), None, Some(0), Some(0)]

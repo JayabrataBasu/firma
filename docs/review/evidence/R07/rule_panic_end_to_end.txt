@@ -1,0 +1,29 @@
+### firma run --model   (a rule panics inside apply at tick 4: partial Arm-A pin, the same mechanism the corrupt-record panics use)
+exit code: 101
+stdout bytes: 0
+stderr:
+   
+   thread 'main' (954415) panicked at crates/firma-plugins/firma-plugin-decision/src/lib.rs:983:17:
+   agent 1: partial Arm-A pin state (ADR 0054) — 1/4 of PINNED_MARGIN/PINNED_SHORTFALL_{CAPITAL_GROWTH,CAPABILITY,OBLIGATION_CLEARANCE} are set for this agent; missing: ["PINNED_SHORTFALL_CAPITAL_GROWTH", "PINNED_SHORTFALL_CAPABILITY", "PINNED_SHORTFALL_OBLIGATION_CLEARANCE"]. All four must be set together, or none — a partial pin 
+   note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+files left in run dir: events.ndjson snapshots 
+last tick with a tick_started in events.ndjson: "event":"tick_started","tick":3
+last tick with any event: "tick":4
+manifest.json present: no; run_id.txt present: no
+
+### firma run --model --parallel  (a rule panics inside apply at tick 4: partial Arm-A pin, the same mechanism the corrupt-record panics use)
+exit code: 101
+stdout bytes: 0
+stderr:
+   
+   thread '<unnamed>' (954475) panicked at crates/firma-plugins/firma-plugin-decision/src/lib.rs:983:17:
+   agent 1: partial Arm-A pin state (ADR 0054) — 1/4 of PINNED_MARGIN/PINNED_SHORTFALL_{CAPITAL_GROWTH,CAPABILITY,OBLIGATION_CLEARANCE} are set for this agent; missing: ["PINNED_SHORTFALL_CAPITAL_GROWTH", "PINNED_SHORTFALL_CAPABILITY", "PINNED_SHORTFALL_OBLIGATION_CLEARANCE"]. All four must be set together, or none — a partial pin 
+   note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+   
+   thread 'main' (954434) panicked at crates/firma-kernel/src/lib.rs:315:39:
+   rule panicked on a worker thread: Any { .. }
+files left in run dir: events.ndjson snapshots 
+last tick with a tick_started in events.ndjson: "event":"tick_started","tick":3
+last tick with any event: "tick":4
+manifest.json present: no; run_id.txt present: no
+

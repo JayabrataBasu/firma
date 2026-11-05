@@ -1,0 +1,231 @@
+{
+ "experiment": "DIAGNOSTIC-ONLY-R09-corrupt-record-fixture",
+ "schema_version": "1.0.0",
+ "engine": ">=0.1.0, <0.2.0",
+ "seeds": {
+  "mechanism": 910001,
+  "environment": 910002,
+  "shock": 910003,
+  "init": 910004
+ },
+ "world": {
+  "ticks": 16,
+  "resources": [
+   "capital",
+   "input"
+  ],
+  "conflict_resolver": {
+   "id": "conflict.additive",
+   "version": "^1"
+  },
+  "snapshot_every": 8,
+  "global_reals": {
+   "theta_limit": 0.55,
+   "theta_cap": 0.4
+  },
+  "global_ints": {
+   "theta_q": 100,
+   "input_price": 2,
+   "output_price": 3
+  }
+ },
+ "agents": [
+  {
+   "id": 0,
+   "birth_tick": 0,
+   "stocks": {
+    "capital": 600,
+    "input": 40
+   },
+   "reals": {
+    "capability": 0.6,
+    "legitimacy": 1.0,
+    "aspiration_capital_growth": 8.0
+   }
+  },
+  {
+   "id": 1,
+   "birth_tick": 0,
+   "stocks": {
+    "capital": 600,
+    "input": 40
+   },
+   "reals": {
+    "capability": 0.55,
+    "legitimacy": 1.0,
+    "aspiration_capital_growth": 8.0
+   }
+  },
+  {
+   "id": 2,
+   "birth_tick": 0,
+   "stocks": {
+    "capital": 260,
+    "input": 8
+   },
+   "reals": {
+    "capability": 0.5,
+    "legitimacy": 1.0,
+    "aspiration_capability": 0.8
+   }
+  },
+  {
+   "id": 3,
+   "birth_tick": 0,
+   "stocks": {
+    "capital": 400,
+    "input": 25
+   },
+   "reals": {
+    "capability": 0.25,
+    "legitimacy": 1.0,
+    "aspiration_capital_growth": 4.0
+   }
+  }
+ ],
+ "environment": {
+  "stocks": {
+   "capital": 1000000,
+   "input": 1000000
+  }
+ },
+ "rules": [
+  {
+   "id": "resource.patchy",
+   "version": "^1",
+   "params": {
+    "baseline": 2,
+    "reversion": 0.25,
+    "sigma": 0.8,
+    "floor": 1
+   }
+  },
+  {
+   "id": "shock.scheduled",
+   "version": "^1",
+   "params": {
+    "shocks": [
+     {
+      "id": "reg-tighten",
+      "channel": {
+       "kind": "regulatory",
+       "target": "theta_limit"
+      },
+      "magnitude": 0.1,
+      "onset": 6,
+      "ramp": {
+       "kind": "linear",
+       "duration": 3
+      },
+      "persistence": {
+       "kind": "permanent"
+      },
+      "observability": {
+       "kind": "full"
+      },
+      "novelty": 0.7,
+      "targets": {
+       "kind": "all"
+      }
+     },
+     {
+      "id": "input-spike",
+      "channel": {
+       "kind": "resource"
+      },
+      "magnitude": 2.0,
+      "onset": 10,
+      "ramp": {
+       "kind": "instant"
+      },
+      "persistence": {
+       "kind": "transient",
+       "duration": 3
+      },
+      "observability": {
+       "kind": "full"
+      },
+      "novelty": 0.4,
+      "targets": {
+       "kind": "all"
+      }
+     }
+    ]
+   }
+  },
+  {
+   "id": "observation.delayed",
+   "version": "^1",
+   "params": {
+    "k": 2
+   }
+  },
+  {
+   "id": "decision.satisficing",
+   "version": "^1",
+   "params": {
+    "l_w": 4
+   }
+  },
+  {
+   "id": "action.market.standard.hold",
+   "version": "^1",
+   "params": {}
+  },
+  {
+   "id": "action.market.standard.produce_ordinary",
+   "version": "^1",
+   "params": {}
+  },
+  {
+   "id": "action.market.standard.produce_regulated",
+   "version": "^1",
+   "params": {}
+  },
+  {
+   "id": "action.market.standard.acquire_input",
+   "version": "^1",
+   "params": {}
+  },
+  {
+   "id": "action.market.standard.invest_capability",
+   "version": "^1",
+   "params": {}
+  },
+  {
+   "id": "action.market.standard.deliver",
+   "version": "^1",
+   "params": {}
+  },
+  {
+   "id": "action.shaping.rdt_standard.resolve_lagged",
+   "version": "^1",
+   "params": {}
+  },
+  {
+   "id": "constraint.action_window",
+   "version": "^1",
+   "params": {
+    "l_w": 4
+   }
+  },
+  {
+   "id": "constraint.enforce",
+   "version": "^1",
+   "params": {
+    "t_c": 4,
+    "p_c": 30,
+    "delta_lambda": 0.15,
+    "p_q": 20,
+    "l_w": 4
+   }
+  },
+  {
+   "id": "decision.aspiration_update",
+   "version": "^1",
+   "params": {
+    "alpha": 0.1
+   }
+  }
+ ]
+}

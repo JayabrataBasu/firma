@@ -1,0 +1,5 @@
+# R05/R06 hygiene verification (reviewer, 2026-10-02)
+pytest on an rsync copy of the WORKING TREE with no target/debug/firma (so no simulation executed): 120 passed, 14 skipped in 63s. Skips: test_metrics_cross_check.py lines 70,95,110 (3) + test_runner.py lines 97,107,115,128,157,175,195,216,245,266,292 (11) = 14, all "not built".
+sc16_gate run at scratch copy of working tree (seeds (7|55|5,2,3,4)): cfg_threaded -> SC-2 = 1.000, SC-3 binds [true,false,true,true] (compliance false), SC-4 0/3202 decisions, SC-6 0.0000 FAIL. Doc comment sanity.rs:132-135 says SC-3 and SC-6 pass: FALSE. Summary string sanity.rs:549 "compliance/scope/obligation emerge": FALSE for compliance.
+validation.rs:590-606 view_at rebuilds an identical static MockView each tick (capital 400, input 10): vt4 premise claim CONFIRMED. validation.rs:1119 `never = |_a,_f| false` closure for the satisfices test: CONFIRMED.
+Not re-run: cargo test --workspace totals (237/1 ignored) because the suites execute (n,n,n,n) n<=4 tuples; "3200 of 3202 produce_ordinary"; deny job failure cause.

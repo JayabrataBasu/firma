@@ -1,0 +1,10 @@
+runs compared: 100 (50 shock seeds x shocked + no-shock fork, satisficing arm)
+firm-ticks compared (present in both): 33972
+decisions in the plugin trace with no live firm-tick record (the tick a firm dies in): 154
+live firm-tick records with no plugin trace record: 0
+shortfalls [s1, s2, s3]: firm-ticks where any component differs: 12438; max |difference|: 3.552713678800501e-15
+largest relative difference in any component: 1.1595539507790267e-14
+shortfall_max vs max(plugin shortfalls): max |difference| 3.552713678800501e-15
+firm-ticks where the sign test attend() applies (max shortfall > 0) differs: 0
+firm-ticks where the arg-max goal differs: 0
+h, for information: plugin h_t (perceived, decision time) vs analysis h (true, end of tick): identical on 28038 of 33972 firm-ticks; mean |difference| 0.038137; max 0.679077

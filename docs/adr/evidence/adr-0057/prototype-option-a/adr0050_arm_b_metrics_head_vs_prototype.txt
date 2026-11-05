@@ -1,0 +1,26 @@
+== /tmp/claude-1000/-home-jayabratabasu-firma/5700f051-618e-45c2-bc3e-5ed2bccbc042/scratchpad/oq17/runs/armb-head/trace.ndjson
+  decisions: 1484
+  lobby_reached: 75
+  lobby_inadmissible: 0
+  lobby_satisfices_evals_by_focus: {'Goal(1)': 8, 'Survival': 67}
+  gate_evals: 67
+  gate_closed: 67
+  ttb_values: {'1': 67}
+  payoff_comparisons: 0
+  payoff_wins: 0
+  shaping_selected: 0
+  focus_counts: {'Survival': 1383, 'Goal(1)': 54, 'None': 47}
+  action_counts: {0: 654, 1: 365, 2: 98, 3: 363, 4: 4}
+== /tmp/claude-1000/-home-jayabratabasu-firma/5700f051-618e-45c2-bc3e-5ed2bccbc042/scratchpad/oq17/runs/armb-proto/trace.ndjson
+  decisions: 1484
+  lobby_reached: 42
+  lobby_inadmissible: 0
+  lobby_satisfices_evals_by_focus: {'Goal(1)': 8, 'Survival': 34}
+  gate_evals: 34
+  gate_closed: 34
+  ttb_values: {'1': 34}
+  payoff_comparisons: 0
+  payoff_wins: 0
+  shaping_selected: 0
+  focus_counts: {'Survival': 1383, 'Goal(1)': 54, 'None': 47}
+  action_counts: {0: 654, 1: 365, 2: 98, 3: 363, 4: 4}

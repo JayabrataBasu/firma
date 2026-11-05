@@ -1,0 +1,356 @@
+DIAGNOSTIC-ONLY - REGIME SEARCH - NOT REGISTERED - NOT FOR TUNING
+grid 2: /home/jayabratabasu/firma/docs/review/evidence/R18/grid2.json  sha256 617239841e91e5c53cd9dc3a3ef46ad0b4b884ad281779c11b0082bae1dcf792  (288 cells, declared order)
+DISCLOSURE: Grid 1 (72 cells, grid.json sha256 1371026b859b2da07e87ad5186fed47c9063ec96d6cf214d866670577701963a) passed 0 cells. The axes of grid 2 were chosen by the reviewer AFTER seeing grid 1's results (R17). Grid 1 stays in the record unchanged.
+firma: /home/jayabratabasu/firma/target/debug/firma; output: /tmp/claude-1000/-home-jayabratabasu-firma/25acd624-4575-4f2d-9fb5-645f7478f07e/scratchpad/r18
+
+== control (a): determinism (grid-2 cell 0 baseline, run twice) ==
+  BYTE-EQUAL  16862c75948174f96a962a919e7afa7e49075ab1da12e4df7911cf5e15e21967  16862c75948174f96a962a919e7afa7e49075ab1da12e4df7911cf5e15e21967
+
+== control (b): R12 smoke config and grid-1 cells reproduce their R16 T1 numbers ==
+  R12 smoke config: EQUAL  now {'sc1_survival': 0.75, 'sc2_h_below_crit': 0.5913978494623656, 'sc3_binds': [True, False, True, False], 'sc6_entropy_variance': 0.3679443941353591, 'T1': False}  R16 {'sc1_survival': 0.75, 'sc2_h_below_crit': 0.5913978494623656, 'sc3_binds': [True, False, True, False], 'sc6_entropy_variance': 0.3679443941353591, 'T1': False}
+  grid-1 cell 0: EQUAL  now {'sc1_survival': 1.0, 'sc2_h_below_crit': 0.6729166666666667, 'sc3_binds': [False, False, True, False], 'sc6_entropy_variance': 0.3794108915125412, 'T1': False}  R16 {'sc1_survival': 1.0, 'sc2_h_below_crit': 0.6729166666666667, 'sc3_binds': [False, False, True, False], 'sc6_entropy_variance': 0.3794108915125412, 'T1': False}
+  grid-1 cell 36: EQUAL  now {'sc1_survival': 1.0, 'sc2_h_below_crit': 0.6847222222222222, 'sc3_binds': [False, False, True, False], 'sc6_entropy_variance': 0.36991329763905817, 'T1': False}  R16 {'sc1_survival': 1.0, 'sc2_h_below_crit': 0.6847222222222222, 'sc3_binds': [False, False, True, False], 'sc6_entropy_variance': 0.36991329763905817, 'T1': False}
+  grid-1 cell 71: EQUAL  now {'sc1_survival': 1.0, 'sc2_h_below_crit': 0.010416666666666666, 'sc3_binds': [False, True, False, False], 'sc6_entropy_variance': 0.1832961371612612, 'T1': False}  R16 {'sc1_survival': 1.0, 'sc2_h_below_crit': 0.010416666666666666, 'sc3_binds': [False, True, False, False], 'sc6_entropy_variance': 0.1832961371612612, 'T1': False}
+
+== STAGE 1: one no-shock baseline per cell, T1 only, declared order ==
+cell types price obligation theta_limit | SC-1 | SC-2 h<h_crit | SC-3 [sol,cmp,scp,obl] | SC-6 var | T1 | information only
+  0 L0 T0 price 2 none   thL 0.60 | 1.000 fail | 0.417 fail | nnnn fail | 0.4426 PASS | T1 fail | SC-4 0.000 SC-5 n/a
+  1 L0 T0 price 2 none   thL 0.70 | 0.000 fail | 0.333 fail | nYnn fail | 0.0000 fail | T1 fail | SC-4 0.000 SC-5 n/a
+  2 L0 T0 price 2 none   thL 0.80 | 1.000 fail | 0.267 fail | nnnn fail | 0.2009 PASS | T1 fail | SC-4 0.000 SC-5 n/a
+  3 L0 T0 price 2 none   thL 0.90 | 1.000 fail | 0.008 fail | nYnn fail | 0.1831 PASS | T1 fail | SC-4 0.000 SC-5 n/a
+  4 L0 T0 price 2 seeded thL 0.60 | 0.833 PASS | 0.453 fail | YnnY fail | 0.4665 PASS | T1 fail | SC-4 0.000 SC-5 n/a
+  5 L0 T0 price 2 seeded thL 0.70 | 0.000 fail | 0.818 fail | YYnY fail | 0.0000 fail | T1 fail | SC-4 0.000 SC-5 n/a
+  6 L0 T0 price 2 seeded thL 0.80 | 0.833 PASS | 0.312 fail | YnnY fail | 0.2123 PASS | T1 fail | SC-4 0.000 SC-5 n/a
+  7 L0 T0 price 2 seeded thL 0.90 | 0.833 PASS | 0.070 PASS | YYnY fail | 0.1934 PASS | T1 fail | SC-4 0.000 SC-5 n/a
+  8 L0 T0 price 3 none   thL 0.60 | 1.000 fail | 0.417 fail | nnnn fail | 0.4426 PASS | T1 fail | SC-4 0.000 SC-5 n/a
+  9 L0 T0 price 3 none   thL 0.70 | 0.000 fail | 0.333 fail | nYnn fail | 0.0000 fail | T1 fail | SC-4 0.000 SC-5 n/a
+ 10 L0 T0 price 3 none   thL 0.80 | 1.000 fail | 0.267 fail | nnnn fail | 0.2009 PASS | T1 fail | SC-4 0.000 SC-5 n/a
+ 11 L0 T0 price 3 none   thL 0.90 | 1.000 fail | 0.008 fail | nYnn fail | 0.1831 PASS | T1 fail | SC-4 0.000 SC-5 n/a
+ 12 L0 T0 price 3 seeded thL 0.60 | 0.833 PASS | 0.453 fail | YnnY fail | 0.4665 PASS | T1 fail | SC-4 0.000 SC-5 n/a
+ 13 L0 T0 price 3 seeded thL 0.70 | 0.000 fail | 0.818 fail | YYnY fail | 0.0000 fail | T1 fail | SC-4 0.000 SC-5 n/a
+ 14 L0 T0 price 3 seeded thL 0.80 | 0.833 PASS | 0.312 fail | YnnY fail | 0.2123 PASS | T1 fail | SC-4 0.000 SC-5 n/a
+ 15 L0 T0 price 3 seeded thL 0.90 | 0.833 PASS | 0.070 PASS | YYnY fail | 0.1934 PASS | T1 fail | SC-4 0.000 SC-5 n/a
+ 16 L0 T0 price 5 none   thL 0.60 | 1.000 fail | 0.417 fail | nnnn fail | 0.4426 PASS | T1 fail | SC-4 0.000 SC-5 n/a
+ 17 L0 T0 price 5 none   thL 0.70 | 0.000 fail | 0.333 fail | nYnn fail | 0.0000 fail | T1 fail | SC-4 0.000 SC-5 n/a
+ 18 L0 T0 price 5 none   thL 0.80 | 1.000 fail | 0.267 fail | nnnn fail | 0.2009 PASS | T1 fail | SC-4 0.000 SC-5 n/a
+ 19 L0 T0 price 5 none   thL 0.90 | 1.000 fail | 0.008 fail | nYnn fail | 0.1831 PASS | T1 fail | SC-4 0.000 SC-5 n/a
+ 20 L0 T0 price 5 seeded thL 0.60 | 1.000 fail | 0.514 fail | YnnY fail | 0.4161 PASS | T1 fail | SC-4 0.000 SC-5 n/a
+ 21 L0 T0 price 5 seeded thL 0.70 | 0.167 fail | 0.926 fail | YYnY fail | 0.2397 PASS | T1 fail | SC-4 0.000 SC-5 n/a
+ 22 L0 T0 price 5 seeded thL 0.80 | 1.000 fail | 0.389 fail | YnnY fail | 0.2042 PASS | T1 fail | SC-4 0.000 SC-5 n/a
+ 23 L0 T0 price 5 seeded thL 0.90 | 1.000 fail | 0.174 PASS | YYnY fail | 0.1898 PASS | T1 fail | SC-4 0.000 SC-5 n/a
+ 24 L0 T2 price 2 none   thL 0.60 | 1.000 fail | 0.417 fail | nnnn fail | 0.4414 PASS | T1 fail | SC-4 0.000 SC-5 n/a
+ 25 L0 T2 price 2 none   thL 0.70 | 0.000 fail | 0.324 fail | nYnn fail | 0.0622 PASS | T1 fail | SC-4 0.000 SC-5 n/a
+ 26 L0 T2 price 2 none   thL 0.80 | 1.000 fail | 0.267 fail | nnnn fail | 0.2002 PASS | T1 fail | SC-4 0.000 SC-5 n/a
+ 27 L0 T2 price 2 none   thL 0.90 | 1.000 fail | 0.008 fail | nYnn fail | 0.1826 PASS | T1 fail | SC-4 0.000 SC-5 n/a
+ 28 L0 T2 price 2 seeded thL 0.60 | 0.833 PASS | 0.453 fail | YnnY fail | 0.4653 PASS | T1 fail | SC-4 0.000 SC-5 n/a
+ 29 L0 T2 price 2 seeded thL 0.70 | 0.000 fail | 0.811 fail | YYnY fail | 0.0219 PASS | T1 fail | SC-4 0.000 SC-5 n/a
+ 30 L0 T2 price 2 seeded thL 0.80 | 0.833 PASS | 0.312 fail | YnnY fail | 0.2117 PASS | T1 fail | SC-4 0.000 SC-5 n/a
+ 31 L0 T2 price 2 seeded thL 0.90 | 0.833 PASS | 0.070 PASS | YYnY fail | 0.1929 PASS | T1 fail | SC-4 0.000 SC-5 n/a
+ 32 L0 T2 price 3 none   thL 0.60 | 1.000 fail | 0.417 fail | nnnn fail | 0.4414 PASS | T1 fail | SC-4 0.000 SC-5 n/a
+ 33 L0 T2 price 3 none   thL 0.70 | 0.000 fail | 0.324 fail | nYnn fail | 0.0622 PASS | T1 fail | SC-4 0.000 SC-5 n/a
+ 34 L0 T2 price 3 none   thL 0.80 | 1.000 fail | 0.267 fail | nnnn fail | 0.2002 PASS | T1 fail | SC-4 0.000 SC-5 n/a
+ 35 L0 T2 price 3 none   thL 0.90 | 1.000 fail | 0.008 fail | nYnn fail | 0.1826 PASS | T1 fail | SC-4 0.000 SC-5 n/a
+ 36 L0 T2 price 3 seeded thL 0.60 | 0.833 PASS | 0.453 fail | YnnY fail | 0.4653 PASS | T1 fail | SC-4 0.000 SC-5 n/a
+ 37 L0 T2 price 3 seeded thL 0.70 | 0.000 fail | 0.811 fail | YYnY fail | 0.0219 PASS | T1 fail | SC-4 0.000 SC-5 n/a
+ 38 L0 T2 price 3 seeded thL 0.80 | 0.833 PASS | 0.312 fail | YnnY fail | 0.2117 PASS | T1 fail | SC-4 0.000 SC-5 n/a
+ 39 L0 T2 price 3 seeded thL 0.90 | 0.833 PASS | 0.070 PASS | YYnY fail | 0.1929 PASS | T1 fail | SC-4 0.000 SC-5 n/a
+ 40 L0 T2 price 5 none   thL 0.60 | 1.000 fail | 0.417 fail | nnnn fail | 0.4414 PASS | T1 fail | SC-4 0.000 SC-5 n/a
+ 41 L0 T2 price 5 none   thL 0.70 | 0.000 fail | 0.324 fail | nYnn fail | 0.0622 PASS | T1 fail | SC-4 0.000 SC-5 n/a
+ 42 L0 T2 price 5 none   thL 0.80 | 1.000 fail | 0.267 fail | nnnn fail | 0.2002 PASS | T1 fail | SC-4 0.000 SC-5 n/a
+ 43 L0 T2 price 5 none   thL 0.90 | 1.000 fail | 0.008 fail | nYnn fail | 0.1826 PASS | T1 fail | SC-4 0.000 SC-5 n/a
+ 44 L0 T2 price 5 seeded thL 0.60 | 1.000 fail | 0.514 fail | YnnY fail | 0.4150 PASS | T1 fail | SC-4 0.000 SC-5 n/a
+ 45 L0 T2 price 5 seeded thL 0.70 | 0.167 fail | 0.923 fail | YYnY fail | 0.2374 PASS | T1 fail | SC-4 0.000 SC-5 n/a
+ 46 L0 T2 price 5 seeded thL 0.80 | 1.000 fail | 0.389 fail | YnnY fail | 0.2035 PASS | T1 fail | SC-4 0.000 SC-5 n/a
+ 47 L0 T2 price 5 seeded thL 0.90 | 1.000 fail | 0.174 PASS | YYnY fail | 0.1892 PASS | T1 fail | SC-4 0.000 SC-5 n/a
+ 48 L0 T4 price 2 none   thL 0.60 | 1.000 fail | 0.417 fail | nnnn fail | 0.4402 PASS | T1 fail | SC-4 0.000 SC-5 n/a
+ 49 L0 T4 price 2 none   thL 0.70 | 0.000 fail | 0.316 fail | nYnn fail | 0.1110 PASS | T1 fail | SC-4 0.000 SC-5 n/a
+ 50 L0 T4 price 2 none   thL 0.80 | 1.000 fail | 0.267 fail | nnnn fail | 0.1995 PASS | T1 fail | SC-4 0.000 SC-5 n/a
+ 51 L0 T4 price 2 none   thL 0.90 | 1.000 fail | 0.008 fail | nYnn fail | 0.1820 PASS | T1 fail | SC-4 0.000 SC-5 n/a
+ 52 L0 T4 price 2 seeded thL 0.60 | 0.833 PASS | 0.453 fail | YnnY fail | 0.4641 PASS | T1 fail | SC-4 0.000 SC-5 n/a
+ 53 L0 T4 price 2 seeded thL 0.70 | 0.000 fail | 0.804 fail | YYnY fail | 0.0423 PASS | T1 fail | SC-4 0.000 SC-5 n/a
+ 54 L0 T4 price 2 seeded thL 0.80 | 0.833 PASS | 0.312 fail | YnnY fail | 0.2111 PASS | T1 fail | SC-4 0.000 SC-5 n/a
+ 55 L0 T4 price 2 seeded thL 0.90 | 0.833 PASS | 0.070 PASS | YYnY fail | 0.1924 PASS | T1 fail | SC-4 0.000 SC-5 n/a
+ 56 L0 T4 price 3 none   thL 0.60 | 1.000 fail | 0.417 fail | nnnn fail | 0.4402 PASS | T1 fail | SC-4 0.000 SC-5 n/a
+ 57 L0 T4 price 3 none   thL 0.70 | 0.000 fail | 0.316 fail | nYnn fail | 0.1110 PASS | T1 fail | SC-4 0.000 SC-5 n/a
+ 58 L0 T4 price 3 none   thL 0.80 | 1.000 fail | 0.267 fail | nnnn fail | 0.1995 PASS | T1 fail | SC-4 0.000 SC-5 n/a
+ 59 L0 T4 price 3 none   thL 0.90 | 1.000 fail | 0.008 fail | nYnn fail | 0.1820 PASS | T1 fail | SC-4 0.000 SC-5 n/a
+ 60 L0 T4 price 3 seeded thL 0.60 | 0.833 PASS | 0.453 fail | YnnY fail | 0.4641 PASS | T1 fail | SC-4 0.000 SC-5 n/a
+ 61 L0 T4 price 3 seeded thL 0.70 | 0.000 fail | 0.804 fail | YYnY fail | 0.0423 PASS | T1 fail | SC-4 0.000 SC-5 n/a
+ 62 L0 T4 price 3 seeded thL 0.80 | 0.833 PASS | 0.312 fail | YnnY fail | 0.2111 PASS | T1 fail | SC-4 0.000 SC-5 n/a
+ 63 L0 T4 price 3 seeded thL 0.90 | 0.833 PASS | 0.070 PASS | YYnY fail | 0.1924 PASS | T1 fail | SC-4 0.000 SC-5 n/a
+ 64 L0 T4 price 5 none   thL 0.60 | 1.000 fail | 0.417 fail | nnnn fail | 0.4402 PASS | T1 fail | SC-4 0.000 SC-5 n/a
+ 65 L0 T4 price 5 none   thL 0.70 | 0.000 fail | 0.316 fail | nYnn fail | 0.1110 PASS | T1 fail | SC-4 0.000 SC-5 n/a
+ 66 L0 T4 price 5 none   thL 0.80 | 1.000 fail | 0.267 fail | nnnn fail | 0.1995 PASS | T1 fail | SC-4 0.000 SC-5 n/a
+ 67 L0 T4 price 5 none   thL 0.90 | 1.000 fail | 0.008 fail | nYnn fail | 0.1820 PASS | T1 fail | SC-4 0.000 SC-5 n/a
+ 68 L0 T4 price 5 seeded thL 0.60 | 1.000 fail | 0.514 fail | YnnY fail | 0.4139 PASS | T1 fail | SC-4 0.000 SC-5 n/a
+ 69 L0 T4 price 5 seeded thL 0.70 | 0.167 fail | 0.919 fail | YYnY fail | 0.2349 PASS | T1 fail | SC-4 0.000 SC-5 n/a
+ 70 L0 T4 price 5 seeded thL 0.80 | 1.000 fail | 0.389 fail | YnnY fail | 0.2028 PASS | T1 fail | SC-4 0.000 SC-5 n/a
+ 71 L0 T4 price 5 seeded thL 0.90 | 1.000 fail | 0.174 PASS | YYnY fail | 0.1886 PASS | T1 fail | SC-4 0.000 SC-5 n/a
+ 72 L1 T0 price 2 none   thL 0.60 | 1.000 fail | 0.465 fail | nnYn fail | 0.4299 PASS | T1 fail | SC-4 0.000 SC-5 n/a
+ 73 L1 T0 price 2 none   thL 0.70 | 0.083 fail | 0.856 fail | nYYn fail | 0.2476 PASS | T1 fail | SC-4 0.000 SC-5 n/a
+ 74 L1 T0 price 2 none   thL 0.80 | 1.000 fail | 0.328 fail | nnYn fail | 0.2026 PASS | T1 fail | SC-4 0.000 SC-5 n/a
+ 75 L1 T0 price 2 none   thL 0.90 | 1.000 fail | 0.091 PASS | nYYn fail | 0.1865 PASS | T1 fail | SC-4 0.000 SC-5 n/a
+ 76 L1 T0 price 2 seeded thL 0.60 | 0.833 PASS | 0.508 fail | YnYY fail | 0.4491 PASS | T1 fail | SC-4 0.000 SC-5 n/a
+ 77 L1 T0 price 2 seeded thL 0.70 | 0.083 fail | 0.921 fail | YYYY PASS | 0.2264 PASS | T1 fail | SC-4 0.000 SC-5 n/a
+ 78 L1 T0 price 2 seeded thL 0.80 | 0.833 PASS | 0.381 fail | YnYY fail | 0.2144 PASS | T1 fail | SC-4 0.000 SC-5 n/a
+ 79 L1 T0 price 2 seeded thL 0.90 | 0.833 PASS | 0.163 PASS | YYYY PASS | 0.1976 PASS | T1 PASS | SC-4 0.000 SC-5 n/a
+ 80 L1 T0 price 3 none   thL 0.60 | 1.000 fail | 0.465 fail | nnYn fail | 0.4299 PASS | T1 fail | SC-4 0.000 SC-5 n/a
+ 81 L1 T0 price 3 none   thL 0.70 | 0.083 fail | 0.856 fail | nYYn fail | 0.2476 PASS | T1 fail | SC-4 0.000 SC-5 n/a
+ 82 L1 T0 price 3 none   thL 0.80 | 1.000 fail | 0.328 fail | nnYn fail | 0.2026 PASS | T1 fail | SC-4 0.000 SC-5 n/a
+ 83 L1 T0 price 3 none   thL 0.90 | 1.000 fail | 0.091 PASS | nYYn fail | 0.1865 PASS | T1 fail | SC-4 0.000 SC-5 n/a
+ 84 L1 T0 price 3 seeded thL 0.60 | 0.833 PASS | 0.508 fail | YnYY fail | 0.4491 PASS | T1 fail | SC-4 0.000 SC-5 n/a
+ 85 L1 T0 price 3 seeded thL 0.70 | 0.083 fail | 0.921 fail | YYYY PASS | 0.2264 PASS | T1 fail | SC-4 0.000 SC-5 n/a
+ 86 L1 T0 price 3 seeded thL 0.80 | 0.833 PASS | 0.381 fail | YnYY fail | 0.2144 PASS | T1 fail | SC-4 0.000 SC-5 n/a
+ 87 L1 T0 price 3 seeded thL 0.90 | 0.833 PASS | 0.163 PASS | YYYY PASS | 0.1976 PASS | T1 PASS | SC-4 0.000 SC-5 n/a
+ 88 L1 T0 price 5 none   thL 0.60 | 1.000 fail | 0.465 fail | nnYn fail | 0.4299 PASS | T1 fail | SC-4 0.000 SC-5 n/a
+ 89 L1 T0 price 5 none   thL 0.70 | 0.083 fail | 0.856 fail | nYYn fail | 0.2476 PASS | T1 fail | SC-4 0.000 SC-5 n/a
+ 90 L1 T0 price 5 none   thL 0.80 | 1.000 fail | 0.328 fail | nnYn fail | 0.2026 PASS | T1 fail | SC-4 0.000 SC-5 n/a
+ 91 L1 T0 price 5 none   thL 0.90 | 1.000 fail | 0.091 PASS | nYYn fail | 0.1865 PASS | T1 fail | SC-4 0.000 SC-5 n/a
+ 92 L1 T0 price 5 seeded thL 0.60 | 1.000 fail | 0.562 fail | YnYY fail | 0.4013 PASS | T1 fail | SC-4 0.000 SC-5 n/a
+ 93 L1 T0 price 5 seeded thL 0.70 | 0.250 fail | 0.953 fail | YYYY PASS | 0.2339 PASS | T1 fail | SC-4 0.000 SC-5 n/a
+ 94 L1 T0 price 5 seeded thL 0.80 | 1.000 fail | 0.450 fail | YnYY fail | 0.2059 PASS | T1 fail | SC-4 0.000 SC-5 n/a
+ 95 L1 T0 price 5 seeded thL 0.90 | 1.000 fail | 0.256 fail | YYYY PASS | 0.1931 PASS | T1 fail | SC-4 0.000 SC-5 n/a
+ 96 L1 T2 price 2 none   thL 0.60 | 1.000 fail | 0.465 fail | nnYn fail | 0.4287 PASS | T1 fail | SC-4 0.000 SC-5 n/a
+ 97 L1 T2 price 2 none   thL 0.70 | 0.083 fail | 0.851 fail | nYYn fail | 0.2453 PASS | T1 fail | SC-4 0.000 SC-5 n/a
+ 98 L1 T2 price 2 none   thL 0.80 | 1.000 fail | 0.328 fail | nnYn fail | 0.2019 PASS | T1 fail | SC-4 0.000 SC-5 n/a
+ 99 L1 T2 price 2 none   thL 0.90 | 1.000 fail | 0.091 PASS | nYYn fail | 0.1859 PASS | T1 fail | SC-4 0.000 SC-5 n/a
+100 L1 T2 price 2 seeded thL 0.60 | 0.833 PASS | 0.508 fail | YnYY fail | 0.4480 PASS | T1 fail | SC-4 0.000 SC-5 n/a
+101 L1 T2 price 2 seeded thL 0.70 | 0.083 fail | 0.917 fail | YYYY PASS | 0.2284 PASS | T1 fail | SC-4 0.000 SC-5 n/a
+102 L1 T2 price 2 seeded thL 0.80 | 0.833 PASS | 0.381 fail | YnYY fail | 0.2138 PASS | T1 fail | SC-4 0.000 SC-5 n/a
+103 L1 T2 price 2 seeded thL 0.90 | 0.833 PASS | 0.163 PASS | YYYY PASS | 0.1971 PASS | T1 PASS | SC-4 0.000 SC-5 n/a
+104 L1 T2 price 3 none   thL 0.60 | 1.000 fail | 0.465 fail | nnYn fail | 0.4287 PASS | T1 fail | SC-4 0.000 SC-5 n/a
+105 L1 T2 price 3 none   thL 0.70 | 0.083 fail | 0.851 fail | nYYn fail | 0.2453 PASS | T1 fail | SC-4 0.000 SC-5 n/a
+106 L1 T2 price 3 none   thL 0.80 | 1.000 fail | 0.328 fail | nnYn fail | 0.2019 PASS | T1 fail | SC-4 0.000 SC-5 n/a
+107 L1 T2 price 3 none   thL 0.90 | 1.000 fail | 0.091 PASS | nYYn fail | 0.1859 PASS | T1 fail | SC-4 0.000 SC-5 n/a
+108 L1 T2 price 3 seeded thL 0.60 | 0.833 PASS | 0.508 fail | YnYY fail | 0.4480 PASS | T1 fail | SC-4 0.000 SC-5 n/a
+109 L1 T2 price 3 seeded thL 0.70 | 0.083 fail | 0.917 fail | YYYY PASS | 0.2284 PASS | T1 fail | SC-4 0.000 SC-5 n/a
+110 L1 T2 price 3 seeded thL 0.80 | 0.833 PASS | 0.381 fail | YnYY fail | 0.2138 PASS | T1 fail | SC-4 0.000 SC-5 n/a
+111 L1 T2 price 3 seeded thL 0.90 | 0.833 PASS | 0.163 PASS | YYYY PASS | 0.1971 PASS | T1 PASS | SC-4 0.000 SC-5 n/a
+112 L1 T2 price 5 none   thL 0.60 | 1.000 fail | 0.465 fail | nnYn fail | 0.4287 PASS | T1 fail | SC-4 0.000 SC-5 n/a
+113 L1 T2 price 5 none   thL 0.70 | 0.083 fail | 0.851 fail | nYYn fail | 0.2453 PASS | T1 fail | SC-4 0.000 SC-5 n/a
+114 L1 T2 price 5 none   thL 0.80 | 1.000 fail | 0.328 fail | nnYn fail | 0.2019 PASS | T1 fail | SC-4 0.000 SC-5 n/a
+115 L1 T2 price 5 none   thL 0.90 | 1.000 fail | 0.091 PASS | nYYn fail | 0.1859 PASS | T1 fail | SC-4 0.000 SC-5 n/a
+116 L1 T2 price 5 seeded thL 0.60 | 1.000 fail | 0.562 fail | YnYY fail | 0.4002 PASS | T1 fail | SC-4 0.000 SC-5 n/a
+117 L1 T2 price 5 seeded thL 0.70 | 0.250 fail | 0.951 fail | YYYY PASS | 0.2320 PASS | T1 fail | SC-4 0.000 SC-5 n/a
+118 L1 T2 price 5 seeded thL 0.80 | 1.000 fail | 0.450 fail | YnYY fail | 0.2052 PASS | T1 fail | SC-4 0.000 SC-5 n/a
+119 L1 T2 price 5 seeded thL 0.90 | 1.000 fail | 0.256 fail | YYYY PASS | 0.1925 PASS | T1 fail | SC-4 0.000 SC-5 n/a
+120 L1 T4 price 2 none   thL 0.60 | 1.000 fail | 0.465 fail | nnYn fail | 0.4276 PASS | T1 fail | SC-4 0.000 SC-5 n/a
+121 L1 T4 price 2 none   thL 0.70 | 0.083 fail | 0.845 fail | nYYn fail | 0.2427 PASS | T1 fail | SC-4 0.000 SC-5 n/a
+122 L1 T4 price 2 none   thL 0.80 | 1.000 fail | 0.328 fail | nnYn fail | 0.2012 PASS | T1 fail | SC-4 0.000 SC-5 n/a
+123 L1 T4 price 2 none   thL 0.90 | 1.000 fail | 0.091 PASS | nYYn fail | 0.1853 PASS | T1 fail | SC-4 0.000 SC-5 n/a
+124 L1 T4 price 2 seeded thL 0.60 | 0.833 PASS | 0.508 fail | YnYY fail | 0.4468 PASS | T1 fail | SC-4 0.000 SC-5 n/a
+125 L1 T4 price 2 seeded thL 0.70 | 0.083 fail | 0.913 fail | YYYY PASS | 0.2302 PASS | T1 fail | SC-4 0.000 SC-5 n/a
+126 L1 T4 price 2 seeded thL 0.80 | 0.833 PASS | 0.381 fail | YnYY fail | 0.2131 PASS | T1 fail | SC-4 0.000 SC-5 n/a
+127 L1 T4 price 2 seeded thL 0.90 | 0.833 PASS | 0.163 PASS | YYYY PASS | 0.1965 PASS | T1 PASS | SC-4 0.000 SC-5 n/a
+128 L1 T4 price 3 none   thL 0.60 | 1.000 fail | 0.465 fail | nnYn fail | 0.4276 PASS | T1 fail | SC-4 0.000 SC-5 n/a
+129 L1 T4 price 3 none   thL 0.70 | 0.083 fail | 0.845 fail | nYYn fail | 0.2427 PASS | T1 fail | SC-4 0.000 SC-5 n/a
+130 L1 T4 price 3 none   thL 0.80 | 1.000 fail | 0.328 fail | nnYn fail | 0.2012 PASS | T1 fail | SC-4 0.000 SC-5 n/a
+131 L1 T4 price 3 none   thL 0.90 | 1.000 fail | 0.091 PASS | nYYn fail | 0.1853 PASS | T1 fail | SC-4 0.000 SC-5 n/a
+132 L1 T4 price 3 seeded thL 0.60 | 0.833 PASS | 0.508 fail | YnYY fail | 0.4468 PASS | T1 fail | SC-4 0.000 SC-5 n/a
+133 L1 T4 price 3 seeded thL 0.70 | 0.083 fail | 0.913 fail | YYYY PASS | 0.2302 PASS | T1 fail | SC-4 0.000 SC-5 n/a
+134 L1 T4 price 3 seeded thL 0.80 | 0.833 PASS | 0.381 fail | YnYY fail | 0.2131 PASS | T1 fail | SC-4 0.000 SC-5 n/a
+135 L1 T4 price 3 seeded thL 0.90 | 0.833 PASS | 0.163 PASS | YYYY PASS | 0.1965 PASS | T1 PASS | SC-4 0.000 SC-5 n/a
+136 L1 T4 price 5 none   thL 0.60 | 1.000 fail | 0.465 fail | nnYn fail | 0.4276 PASS | T1 fail | SC-4 0.000 SC-5 n/a
+137 L1 T4 price 5 none   thL 0.70 | 0.083 fail | 0.845 fail | nYYn fail | 0.2427 PASS | T1 fail | SC-4 0.000 SC-5 n/a
+138 L1 T4 price 5 none   thL 0.80 | 1.000 fail | 0.328 fail | nnYn fail | 0.2012 PASS | T1 fail | SC-4 0.000 SC-5 n/a
+139 L1 T4 price 5 none   thL 0.90 | 1.000 fail | 0.091 PASS | nYYn fail | 0.1853 PASS | T1 fail | SC-4 0.000 SC-5 n/a
+140 L1 T4 price 5 seeded thL 0.60 | 1.000 fail | 0.562 fail | YnYY fail | 0.3992 PASS | T1 fail | SC-4 0.000 SC-5 n/a
+141 L1 T4 price 5 seeded thL 0.70 | 0.250 fail | 0.949 fail | YYYY PASS | 0.2301 PASS | T1 fail | SC-4 0.000 SC-5 n/a
+142 L1 T4 price 5 seeded thL 0.80 | 1.000 fail | 0.450 fail | YnYY fail | 0.2045 PASS | T1 fail | SC-4 0.000 SC-5 n/a
+143 L1 T4 price 5 seeded thL 0.90 | 1.000 fail | 0.256 fail | YYYY PASS | 0.1919 PASS | T1 fail | SC-4 0.000 SC-5 n/a
+144 L2 T0 price 2 none   thL 0.60 | 1.000 fail | 0.514 fail | nnYn fail | 0.4161 PASS | T1 fail | SC-4 0.000 SC-5 n/a
+145 L2 T0 price 2 none   thL 0.70 | 0.167 fail | 0.926 fail | nYYn fail | 0.2397 PASS | T1 fail | SC-4 0.000 SC-5 n/a
+146 L2 T0 price 2 none   thL 0.80 | 1.000 fail | 0.389 fail | nnYn fail | 0.2042 PASS | T1 fail | SC-4 0.000 SC-5 n/a
+147 L2 T0 price 2 none   thL 0.90 | 1.000 fail | 0.174 PASS | nYYn fail | 0.1898 PASS | T1 fail | SC-4 0.000 SC-5 n/a
+148 L2 T0 price 2 seeded thL 0.60 | 0.833 PASS | 0.562 fail | YnYY fail | 0.4303 PASS | T1 fail | SC-4 0.000 SC-5 n/a
+149 L2 T0 price 2 seeded thL 0.70 | 0.167 fail | 0.953 fail | YYYY PASS | 0.2468 PASS | T1 fail | SC-4 0.000 SC-5 n/a
+150 L2 T0 price 2 seeded thL 0.80 | 0.833 PASS | 0.450 fail | YnYY fail | 0.2165 PASS | T1 fail | SC-4 0.000 SC-5 n/a
+151 L2 T0 price 2 seeded thL 0.90 | 0.833 PASS | 0.256 fail | YYYY PASS | 0.2017 PASS | T1 fail | SC-4 0.000 SC-5 n/a
+152 L2 T0 price 3 none   thL 0.60 | 1.000 fail | 0.514 fail | nnYn fail | 0.4161 PASS | T1 fail | SC-4 0.000 SC-5 n/a
+153 L2 T0 price 3 none   thL 0.70 | 0.167 fail | 0.926 fail | nYYn fail | 0.2397 PASS | T1 fail | SC-4 0.000 SC-5 n/a
+154 L2 T0 price 3 none   thL 0.80 | 1.000 fail | 0.389 fail | nnYn fail | 0.2042 PASS | T1 fail | SC-4 0.000 SC-5 n/a
+155 L2 T0 price 3 none   thL 0.90 | 1.000 fail | 0.174 PASS | nYYn fail | 0.1898 PASS | T1 fail | SC-4 0.000 SC-5 n/a
+156 L2 T0 price 3 seeded thL 0.60 | 0.833 PASS | 0.562 fail | YnYY fail | 0.4303 PASS | T1 fail | SC-4 0.000 SC-5 n/a
+157 L2 T0 price 3 seeded thL 0.70 | 0.167 fail | 0.953 fail | YYYY PASS | 0.2468 PASS | T1 fail | SC-4 0.000 SC-5 n/a
+158 L2 T0 price 3 seeded thL 0.80 | 0.833 PASS | 0.450 fail | YnYY fail | 0.2165 PASS | T1 fail | SC-4 0.000 SC-5 n/a
+159 L2 T0 price 3 seeded thL 0.90 | 0.833 PASS | 0.256 fail | YYYY PASS | 0.2017 PASS | T1 fail | SC-4 0.000 SC-5 n/a
+160 L2 T0 price 5 none   thL 0.60 | 1.000 fail | 0.514 fail | nnYn fail | 0.4161 PASS | T1 fail | SC-4 0.000 SC-5 n/a
+161 L2 T0 price 5 none   thL 0.70 | 0.167 fail | 0.926 fail | nYYn fail | 0.2397 PASS | T1 fail | SC-4 0.000 SC-5 n/a
+162 L2 T0 price 5 none   thL 0.80 | 1.000 fail | 0.389 fail | nnYn fail | 0.2042 PASS | T1 fail | SC-4 0.000 SC-5 n/a
+163 L2 T0 price 5 none   thL 0.90 | 1.000 fail | 0.174 PASS | nYYn fail | 0.1898 PASS | T1 fail | SC-4 0.000 SC-5 n/a
+164 L2 T0 price 5 seeded thL 0.60 | 1.000 fail | 0.611 fail | YnYY fail | 0.3854 PASS | T1 fail | SC-4 0.000 SC-5 n/a
+165 L2 T0 price 5 seeded thL 0.70 | 0.333 fail | 0.968 fail | YYYY PASS | 0.2302 PASS | T1 fail | SC-4 0.000 SC-5 n/a
+166 L2 T0 price 5 seeded thL 0.80 | 1.000 fail | 0.511 fail | YnYY fail | 0.2076 PASS | T1 fail | SC-4 0.000 SC-5 n/a
+167 L2 T0 price 5 seeded thL 0.90 | 1.000 fail | 0.339 fail | YYYY PASS | 0.1963 PASS | T1 fail | SC-4 0.000 SC-5 n/a
+168 L2 T2 price 2 none   thL 0.60 | 1.000 fail | 0.514 fail | nnYn fail | 0.4150 PASS | T1 fail | SC-4 0.000 SC-5 n/a
+169 L2 T2 price 2 none   thL 0.70 | 0.167 fail | 0.923 fail | nYYn fail | 0.2374 PASS | T1 fail | SC-4 0.000 SC-5 n/a
+170 L2 T2 price 2 none   thL 0.80 | 1.000 fail | 0.389 fail | nnYn fail | 0.2035 PASS | T1 fail | SC-4 0.000 SC-5 n/a
+171 L2 T2 price 2 none   thL 0.90 | 1.000 fail | 0.174 PASS | nYYn fail | 0.1892 PASS | T1 fail | SC-4 0.000 SC-5 n/a
+172 L2 T2 price 2 seeded thL 0.60 | 0.833 PASS | 0.562 fail | YnYY fail | 0.4293 PASS | T1 fail | SC-4 0.000 SC-5 n/a
+173 L2 T2 price 2 seeded thL 0.70 | 0.167 fail | 0.951 fail | YYYY PASS | 0.2466 PASS | T1 fail | SC-4 0.000 SC-5 n/a
+174 L2 T2 price 2 seeded thL 0.80 | 0.833 PASS | 0.450 fail | YnYY fail | 0.2158 PASS | T1 fail | SC-4 0.000 SC-5 n/a
+175 L2 T2 price 2 seeded thL 0.90 | 0.833 PASS | 0.256 fail | YYYY PASS | 0.2011 PASS | T1 fail | SC-4 0.000 SC-5 n/a
+176 L2 T2 price 3 none   thL 0.60 | 1.000 fail | 0.514 fail | nnYn fail | 0.4150 PASS | T1 fail | SC-4 0.000 SC-5 n/a
+177 L2 T2 price 3 none   thL 0.70 | 0.167 fail | 0.923 fail | nYYn fail | 0.2374 PASS | T1 fail | SC-4 0.000 SC-5 n/a
+178 L2 T2 price 3 none   thL 0.80 | 1.000 fail | 0.389 fail | nnYn fail | 0.2035 PASS | T1 fail | SC-4 0.000 SC-5 n/a
+179 L2 T2 price 3 none   thL 0.90 | 1.000 fail | 0.174 PASS | nYYn fail | 0.1892 PASS | T1 fail | SC-4 0.000 SC-5 n/a
+180 L2 T2 price 3 seeded thL 0.60 | 0.833 PASS | 0.562 fail | YnYY fail | 0.4293 PASS | T1 fail | SC-4 0.000 SC-5 n/a
+181 L2 T2 price 3 seeded thL 0.70 | 0.167 fail | 0.951 fail | YYYY PASS | 0.2466 PASS | T1 fail | SC-4 0.000 SC-5 n/a
+182 L2 T2 price 3 seeded thL 0.80 | 0.833 PASS | 0.450 fail | YnYY fail | 0.2158 PASS | T1 fail | SC-4 0.000 SC-5 n/a
+183 L2 T2 price 3 seeded thL 0.90 | 0.833 PASS | 0.256 fail | YYYY PASS | 0.2011 PASS | T1 fail | SC-4 0.000 SC-5 n/a
+184 L2 T2 price 5 none   thL 0.60 | 1.000 fail | 0.514 fail | nnYn fail | 0.4150 PASS | T1 fail | SC-4 0.000 SC-5 n/a
+185 L2 T2 price 5 none   thL 0.70 | 0.167 fail | 0.923 fail | nYYn fail | 0.2374 PASS | T1 fail | SC-4 0.000 SC-5 n/a
+186 L2 T2 price 5 none   thL 0.80 | 1.000 fail | 0.389 fail | nnYn fail | 0.2035 PASS | T1 fail | SC-4 0.000 SC-5 n/a
+187 L2 T2 price 5 none   thL 0.90 | 1.000 fail | 0.174 PASS | nYYn fail | 0.1892 PASS | T1 fail | SC-4 0.000 SC-5 n/a
+188 L2 T2 price 5 seeded thL 0.60 | 1.000 fail | 0.611 fail | YnYY fail | 0.3844 PASS | T1 fail | SC-4 0.000 SC-5 n/a
+189 L2 T2 price 5 seeded thL 0.70 | 0.333 fail | 0.966 fail | YYYY PASS | 0.2286 PASS | T1 fail | SC-4 0.000 SC-5 n/a
+190 L2 T2 price 5 seeded thL 0.80 | 1.000 fail | 0.511 fail | YnYY fail | 0.2069 PASS | T1 fail | SC-4 0.000 SC-5 n/a
+191 L2 T2 price 5 seeded thL 0.90 | 1.000 fail | 0.339 fail | YYYY PASS | 0.1957 PASS | T1 fail | SC-4 0.000 SC-5 n/a
+192 L2 T4 price 2 none   thL 0.60 | 1.000 fail | 0.514 fail | nnYn fail | 0.4139 PASS | T1 fail | SC-4 0.000 SC-5 n/a
+193 L2 T4 price 2 none   thL 0.70 | 0.167 fail | 0.919 fail | nYYn fail | 0.2349 PASS | T1 fail | SC-4 0.000 SC-5 n/a
+194 L2 T4 price 2 none   thL 0.80 | 1.000 fail | 0.389 fail | nnYn fail | 0.2028 PASS | T1 fail | SC-4 0.000 SC-5 n/a
+195 L2 T4 price 2 none   thL 0.90 | 1.000 fail | 0.174 PASS | nYYn fail | 0.1886 PASS | T1 fail | SC-4 0.000 SC-5 n/a
+196 L2 T4 price 2 seeded thL 0.60 | 0.833 PASS | 0.562 fail | YnYY fail | 0.4283 PASS | T1 fail | SC-4 0.000 SC-5 n/a
+197 L2 T4 price 2 seeded thL 0.70 | 0.167 fail | 0.948 fail | YYYY PASS | 0.2463 PASS | T1 fail | SC-4 0.000 SC-5 n/a
+198 L2 T4 price 2 seeded thL 0.80 | 0.833 PASS | 0.450 fail | YnYY fail | 0.2152 PASS | T1 fail | SC-4 0.000 SC-5 n/a
+199 L2 T4 price 2 seeded thL 0.90 | 0.833 PASS | 0.256 fail | YYYY PASS | 0.2006 PASS | T1 fail | SC-4 0.000 SC-5 n/a
+200 L2 T4 price 3 none   thL 0.60 | 1.000 fail | 0.514 fail | nnYn fail | 0.4139 PASS | T1 fail | SC-4 0.000 SC-5 n/a
+201 L2 T4 price 3 none   thL 0.70 | 0.167 fail | 0.919 fail | nYYn fail | 0.2349 PASS | T1 fail | SC-4 0.000 SC-5 n/a
+202 L2 T4 price 3 none   thL 0.80 | 1.000 fail | 0.389 fail | nnYn fail | 0.2028 PASS | T1 fail | SC-4 0.000 SC-5 n/a
+203 L2 T4 price 3 none   thL 0.90 | 1.000 fail | 0.174 PASS | nYYn fail | 0.1886 PASS | T1 fail | SC-4 0.000 SC-5 n/a
+204 L2 T4 price 3 seeded thL 0.60 | 0.833 PASS | 0.562 fail | YnYY fail | 0.4283 PASS | T1 fail | SC-4 0.000 SC-5 n/a
+205 L2 T4 price 3 seeded thL 0.70 | 0.167 fail | 0.948 fail | YYYY PASS | 0.2463 PASS | T1 fail | SC-4 0.000 SC-5 n/a
+206 L2 T4 price 3 seeded thL 0.80 | 0.833 PASS | 0.450 fail | YnYY fail | 0.2152 PASS | T1 fail | SC-4 0.000 SC-5 n/a
+207 L2 T4 price 3 seeded thL 0.90 | 0.833 PASS | 0.256 fail | YYYY PASS | 0.2006 PASS | T1 fail | SC-4 0.000 SC-5 n/a
+208 L2 T4 price 5 none   thL 0.60 | 1.000 fail | 0.514 fail | nnYn fail | 0.4139 PASS | T1 fail | SC-4 0.000 SC-5 n/a
+209 L2 T4 price 5 none   thL 0.70 | 0.167 fail | 0.919 fail | nYYn fail | 0.2349 PASS | T1 fail | SC-4 0.000 SC-5 n/a
+210 L2 T4 price 5 none   thL 0.80 | 1.000 fail | 0.389 fail | nnYn fail | 0.2028 PASS | T1 fail | SC-4 0.000 SC-5 n/a
+211 L2 T4 price 5 none   thL 0.90 | 1.000 fail | 0.174 PASS | nYYn fail | 0.1886 PASS | T1 fail | SC-4 0.000 SC-5 n/a
+212 L2 T4 price 5 seeded thL 0.60 | 1.000 fail | 0.611 fail | YnYY fail | 0.3834 PASS | T1 fail | SC-4 0.000 SC-5 n/a
+213 L2 T4 price 5 seeded thL 0.70 | 0.333 fail | 0.964 fail | YYYY PASS | 0.2270 PASS | T1 fail | SC-4 0.000 SC-5 n/a
+214 L2 T4 price 5 seeded thL 0.80 | 1.000 fail | 0.511 fail | YnYY fail | 0.2062 PASS | T1 fail | SC-4 0.000 SC-5 n/a
+215 L2 T4 price 5 seeded thL 0.90 | 1.000 fail | 0.339 fail | YYYY PASS | 0.1951 PASS | T1 fail | SC-4 0.000 SC-5 n/a
+216 L3 T0 price 2 none   thL 0.60 | 1.000 fail | 0.562 fail | nnYn fail | 0.4013 PASS | T1 fail | SC-4 0.000 SC-5 n/a
+217 L3 T0 price 2 none   thL 0.70 | 0.250 fail | 0.953 fail | nYYn fail | 0.2339 PASS | T1 fail | SC-4 0.000 SC-5 n/a
+218 L3 T0 price 2 none   thL 0.80 | 1.000 fail | 0.450 fail | nnYn fail | 0.2059 PASS | T1 fail | SC-4 0.000 SC-5 n/a
+219 L3 T0 price 2 none   thL 0.90 | 1.000 fail | 0.256 fail | nYYn fail | 0.1931 PASS | T1 fail | SC-4 0.000 SC-5 n/a
+220 L3 T0 price 2 seeded thL 0.60 | 0.833 PASS | 0.617 fail | YnYY fail | 0.4102 PASS | T1 fail | SC-4 0.000 SC-5 n/a
+221 L3 T0 price 2 seeded thL 0.70 | 0.250 fail | 0.970 fail | YYYY PASS | 0.2477 PASS | T1 fail | SC-4 0.000 SC-5 n/a
+222 L3 T0 price 2 seeded thL 0.80 | 0.833 PASS | 0.519 fail | YnYY fail | 0.2185 PASS | T1 fail | SC-4 0.000 SC-5 n/a
+223 L3 T0 price 2 seeded thL 0.90 | 0.833 PASS | 0.349 fail | YYYY PASS | 0.2057 PASS | T1 fail | SC-4 0.000 SC-5 n/a
+224 L3 T0 price 3 none   thL 0.60 | 1.000 fail | 0.562 fail | nnYn fail | 0.4013 PASS | T1 fail | SC-4 0.000 SC-5 n/a
+225 L3 T0 price 3 none   thL 0.70 | 0.250 fail | 0.953 fail | nYYn fail | 0.2339 PASS | T1 fail | SC-4 0.000 SC-5 n/a
+226 L3 T0 price 3 none   thL 0.80 | 1.000 fail | 0.450 fail | nnYn fail | 0.2059 PASS | T1 fail | SC-4 0.000 SC-5 n/a
+227 L3 T0 price 3 none   thL 0.90 | 1.000 fail | 0.256 fail | nYYn fail | 0.1931 PASS | T1 fail | SC-4 0.000 SC-5 n/a
+228 L3 T0 price 3 seeded thL 0.60 | 0.833 PASS | 0.617 fail | YnYY fail | 0.4102 PASS | T1 fail | SC-4 0.000 SC-5 n/a
+229 L3 T0 price 3 seeded thL 0.70 | 0.250 fail | 0.970 fail | YYYY PASS | 0.2477 PASS | T1 fail | SC-4 0.000 SC-5 n/a
+230 L3 T0 price 3 seeded thL 0.80 | 0.833 PASS | 0.519 fail | YnYY fail | 0.2185 PASS | T1 fail | SC-4 0.000 SC-5 n/a
+231 L3 T0 price 3 seeded thL 0.90 | 0.833 PASS | 0.349 fail | YYYY PASS | 0.2057 PASS | T1 fail | SC-4 0.000 SC-5 n/a
+232 L3 T0 price 5 none   thL 0.60 | 1.000 fail | 0.562 fail | nnYn fail | 0.4013 PASS | T1 fail | SC-4 0.000 SC-5 n/a
+233 L3 T0 price 5 none   thL 0.70 | 0.250 fail | 0.953 fail | nYYn fail | 0.2339 PASS | T1 fail | SC-4 0.000 SC-5 n/a
+234 L3 T0 price 5 none   thL 0.80 | 1.000 fail | 0.450 fail | nnYn fail | 0.2059 PASS | T1 fail | SC-4 0.000 SC-5 n/a
+235 L3 T0 price 5 none   thL 0.90 | 1.000 fail | 0.256 fail | nYYn fail | 0.1931 PASS | T1 fail | SC-4 0.000 SC-5 n/a
+236 L3 T0 price 5 seeded thL 0.60 | 1.000 fail | 0.660 fail | YnYY fail | 0.3684 PASS | T1 fail | SC-4 0.000 SC-5 n/a
+237 L3 T0 price 5 seeded thL 0.70 | 0.417 fail | 0.977 fail | YYYY PASS | 0.2276 PASS | T1 fail | SC-4 0.000 SC-5 n/a
+238 L3 T0 price 5 seeded thL 0.80 | 1.000 fail | 0.572 fail | YnYY fail | 0.2093 PASS | T1 fail | SC-4 0.000 SC-5 n/a
+239 L3 T0 price 5 seeded thL 0.90 | 1.000 fail | 0.422 fail | YYYY PASS | 0.1995 PASS | T1 fail | SC-4 0.000 SC-5 n/a
+240 L3 T2 price 2 none   thL 0.60 | 1.000 fail | 0.562 fail | nnYn fail | 0.4002 PASS | T1 fail | SC-4 0.000 SC-5 n/a
+241 L3 T2 price 2 none   thL 0.70 | 0.250 fail | 0.951 fail | nYYn fail | 0.2320 PASS | T1 fail | SC-4 0.000 SC-5 n/a
+242 L3 T2 price 2 none   thL 0.80 | 1.000 fail | 0.450 fail | nnYn fail | 0.2052 PASS | T1 fail | SC-4 0.000 SC-5 n/a
+243 L3 T2 price 2 none   thL 0.90 | 1.000 fail | 0.256 fail | nYYn fail | 0.1925 PASS | T1 fail | SC-4 0.000 SC-5 n/a
+244 L3 T2 price 2 seeded thL 0.60 | 0.833 PASS | 0.617 fail | YnYY fail | 0.4093 PASS | T1 fail | SC-4 0.000 SC-5 n/a
+245 L3 T2 price 2 seeded thL 0.70 | 0.250 fail | 0.968 fail | YYYY PASS | 0.2470 PASS | T1 fail | SC-4 0.000 SC-5 n/a
+246 L3 T2 price 2 seeded thL 0.80 | 0.833 PASS | 0.519 fail | YnYY fail | 0.2179 PASS | T1 fail | SC-4 0.000 SC-5 n/a
+247 L3 T2 price 2 seeded thL 0.90 | 0.833 PASS | 0.349 fail | YYYY PASS | 0.2052 PASS | T1 fail | SC-4 0.000 SC-5 n/a
+248 L3 T2 price 3 none   thL 0.60 | 1.000 fail | 0.562 fail | nnYn fail | 0.4002 PASS | T1 fail | SC-4 0.000 SC-5 n/a
+249 L3 T2 price 3 none   thL 0.70 | 0.250 fail | 0.951 fail | nYYn fail | 0.2320 PASS | T1 fail | SC-4 0.000 SC-5 n/a
+250 L3 T2 price 3 none   thL 0.80 | 1.000 fail | 0.450 fail | nnYn fail | 0.2052 PASS | T1 fail | SC-4 0.000 SC-5 n/a
+251 L3 T2 price 3 none   thL 0.90 | 1.000 fail | 0.256 fail | nYYn fail | 0.1925 PASS | T1 fail | SC-4 0.000 SC-5 n/a
+252 L3 T2 price 3 seeded thL 0.60 | 0.833 PASS | 0.617 fail | YnYY fail | 0.4093 PASS | T1 fail | SC-4 0.000 SC-5 n/a
+253 L3 T2 price 3 seeded thL 0.70 | 0.250 fail | 0.968 fail | YYYY PASS | 0.2470 PASS | T1 fail | SC-4 0.000 SC-5 n/a
+254 L3 T2 price 3 seeded thL 0.80 | 0.833 PASS | 0.519 fail | YnYY fail | 0.2179 PASS | T1 fail | SC-4 0.000 SC-5 n/a
+255 L3 T2 price 3 seeded thL 0.90 | 0.833 PASS | 0.349 fail | YYYY PASS | 0.2052 PASS | T1 fail | SC-4 0.000 SC-5 n/a
+256 L3 T2 price 5 none   thL 0.60 | 1.000 fail | 0.562 fail | nnYn fail | 0.4002 PASS | T1 fail | SC-4 0.000 SC-5 n/a
+257 L3 T2 price 5 none   thL 0.70 | 0.250 fail | 0.951 fail | nYYn fail | 0.2320 PASS | T1 fail | SC-4 0.000 SC-5 n/a
+258 L3 T2 price 5 none   thL 0.80 | 1.000 fail | 0.450 fail | nnYn fail | 0.2052 PASS | T1 fail | SC-4 0.000 SC-5 n/a
+259 L3 T2 price 5 none   thL 0.90 | 1.000 fail | 0.256 fail | nYYn fail | 0.1925 PASS | T1 fail | SC-4 0.000 SC-5 n/a
+260 L3 T2 price 5 seeded thL 0.60 | 1.000 fail | 0.660 fail | YnYY fail | 0.3675 PASS | T1 fail | SC-4 0.000 SC-5 n/a
+261 L3 T2 price 5 seeded thL 0.70 | 0.417 fail | 0.976 fail | YYYY PASS | 0.2263 PASS | T1 fail | SC-4 0.000 SC-5 n/a
+262 L3 T2 price 5 seeded thL 0.80 | 1.000 fail | 0.572 fail | YnYY fail | 0.2085 PASS | T1 fail | SC-4 0.000 SC-5 n/a
+263 L3 T2 price 5 seeded thL 0.90 | 1.000 fail | 0.422 fail | YYYY PASS | 0.1989 PASS | T1 fail | SC-4 0.000 SC-5 n/a
+264 L3 T4 price 2 none   thL 0.60 | 1.000 fail | 0.562 fail | nnYn fail | 0.3992 PASS | T1 fail | SC-4 0.000 SC-5 n/a
+265 L3 T4 price 2 none   thL 0.70 | 0.250 fail | 0.949 fail | nYYn fail | 0.2301 PASS | T1 fail | SC-4 0.000 SC-5 n/a
+266 L3 T4 price 2 none   thL 0.80 | 1.000 fail | 0.450 fail | nnYn fail | 0.2045 PASS | T1 fail | SC-4 0.000 SC-5 n/a
+267 L3 T4 price 2 none   thL 0.90 | 1.000 fail | 0.256 fail | nYYn fail | 0.1919 PASS | T1 fail | SC-4 0.000 SC-5 n/a
+268 L3 T4 price 2 seeded thL 0.60 | 0.833 PASS | 0.617 fail | YnYY fail | 0.4083 PASS | T1 fail | SC-4 0.000 SC-5 n/a
+269 L3 T4 price 2 seeded thL 0.70 | 0.250 fail | 0.965 fail | YYYY PASS | 0.2463 PASS | T1 fail | SC-4 0.000 SC-5 n/a
+270 L3 T4 price 2 seeded thL 0.80 | 0.833 PASS | 0.519 fail | YnYY fail | 0.2172 PASS | T1 fail | SC-4 0.000 SC-5 n/a
+271 L3 T4 price 2 seeded thL 0.90 | 0.833 PASS | 0.349 fail | YYYY PASS | 0.2046 PASS | T1 fail | SC-4 0.000 SC-5 n/a
+272 L3 T4 price 3 none   thL 0.60 | 1.000 fail | 0.562 fail | nnYn fail | 0.3992 PASS | T1 fail | SC-4 0.000 SC-5 n/a
+273 L3 T4 price 3 none   thL 0.70 | 0.250 fail | 0.949 fail | nYYn fail | 0.2301 PASS | T1 fail | SC-4 0.000 SC-5 n/a
+274 L3 T4 price 3 none   thL 0.80 | 1.000 fail | 0.450 fail | nnYn fail | 0.2045 PASS | T1 fail | SC-4 0.000 SC-5 n/a
+275 L3 T4 price 3 none   thL 0.90 | 1.000 fail | 0.256 fail | nYYn fail | 0.1919 PASS | T1 fail | SC-4 0.000 SC-5 n/a
+276 L3 T4 price 3 seeded thL 0.60 | 0.833 PASS | 0.617 fail | YnYY fail | 0.4083 PASS | T1 fail | SC-4 0.000 SC-5 n/a
+277 L3 T4 price 3 seeded thL 0.70 | 0.250 fail | 0.965 fail | YYYY PASS | 0.2463 PASS | T1 fail | SC-4 0.000 SC-5 n/a
+278 L3 T4 price 3 seeded thL 0.80 | 0.833 PASS | 0.519 fail | YnYY fail | 0.2172 PASS | T1 fail | SC-4 0.000 SC-5 n/a
+279 L3 T4 price 3 seeded thL 0.90 | 0.833 PASS | 0.349 fail | YYYY PASS | 0.2046 PASS | T1 fail | SC-4 0.000 SC-5 n/a
+280 L3 T4 price 5 none   thL 0.60 | 1.000 fail | 0.562 fail | nnYn fail | 0.3992 PASS | T1 fail | SC-4 0.000 SC-5 n/a
+281 L3 T4 price 5 none   thL 0.70 | 0.250 fail | 0.949 fail | nYYn fail | 0.2301 PASS | T1 fail | SC-4 0.000 SC-5 n/a
+282 L3 T4 price 5 none   thL 0.80 | 1.000 fail | 0.450 fail | nnYn fail | 0.2045 PASS | T1 fail | SC-4 0.000 SC-5 n/a
+283 L3 T4 price 5 none   thL 0.90 | 1.000 fail | 0.256 fail | nYYn fail | 0.1919 PASS | T1 fail | SC-4 0.000 SC-5 n/a
+284 L3 T4 price 5 seeded thL 0.60 | 1.000 fail | 0.660 fail | YnYY fail | 0.3666 PASS | T1 fail | SC-4 0.000 SC-5 n/a
+285 L3 T4 price 5 seeded thL 0.70 | 0.417 fail | 0.974 fail | YYYY PASS | 0.2250 PASS | T1 fail | SC-4 0.000 SC-5 n/a
+286 L3 T4 price 5 seeded thL 0.80 | 1.000 fail | 0.572 fail | YnYY fail | 0.2078 PASS | T1 fail | SC-4 0.000 SC-5 n/a
+287 L3 T4 price 5 seeded thL 0.90 | 1.000 fail | 0.422 fail | YYYY PASS | 0.1982 PASS | T1 fail | SC-4 0.000 SC-5 n/a
+
+== Stage 1 summary ==
+cells evaluated: 288 of 288; cells passing T1: 6
+  SC-1: fails in 216 of the 282 cells that fail T1 (passes in 72 of all 288)
+  SC-2: fails in 255 of the 282 cells that fail T1 (passes in 33 of all 288)
+  SC-3: fails in 234 of the 282 cells that fail T1 (passes in 54 of all 288)
+  SC-6: fails in 5 of the 282 cells that fail T1 (passes in 283 of all 288)
+  SC-3 solvency binds in 144 of 288 cells
+  SC-3 compliance binds in 144 of 288 cells
+  SC-3 scope binds in 216 of 288 cells
+  SC-3 obligation binds in 144 of 288 cells
+
+== control (c): first Stage-1 cell where each SC fails / passes (raw numbers) ==
+  SC-1 fails :   0 L0 T0 price 2 none   thL 0.60 | 1.000 fail | 0.417 fail | nnnn fail | 0.4426 PASS | T1 fail | SC-4 0.000 SC-5 n/a
+  SC-1 passes:   4 L0 T0 price 2 seeded thL 0.60 | 0.833 PASS | 0.453 fail | YnnY fail | 0.4665 PASS | T1 fail | SC-4 0.000 SC-5 n/a
+  SC-2 fails :   0 L0 T0 price 2 none   thL 0.60 | 1.000 fail | 0.417 fail | nnnn fail | 0.4426 PASS | T1 fail | SC-4 0.000 SC-5 n/a
+  SC-2 passes:   7 L0 T0 price 2 seeded thL 0.90 | 0.833 PASS | 0.070 PASS | YYnY fail | 0.1934 PASS | T1 fail | SC-4 0.000 SC-5 n/a
+  SC-3 fails :   0 L0 T0 price 2 none   thL 0.60 | 1.000 fail | 0.417 fail | nnnn fail | 0.4426 PASS | T1 fail | SC-4 0.000 SC-5 n/a
+  SC-3 passes:  77 L1 T0 price 2 seeded thL 0.70 | 0.083 fail | 0.921 fail | YYYY PASS | 0.2264 PASS | T1 fail | SC-4 0.000 SC-5 n/a
+  SC-6 fails :   1 L0 T0 price 2 none   thL 0.70 | 0.000 fail | 0.333 fail | nYnn fail | 0.0000 fail | T1 fail | SC-4 0.000 SC-5 n/a
+  SC-6 passes:   0 L0 T0 price 2 none   thL 0.60 | 1.000 fail | 0.417 fail | nnnn fail | 0.4426 PASS | T1 fail | SC-4 0.000 SC-5 n/a
+
+== STAGE 2: shocked runs for every T1-passing cell ==
+ 79 L1 T0 price 2 seeded thL 0.90 mag 0.10 | nonzero dH 1.00 PASS | mean surv 0.758 PASS | T2 PASS | seqs 11
+ 79 L1 T0 price 2 seeded thL 0.90 mag 0.20 | nonzero dH 1.00 PASS | mean surv 0.458 PASS | T2 PASS | seqs 13
+ 79 L1 T0 price 2 seeded thL 0.90 mag 0.30 | nonzero dH 0.85 PASS | mean surv 0.496 PASS | T2 PASS | seqs 13
+ 87 L1 T0 price 3 seeded thL 0.90 mag 0.10 | nonzero dH 1.00 PASS | mean surv 0.758 PASS | T2 PASS | seqs 11
+ 87 L1 T0 price 3 seeded thL 0.90 mag 0.20 | nonzero dH 1.00 PASS | mean surv 0.458 PASS | T2 PASS | seqs 13
+ 87 L1 T0 price 3 seeded thL 0.90 mag 0.30 | nonzero dH 0.85 PASS | mean surv 0.496 PASS | T2 PASS | seqs 13
+103 L1 T2 price 2 seeded thL 0.90 mag 0.10 | nonzero dH 1.00 PASS | mean surv 0.758 PASS | T2 PASS | seqs 11
+103 L1 T2 price 2 seeded thL 0.90 mag 0.20 | nonzero dH 1.00 PASS | mean surv 0.458 PASS | T2 PASS | seqs 13
+103 L1 T2 price 2 seeded thL 0.90 mag 0.30 | nonzero dH 0.85 PASS | mean surv 0.496 PASS | T2 PASS | seqs 13
+111 L1 T2 price 3 seeded thL 0.90 mag 0.10 | nonzero dH 1.00 PASS | mean surv 0.758 PASS | T2 PASS | seqs 11
+111 L1 T2 price 3 seeded thL 0.90 mag 0.20 | nonzero dH 1.00 PASS | mean surv 0.458 PASS | T2 PASS | seqs 13
+111 L1 T2 price 3 seeded thL 0.90 mag 0.30 | nonzero dH 0.85 PASS | mean surv 0.496 PASS | T2 PASS | seqs 13
+127 L1 T4 price 2 seeded thL 0.90 mag 0.10 | nonzero dH 1.00 PASS | mean surv 0.758 PASS | T2 PASS | seqs 11
+127 L1 T4 price 2 seeded thL 0.90 mag 0.20 | nonzero dH 1.00 PASS | mean surv 0.458 PASS | T2 PASS | seqs 13
+127 L1 T4 price 2 seeded thL 0.90 mag 0.30 | nonzero dH 0.85 PASS | mean surv 0.496 PASS | T2 PASS | seqs 13
+135 L1 T4 price 3 seeded thL 0.90 mag 0.10 | nonzero dH 1.00 PASS | mean surv 0.758 PASS | T2 PASS | seqs 11
+135 L1 T4 price 3 seeded thL 0.90 mag 0.20 | nonzero dH 1.00 PASS | mean surv 0.458 PASS | T2 PASS | seqs 13
+135 L1 T4 price 3 seeded thL 0.90 mag 0.30 | nonzero dH 0.85 PASS | mean surv 0.496 PASS | T2 PASS | seqs 13
+
+== summary ==
+cells passing T1: 6 of 288
+cells passing T2 given T1 (any magnitude): 6 of 6 run in Stage 2
+Stage-2 rows passing T2: 18 of 18
+ANSWER: 6 of 288 cells are stressed-but-alive under the declared targets (cells [79, 87, 103, 111, 127, 135])
+failed runs: 0
+
+written under /tmp/claude-1000/-home-jayabratabasu-firma/25acd624-4575-4f2d-9fb5-645f7478f07e/scratchpad/r18: stage1.csv, stage1_full.json, stage2.csv, stage2_full.json, controls.json
+wall-clock time: 80.4 s
+DIAGNOSTIC-ONLY - REGIME SEARCH - NOT REGISTERED - NOT FOR TUNING

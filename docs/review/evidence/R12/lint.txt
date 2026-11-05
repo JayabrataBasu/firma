@@ -1,0 +1,62 @@
+[1/9] no-kernel-domain-deps + no-cross-plugin-deps  (§17 A1, §18.1)
+  [32m ok [0m dependency graph clean
+[2/9] no-hashmap-iteration  (HashMap/HashSet banned in the sim path — §19.2)
+  [32m ok [0m clean
+[3/9] no-ambient-rng  (no thread_rng / OS entropy / wall clock — §21.1 D2/D4)
+  [32m ok [0m clean
+[4/9] no-unsafe  (#![forbid(unsafe_code)] in every crate — §24.5)
+  [32m ok [0m all crates forbid unsafe
+[5/9] no-dynamic-loading  (no libloading / dlopen — ADR 0008)
+  [32m ok [0m clean
+[6/9] assumption-nonempty  (§20.2, §25.6)
+  [32m ok [0m no empty literal; runtime check in tests/tests/integration.rs
+[7/9] no-magic-numbers  (heuristic tripwire; binding check is review — §24.6)
+     crates/firma-rng/src/lib.rs:243:            147,
+     crates/firma-domain/src/state.rs:137:            liquid_capital: 40,
+     crates/firma-domain/src/state.rs:140:            obligation: 30,
+     crates/firma-domain/src/shaping.rs:254:        let full = r#"{"p0":0.2,"b_lambda":0.2,"b_kappa":0.1,"p_max":0.6,"kappa_min":30}"#;
+     crates/firma-domain/src/shaping.rs:257:        let no_b_lambda = r#"{"p0":0.2,"b_kappa":0.1,"p_max":0.6,"kappa_min":30}"#;
+     crates/firma-domain/src/shaping.rs:261:        let no_b_kappa = r#"{"p0":0.2,"b_lambda":0.2,"p_max":0.6,"kappa_min":30}"#;
+     crates/firma-domain/src/window.rs:74:        let e = WindowEntry::new(42, 2);
+     crates/firma-domain/src/env.rs:67:            tick: 42,
+     crates/firma-domain/src/env.rs:72:            theta_q: 100,
+     crates/firma-domain/src/margin.rs:107:            liquid_capital: 40,
+     crates/firma-domain/src/margin.rs:110:            obligation: 30,
+     crates/firma-domain/src/margin.rs:124:            theta_q: 100,
+     crates/firma-domain/src/margin.rs:187:            liquid_capital: 100,
+     crates/firma-domain/src/margin.rs:204:            theta_q: 50,
+     crates/firma-domain/src/dynamics.rs:69:            input_stock_max: 40,
+     crates/firma-domain/src/dynamics.rs:438:            theta_q: 100,
+     crates/firma-domain/src/dynamics.rs:503:            liquid_capital: 100,
+     crates/firma-domain/src/dynamics.rs:516:            liquid_capital: 30,
+     crates/firma-domain/src/dynamics.rs:612:            liquid_capital: 90,
+     crates/firma-domain/src/dynamics.rs:649:            liquid_capital: 500,
+     crates/firma-domain/src/dynamics.rs:703:            liquid_capital: 1000,
+     crates/firma-domain/src/dynamics.rs:704:            input_stock: 100,
+     crates/firma-domain/src/dynamics.rs:749:            liquid_capital: 1000,
+     crates/firma-domain/src/params.rs:60:            s_l: 100.0,
+     crates/firma-domain/src/params.rs:63:            s_q: 50.0,
+     crates/firma-domain/src/params.rs:87:            r_l_max: 500,
+     crates/firma-domain/src/params.rs:88:            r_i_max: 40,
+     crates/firma-domain/src/params.rs:89:            q_max: 100,
+     crates/firma-domain/src/params.rs:116:            theta_q: 100,
+     crates/firma-viability/src/domain.rs:251:            Term(-70.0, 50.0),
+     crates/firma-plugins/firma-plugin-constraint/src/lib.rs:83:    100.0
+     crates/firma-plugins/firma-plugin-constraint/src/lib.rs:320:    50.0
+     crates/firma-plugins/firma-plugin-constraint/src/lib.rs:393:            liquid_capital: 40,
+     crates/firma-plugins/firma-plugin-constraint/src/lib.rs:396:            obligation: 30,
+     crates/firma-plugins/firma-plugin-constraint/src/lib.rs:410:            theta_q: 100,
+     crates/firma-plugins/firma-plugin-constraint/src/lib.rs:419:            penalty: 30,
+     crates/firma-plugins/firma-plugin-constraint/src/lib.rs:447:                penalty: 30,
+     crates/firma-plugins/firma-plugin-constraint/src/lib.rs:458:                scale: 50.0,
+     crates/firma-plugins/firma-plugin-constraint/src/lib.rs:478:                scale: 50.0,
+     crates/firma-plugins/firma-plugin-constraint/src/lib.rs:505:            scale: 50.0,
+     crates/firma-plugins/firma-plugin-action-shaping/src/lib.rs:657:        "success": { "p0": 0.2, "b_lambda": 0.2, "b_kappa": 0.1, "p_max": 0.6, "kappa_min": 30 },
+     crates/firma-plugins/firma-plugin-locality/src/lib.rs:86:         is measured against this as the baseline (§7.6, §34.7)."
+  [33mwarn[0m review the literals above for named-constant candidates
+[8/9] docs-required  (workspace missing_docs = deny — §24.3)
+  [32m ok [0m workspace lint set
+[9/9] no-tui-kernel-deps  (firma-tui MUST NOT link firma-kernel — §23.2, ADR 0045)
+  [32m ok [0m firma-tui carries no firma-kernel dependency, direct or transitive
+
+architecture lints: passed

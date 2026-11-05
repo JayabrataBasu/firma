@@ -1,0 +1,33 @@
+Q6 (read-only): can `targets` express a random subset, a fixed subset, or a predicate?
+Source read at HEAD 2820610. No file changed.
+
+1. The type. crates/firma-domain/src/shock.rs:133-144
+     /// §13.2 targets. `Predicate` is deferred (no predicate language in the MVP
+     /// config — ADR 0002); `All` and an explicit `Set` cover the E1 needs.
+     #[serde(tag = "kind", rename_all = "snake_case")]
+     pub enum ShockTargets { All, Set { ids: Vec<u64> } }
+   hits(): shock.rs:147-156 (All => true; Set => ids.contains(&agent)).
+   Manual §13.2 (docs/MANUAL.md:879) lists `targets: All | Set<AgentId> | Predicate`.
+
+2. Accepted JSON.
+     all firms:      "targets": {"kind": "all"}
+     fixed subset:   "targets": {"kind": "set", "ids": [1, 3]}     (shock.rs:423 builds Set{ids: vec![1,3]})
+     predicate:      NOT expressible. There is no Predicate variant (shock.rs:133-134).
+     random subset:  NOT expressible by the plugin. shock.stochastic's `targets` is a fixed
+                     field copied into the drawn shock (firma-plugin-shock/src/lib.rs:400-401,
+                     :459 `targets: self.p.targets.clone()`); only onset and magnitude are drawn.
+                     A random subset could only be produced OUTSIDE the engine, by a config
+                     generator writing a per-seed {"kind":"set","ids":[...]}.
+
+3. Where `targets` is actually consulted. firma-plugin-shock/src/lib.rs, channel dispatch:
+     Regulatory   (:151-160): writes ONE AdjustGlobalReal on theta_limit / theta_cap.
+                  `targets` is NOT read. theta is global (ADR-0015), so a regulatory shock
+                  always reaches every firm, whatever `targets` says.
+     Reputational (:162-180): per-agent legitimacy delta, `if shock.targets.hits(a.0)` (:166).
+                  This is the ONLY channel that honours `targets`.
+     Resource / Competitive (:181-193): ONE AdjustGlobalInt on input_price / output_price.
+                  `targets` is NOT read.
+
+   So for the shock used in R12-R20 (regulatory / theta_limit), a fixed subset is accepted
+   by the JSON schema but has no effect; a subset shock is possible today only on the
+   reputational channel. Not executed here: this is from reading the code, not from a run.

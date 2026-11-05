@@ -20,8 +20,8 @@ use firma_core::{
     PluginId, ResourceKind, RngKey, Rule, View,
 };
 use firma_domain::{
-    keys, margin, Aspirations, Constraint, ConstraintContext, ConstraintParams, Edge, EdgeKind,
-    FirmAuxState, FirmState, ViolationSemantic, WindowEntry,
+    advance_window, keys, margin, Aspirations, Constraint, ConstraintContext, ConstraintParams,
+    Edge, EdgeKind, FirmAuxState, FirmState, ViolationSemantic, WindowEntry,
 };
 use serde::{Deserialize, Serialize};
 
@@ -52,12 +52,30 @@ fn firm_u(view: &dyn View, agent: AgentId, l_w: usize) -> f64 {
         view.agent_real(agent, keys::REGULATED_INTENSITY)
             .unwrap_or(0.0)
     } else {
-        let entries: Vec<WindowEntry> = w
-            .iter()
-            .filter_map(|s| WindowEntry::from_json(s).ok())
-            .collect();
-        margin::u_from_window(&entries, l_w)
+        margin::u_from_window(&parse_window(agent, w), l_w)
     }
+}
+
+/// Parse a firm's persisted action window. A record that is not a valid
+/// [`WindowEntry`] is a loud failure naming the agent, the key and the
+/// offending string: dropping it would silently change `u` and so the
+/// compliance check, and there is no repair-and-continue path (manual
+/// §19.5). `Rule::apply` has no `Result` return, so the failure is a panic
+/// (precedent: the partial Arm-A pin, ADR 0054).
+fn parse_window(agent: AgentId, records: &[String]) -> Vec<WindowEntry> {
+    records
+        .iter()
+        .map(|s| {
+            WindowEntry::from_json(s).unwrap_or_else(|e| {
+                panic!(
+                    "agent {}: corrupt persisted record under `{}` ({e}); offending record: \
+                     {s:?}. Refusing to drop it and continue (manual §19.5).",
+                    agent.0,
+                    keys::ACTION_WINDOW
+                )
+            })
+        })
+        .collect()
 }
 
 fn theta(view: &dyn View) -> ConstraintParams {
@@ -146,16 +164,11 @@ impl Rule for ActionWindow {
                 .filter(|a| *a <= 8)
                 .unwrap_or(0);
 
-            let mut w: Vec<WindowEntry> = view
-                .agent_records(agent, keys::ACTION_WINDOW)
-                .iter()
-                .filter_map(|s| WindowEntry::from_json(s).ok())
-                .collect();
-            w.push(WindowEntry::new(tick, action));
-            if w.len() > self.l_w {
-                let drop = w.len() - self.l_w;
-                w.drain(0..drop);
-            }
+            let w = parse_window(agent, view.agent_records(agent, keys::ACTION_WINDOW));
+            // ADR 0049: the single source of "append + trim to L_W" —
+            // `time_to_boundary`'s forward projection calls the same
+            // function.
+            let w = advance_window(&w, tick, action, self.l_w);
 
             out.push(Delta {
                 target: DeltaTarget::Agent(agent),
@@ -331,7 +344,20 @@ impl Rule for Enforce {
         let mut edges: Vec<Edge> = view
             .global_records(keys::RELATION_EDGES)
             .iter()
-            .filter_map(|s| serde_json::from_str::<Edge>(s).ok())
+            .map(|s| {
+                // An edge that does not parse is a loud failure. Dropping it
+                // here would do more than ignore it: when a severance
+                // rewrites the list below, the unparsable record would be
+                // deleted from the persisted store (manual §19.5: no
+                // repair-and-continue; `Rule::apply` has no `Result`).
+                serde_json::from_str::<Edge>(s).unwrap_or_else(|e| {
+                    panic!(
+                        "global: corrupt persisted record under `{}` ({e}); offending \
+                         record: {s:?}. Refusing to drop it and continue (manual §19.5).",
+                        keys::RELATION_EDGES
+                    )
+                })
+            })
             .collect();
         let mut edges_changed = false;
 

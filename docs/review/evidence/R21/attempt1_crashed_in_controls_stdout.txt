@@ -1,0 +1,6 @@
+DIAGNOSTIC-ONLY - COLLAPSE DIAGNOSTIC (R21) - NOT REGISTERED - NOT FOR TUNING
+spec: /home/jayabratabasu/firma/docs/review/evidence/R21/diag_spec.json  sha256 220a5c210756beceec3d8d42dcc11072e67d3368e691e89b2698ff93285c4e03
+
+== controls ==
+  A cell (population 910001, shock seed 910101) run twice: BYTE-EQUAL  5802412800baf749f713531ae108b1960b28b76743b6a91f68d5dd9db427d758
+  no-shock run of population 910001 at shock seeds 910101 / 910115 / 910130: BYTE-EQUAL (one baseline per population is valid)

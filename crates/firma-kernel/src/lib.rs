@@ -642,6 +642,18 @@ impl Kernel {
                     Err(KernelError::UnknownAgent(a.0))
                 }
             }
+            Intervention::SetAgentReal {
+                agent,
+                field,
+                value,
+            } => {
+                // No `rebase_conservation()` call, unlike `SetStock`: `f64`
+                // "reals" are not part of the `i64` conservation ledger
+                // (§21.4) — `World::set_agent_real` touches no
+                // conservation-tracking field (ADR 0054 Q4).
+                world.set_agent_real(firma_core::AgentId(agent.0), field.clone(), *value);
+                Ok(())
+            }
             Intervention::FreezeRule(id) => {
                 world.frozen_rules.insert(id.clone());
                 Ok(())

@@ -1,0 +1,41 @@
+shock seeds under which at least one population has a compliance death: 13: [910102, 910105, 910106, 910108, 910109, 910110, 910111, 910113, 910114, 910115, 910116, 910124, 910126]
+  ... under which ALL 30 populations have a compliance death: 13
+shock seeds under which NO population has a compliance death: 17
+  in those 510 runs, survivors == that population's baseline survivors in 510
+survivors in the 390 runs under the 13 shock seeds: {0: 104, 1: 91, 2: 117, 3: 52, 4: 26}
+largest same-tick death count in those runs: {5: 16, 6: 94, 7: 104, 8: 56, 9: 50, 10: 34, 11: 31, 12: 5}
+per population: survivors under each of those shock seeds (seed order), baseline survivors
+  910001: [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]  distinct [1]  baseline 11
+  910002: [2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2]  distinct [2]  baseline 9
+  910003: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]  distinct [0]  baseline 8
+  910004: [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]  distinct [1]  baseline 8
+  910005: [4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4]  distinct [4]  baseline 12
+  910006: [2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2]  distinct [2]  baseline 9
+  910007: [2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2]  distinct [2]  baseline 8
+  910008: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]  distinct [0]  baseline 12
+  910009: [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]  distinct [1]  baseline 8
+  910010: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]  distinct [0]  baseline 11
+  910011: [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]  distinct [1]  baseline 9
+  910012: [3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3]  distinct [3]  baseline 11
+  910013: [2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2]  distinct [2]  baseline 9
+  910014: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]  distinct [0]  baseline 11
+  910015: [2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2]  distinct [2]  baseline 8
+  910016: [2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2]  distinct [2]  baseline 11
+  910017: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]  distinct [0]  baseline 10
+  910018: [3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3]  distinct [3]  baseline 11
+  910019: [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]  distinct [1]  baseline 10
+  910020: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]  distinct [0]  baseline 11
+  910021: [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]  distinct [1]  baseline 9
+  910022: [2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2]  distinct [2]  baseline 11
+  910023: [4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4]  distinct [4]  baseline 11
+  910024: [2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2]  distinct [2]  baseline 11
+  910025: [2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2]  distinct [2]  baseline 10
+  910026: [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]  distinct [1]  baseline 11
+  910027: [3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3]  distinct [3]  baseline 10
+  910028: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]  distinct [0]  baseline 11
+  910029: [3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3]  distinct [3]  baseline 12
+  910030: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]  distinct [0]  baseline 11
+drawn magnitude: the 13 shock seeds min 0.1509 max 0.2320; the other 17: [0.1053, 0.1085, 0.113, 0.1188, 0.1221, 0.1411, 0.1436, 0.2546, 0.2554, 0.2731, 0.2742, 0.2781, 0.2992, 0.3048, 0.3097, 0.3563, 0.3668]
+  other seeds with magnitude inside [0.1509, 0.2320]: []
+drawn onset: the 13 shock seeds [13, 22, 29, 32, 32, 33, 35, 43, 47, 47, 47, 48, 75]; the other 17: [21, 21, 22, 31, 32, 34, 39, 42, 45, 46, 54, 55, 67, 70, 71, 78, 79]
+NOT the predeclared metric - indicator 'any compliance death': distinct rows in the 30x30 matrix 1; row sums [13]; column sums [0, 30]

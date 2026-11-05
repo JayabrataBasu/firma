@@ -1,0 +1,101 @@
+   Compiling firma-plugin-decision v1.0.0 (/home/jayabratabasu/firma/crates/firma-plugins/firma-plugin-decision)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.96s
+     Running unittests src/lib.rs (target/debug/deps/firma_plugin_decision-f79b10302b3b80c3)
+
+running 5 tests
+test tests::corrupt_observed_env_record_panics_naming_agent_key_and_record ... FAILED
+test tests::corrupt_relation_edge_panics_in_decision_random_naming_key_and_record ... FAILED
+test tests::corrupt_action_window_record_panics_naming_agent_key_and_record ... FAILED
+test tests::corrupt_lagged_effect_record_panics_naming_agent_key_and_record ... FAILED
+test tests::corrupt_relation_edge_panics_in_satisficing_naming_key_and_record ... FAILED
+
+failures:
+
+---- tests::corrupt_lagged_effect_record_panics_naming_agent_key_and_record stdout ----
+
+thread 'tests::corrupt_lagged_effect_record_panics_naming_agent_key_and_record' (820905) panicked at crates/firma-plugins/firma-plugin-decision/src/tests.rs:873:21:
+expected a panic on the corrupt record, but the rule returned normally: ()
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    tests::corrupt_action_window_record_panics_naming_agent_key_and_record
+    tests::corrupt_lagged_effect_record_panics_naming_agent_key_and_record
+    tests::corrupt_observed_env_record_panics_naming_agent_key_and_record
+    tests::corrupt_relation_edge_panics_in_decision_random_naming_key_and_record
+    tests::corrupt_relation_edge_panics_in_satisficing_naming_key_and_record
+
+test result: FAILED. 0 passed; 5 failed; 0 ignored; 0 measured; 27 filtered out; finished in 0.00s
+
+error: test failed, to rerun pass `-p firma-plugin-decision --lib`
+   Compiling firma-plugin-constraint v0.1.0 (/home/jayabratabasu/firma/crates/firma-plugins/firma-plugin-constraint)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.60s
+     Running unittests src/lib.rs (target/debug/deps/firma_plugin_constraint-c86faee873032ac1)
+
+running 2 tests
+test phase_rules::tests::enforce_panics_on_a_corrupt_window_record_naming_agent_key_and_record ... FAILED
+test phase_rules::tests::action_window_panics_on_a_corrupt_record_naming_agent_key_and_record ... FAILED
+
+failures:
+
+---- phase_rules::tests::enforce_panics_on_a_corrupt_window_record_naming_agent_key_and_record stdout ----
+
+thread 'phase_rules::tests::enforce_panics_on_a_corrupt_window_record_naming_agent_key_and_record' (821101) panicked at crates/firma-plugins/firma-plugin-constraint/src/phase_rules/tests.rs:592:21:
+expected a panic on the corrupt record, but the rule returned normally: ()
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    phase_rules::tests::action_window_panics_on_a_corrupt_record_naming_agent_key_and_record
+    phase_rules::tests::enforce_panics_on_a_corrupt_window_record_naming_agent_key_and_record
+
+test result: FAILED. 0 passed; 2 failed; 0 ignored; 0 measured; 20 filtered out; finished in 0.00s
+
+error: test failed, to rerun pass `-p firma-plugin-constraint --lib`
+   Compiling firma-plugin-observation v1.0.0 (/home/jayabratabasu/firma/crates/firma-plugins/firma-plugin-observation)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.43s
+     Running unittests src/lib.rs (target/debug/deps/firma_plugin_observation-6582b56ce822373d)
+
+running 1 test
+test tests::delayed_panics_on_a_corrupt_history_record_naming_key_and_record ... FAILED
+
+failures:
+
+---- tests::delayed_panics_on_a_corrupt_history_record_naming_key_and_record stdout ----
+
+thread 'tests::delayed_panics_on_a_corrupt_history_record_naming_key_and_record' (821263) panicked at crates/firma-plugins/firma-plugin-observation/src/tests.rs:253:21:
+expected a panic on the corrupt record, but the rule returned normally: ()
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    tests::delayed_panics_on_a_corrupt_history_record_naming_key_and_record
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 6 filtered out; finished in 0.00s
+
+error: test failed, to rerun pass `-p firma-plugin-observation --lib`
+   Compiling firma-analysis v0.1.0 (/home/jayabratabasu/firma/crates/firma-analysis)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.37s
+     Running unittests src/lib.rs (target/debug/deps/firma_analysis-739a0f06af400215)
+
+running 2 tests
+test reconstruct::tests::a_well_formed_window_reports_no_parse_error ... ok
+test reconstruct::tests::one_corrupt_window_record_is_counted_and_named_not_silently_dropped ... FAILED
+
+failures:
+
+---- reconstruct::tests::one_corrupt_window_record_is_counted_and_named_not_silently_dropped stdout ----
+
+thread 'reconstruct::tests::one_corrupt_window_record_is_counted_and_named_not_silently_dropped' (821412) panicked at crates/firma-analysis/src/reconstruct.rs:620:9:
+assertion `left == right` failed: exactly one corrupt record ⇒ one error
+  left: 0
+ right: 1
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    reconstruct::tests::one_corrupt_window_record_is_counted_and_named_not_silently_dropped
+
+test result: FAILED. 1 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+error: test failed, to rerun pass `-p firma-analysis --lib`

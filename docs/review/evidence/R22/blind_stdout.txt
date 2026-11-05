@@ -1,0 +1,156 @@
+DIAGNOSTIC-ONLY - BLIND-SPOT DIAGNOSTIC (R22) - NOT REGISTERED - NOT FOR TUNING
+spec: /home/jayabratabasu/firma/docs/review/evidence/R22/blind_spec.json  sha256 60a4c8ae0767a7cedc06305bcac275bc0ade85908904740b437bb84dec1ef25b
+
+== controls ==
+  generated config (l_w 4, h_crit 0.15): {'decision.satisficing.l_w': 4, 'constraint.action_window.l_w': 4, 'constraint.enforce.l_w': 4, 'decision.satisficing.h_crit': 0.15}; shock params onset 40..40, magnitude 0.2 sd 0.0
+  generated config (l_w 8, h_crit 0.3): {'decision.satisficing.l_w': 8, 'constraint.action_window.l_w': 8, 'constraint.enforce.l_w': 8, 'decision.satisficing.h_crit': 0.3}; shock params onset 40..40, magnitude 0.2 sd 0.0
+  part-1 cell (m 0.200, l_w 4, h_crit 0.15, init seed 910001) run twice: BYTE-EQUAL  7e73661ae6fe499952e9be44b81e35f7076eefd4e3fc195cadb33d92d5544816
+  R20 medium init seed 910001 with l_w = 4, h_crit = 0.15 set explicitly: REPRODUCES its q2_runs.csv row ({'shocked_survivors': True, 'baseline_survivors': True, 'shocked_death_records': True, 'T1': True, 'sc2_h_below_crit': True, 'delta_h_rep_matched': True, 'shocked_events_sha256': True}); shocked survivors 1 of 12, compliance deaths 10, largest same-tick death count 10
+
+== PART 1: fixed onset 40, fixed magnitude; 44 cells x 10 populations ==
+ l_w = 4, h_crit = 0.15   (no-shock forks: survivors {8: 4, 9: 2, 11: 2, 12: 2}, forks with a compliance death 0 of 10)
+     m    theta_new  compl.-death  strike>=40  firms struck  deaths at     compl. deaths at  non-zero  survivors (of 12): runs
+                     share         share       at 1st strike 1st strike    1st death tick    dH share
+   0.100  0.800      0.00          0.00          n/a           n/a           n/a             1.00     {8: 4, 9: 2, 11: 2, 12: 2}
+   0.125  0.775      0.00          0.00          n/a           n/a           n/a             1.00     {8: 4, 9: 2, 11: 2, 12: 2}
+   0.150  0.750      0.00          0.00          n/a           n/a           n/a             1.00     {8: 4, 9: 2, 11: 2, 12: 2}
+   0.175  0.725      1.00          1.00         7.20          0.00          7.20             1.00     {0: 3, 1: 3, 2: 3, 4: 1}
+   0.200  0.700      1.00          1.00         7.20          0.00          7.20             1.00     {0: 3, 1: 3, 2: 3, 4: 1}
+   0.225  0.675      1.00          1.00         7.20          0.00          7.20             1.00     {0: 3, 1: 3, 2: 3, 4: 1}
+   0.250  0.650      1.00          1.00         7.20          0.00          7.20             1.00     {0: 3, 1: 3, 2: 3, 4: 1}
+   0.275  0.625      0.00          0.00          n/a           n/a           n/a             1.00     {8: 4, 9: 2, 11: 2, 12: 2}
+   0.300  0.600      0.00          0.00          n/a           n/a           n/a             1.00     {8: 4, 9: 2, 11: 2, 12: 2}
+   0.325  0.575      0.00          0.00          n/a           n/a           n/a             1.00     {8: 4, 9: 2, 11: 2, 12: 2}
+   0.350  0.550      0.00          0.00          n/a           n/a           n/a             1.00     {8: 4, 9: 2, 11: 2, 12: 2}
+ l_w = 4, h_crit = 0.3   (no-shock forks: survivors {8: 4, 9: 2, 11: 2, 12: 2}, forks with a compliance death 0 of 10)
+     m    theta_new  compl.-death  strike>=40  firms struck  deaths at     compl. deaths at  non-zero  survivors (of 12): runs
+                     share         share       at 1st strike 1st strike    1st death tick    dH share
+   0.100  0.800      0.00          0.00          n/a           n/a           n/a             0.00     {8: 4, 9: 2, 11: 2, 12: 2}
+   0.125  0.775      0.00          0.00          n/a           n/a           n/a             1.00     {8: 4, 9: 2, 11: 2, 12: 2}
+   0.150  0.750      0.00          0.00          n/a           n/a           n/a             1.00     {8: 4, 9: 2, 11: 2, 12: 2}
+   0.175  0.725      0.00          0.00          n/a           n/a           n/a             1.00     {8: 4, 9: 2, 11: 2, 12: 2}
+   0.200  0.700      0.00          0.00          n/a           n/a           n/a             1.00     {8: 4, 9: 2, 11: 2, 12: 2}
+   0.225  0.675      0.00          0.00          n/a           n/a           n/a             1.00     {8: 4, 9: 2, 11: 2, 12: 2}
+   0.250  0.650      0.00          0.00          n/a           n/a           n/a             1.00     {8: 4, 9: 2, 11: 2, 12: 2}
+   0.275  0.625      0.00          0.00          n/a           n/a           n/a             1.00     {8: 4, 9: 2, 11: 2, 12: 2}
+   0.300  0.600      0.00          0.00          n/a           n/a           n/a             1.00     {8: 4, 9: 2, 11: 2, 12: 2}
+   0.325  0.575      0.00          0.00          n/a           n/a           n/a             1.00     {8: 4, 9: 2, 11: 2, 12: 2}
+   0.350  0.550      0.00          0.00          n/a           n/a           n/a             1.00     {8: 4, 9: 2, 11: 2, 12: 2}
+ l_w = 8, h_crit = 0.15   (no-shock forks: survivors {8: 4, 9: 2, 11: 2, 12: 2}, forks with a compliance death 0 of 10)
+     m    theta_new  compl.-death  strike>=40  firms struck  deaths at     compl. deaths at  non-zero  survivors (of 12): runs
+                     share         share       at 1st strike 1st strike    1st death tick    dH share
+   0.100  0.800      0.00          0.00          n/a           n/a           n/a             0.90     {8: 4, 9: 2, 11: 2, 12: 2}
+   0.125  0.775      0.00          0.00          n/a           n/a           n/a             0.90     {8: 4, 9: 2, 11: 2, 12: 2}
+   0.150  0.750      0.00          0.00          n/a           n/a           n/a             1.00     {8: 4, 9: 2, 11: 2, 12: 2}
+   0.175  0.725      0.00          0.00          n/a           n/a           n/a             1.00     {8: 4, 9: 2, 11: 2, 12: 2}
+   0.200  0.700      0.00          0.00          n/a           n/a           n/a             1.00     {8: 4, 9: 2, 11: 2, 12: 2}
+   0.225  0.675      0.00          0.00          n/a           n/a           n/a             1.00     {8: 4, 9: 2, 11: 2, 12: 2}
+   0.250  0.650      0.00          0.00          n/a           n/a           n/a             1.00     {8: 4, 9: 2, 11: 2, 12: 2}
+   0.275  0.625      0.00          0.00          n/a           n/a           n/a             1.00     {8: 4, 9: 2, 11: 2, 12: 2}
+   0.300  0.600      0.00          0.90         2.67          1.78           n/a             1.00     {8: 4, 9: 2, 11: 2, 12: 2}
+   0.325  0.575      0.00          0.90         2.67          1.78           n/a             1.00     {8: 4, 9: 2, 11: 2, 12: 2}
+   0.350  0.550      0.00          0.90         2.67          1.78           n/a             1.00     {8: 4, 9: 2, 11: 2, 12: 2}
+ l_w = 8, h_crit = 0.3   (no-shock forks: survivors {8: 4, 9: 2, 11: 2, 12: 2}, forks with a compliance death 0 of 10)
+     m    theta_new  compl.-death  strike>=40  firms struck  deaths at     compl. deaths at  non-zero  survivors (of 12): runs
+                     share         share       at 1st strike 1st strike    1st death tick    dH share
+   0.100  0.800      0.00          0.00          n/a           n/a           n/a             0.00     {8: 4, 9: 2, 11: 2, 12: 2}
+   0.125  0.775      0.00          0.00          n/a           n/a           n/a             1.00     {8: 4, 9: 2, 11: 2, 12: 2}
+   0.150  0.750      0.00          0.00          n/a           n/a           n/a             1.00     {8: 4, 9: 2, 11: 2, 12: 2}
+   0.175  0.725      0.00          0.00          n/a           n/a           n/a             1.00     {8: 4, 9: 2, 11: 2, 12: 2}
+   0.200  0.700      0.00          0.00          n/a           n/a           n/a             1.00     {8: 4, 9: 2, 11: 2, 12: 2}
+   0.225  0.675      0.00          0.00          n/a           n/a           n/a             1.00     {8: 4, 9: 2, 11: 2, 12: 2}
+   0.250  0.650      0.00          0.00          n/a           n/a           n/a             1.00     {8: 4, 9: 2, 11: 2, 12: 2}
+   0.275  0.625      0.00          0.00          n/a           n/a           n/a             1.00     {8: 4, 9: 2, 11: 2, 12: 2}
+   0.300  0.600      0.00          0.00          n/a           n/a           n/a             1.00     {8: 4, 9: 2, 11: 2, 12: 2}
+   0.325  0.575      0.00          0.00          n/a           n/a           n/a             1.00     {8: 4, 9: 2, 11: 2, 12: 2}
+   0.350  0.550      0.00          0.00          n/a           n/a           n/a             1.00     {8: 4, 9: 2, 11: 2, 12: 2}
+
+  PREDICTIONS (rules fixed in the spec):
+  P1 (l_w 4, h_crit 0.15): HOLDS - interior {0.175: 1.0, 0.2: 1.0, 0.225: 1.0} (each must be >= 0.80); outside {0.1: 0.0, 0.125: 0.0, 0.275: 0.0, 0.3: 0.0, 0.325: 0.0, 0.35: 0.0} (each must be <= 0.10); edges, not counted: {0.15: 0.0, 0.25: 1.0}. Strict variant with the edges counted as inside (information only): does not hold
+  P2 (l_w 4, h_crit 0.30): HOLDS - shares by magnitude {0.1: 0.0, 0.125: 0.0, 0.15: 0.0, 0.175: 0.0, 0.2: 0.0, 0.225: 0.0, 0.25: 0.0, 0.275: 0.0, 0.3: 0.0, 0.325: 0.0, 0.35: 0.0} (each must be <= 0.10)
+  P3 (l_w 8, h_crit 0.15): HOLDS - shares by magnitude {0.1: 0.0, 0.125: 0.0, 0.15: 0.0, 0.175: 0.0, 0.2: 0.0, 0.225: 0.0, 0.25: 0.0, 0.275: 0.0, 0.3: 0.0, 0.325: 0.0, 0.35: 0.0} (each must be <= 0.10)
+  no prediction (l_w 8, h_crit 0.30): shares {0.1: 0.0, 0.125: 0.0, 0.15: 0.0, 0.175: 0.0, 0.2: 0.0, 0.225: 0.0, 0.25: 0.0, 0.275: 0.0, 0.3: 0.0, 0.325: 0.0, 0.35: 0.0}
+
+== PART 2: R20 Q2/Q4 at l_w = 8, h_crit = 0.15 (relative aspiration) ==
+ spread level low:
+   metric (pooled, 100 init seeds)    l_w = 8   l_w = 4 (R21 B)
+   collapse_rate                      0.000     0.570
+   mass_death_tick_share              0.050     0.570
+   mean_survival_shocked              0.828     0.376
+   mean_survival_baseline             0.847     0.847
+   nonzero_matched_delta_h_share      0.930     1.000
+   sc1_pass_share                     0.550     0.550
+   sc2_pass_share                     0.900     0.580
+   sc3_pass_share                     0.000     0.010
+   sc6_pass_share                     1.000     1.000
+   t1_pass_share                      0.000     0.010
+   survivors, shocked, l_w = 8: {5: 1, 6: 2, 7: 3, 8: 9, 9: 18, 10: 27, 11: 28, 12: 12}
+   survivors, shocked, l_w = 4: {0: 50, 1: 7, 8: 4, 9: 6, 10: 14, 11: 10, 12: 9}
+   survivors, baseline, l_w = 8: {7: 2, 8: 8, 9: 18, 10: 29, 11: 30, 12: 13}
+   runs with any compliance death, l_w = 8: 6 of 100 (l_w = 4: 57); distinct compliance-death ticks per run: {0: 94, 1: 6}
+   baseline sanity values, l_w = 8 (100 baselines): SC-1 mean 0.847 [0.583, 1.000]; SC-2 mean 0.116 [0.034, 0.295] (too low 8, too high 2); SC-3 binds [solvency, compliance, scope, obligation] [87, 0, 1, 87]; SC-6 variance mean 0.1532 [0.1027, 0.2102]
+   Q4 set A      SC-1 0.48 SC-2 0.90 SC-3 0.00 SC-6 1.00 T1 0.00 | collapse 0.00 | non-zero dH 0.94 | FAIL
+   Q4 set B      SC-1 0.62 SC-2 0.90 SC-3 0.00 SC-6 1.00 T1 0.00 | collapse 0.00 | non-zero dH 0.92 | FAIL
+   Q4 set pooled SC-1 0.55 SC-2 0.90 SC-3 0.00 SC-6 1.00 T1 0.00 | collapse 0.00 | non-zero dH 0.93 | FAIL (verdict)
+ spread level medium:
+   metric (pooled, 100 init seeds)    l_w = 8   l_w = 4 (R21 B)
+   collapse_rate                      0.000     0.510
+   mass_death_tick_share              0.010     0.570
+   mean_survival_shocked              0.840     0.426
+   mean_survival_baseline             0.847     0.847
+   nonzero_matched_delta_h_share      0.930     1.000
+   sc1_pass_share                     0.550     0.550
+   sc2_pass_share                     0.610     0.550
+   sc3_pass_share                     0.000     0.520
+   sc6_pass_share                     1.000     1.000
+   t1_pass_share                      0.000     0.130
+   survivors, shocked, l_w = 8: {7: 2, 8: 8, 9: 22, 10: 28, 11: 28, 12: 12}
+   survivors, shocked, l_w = 4: {0: 17, 1: 19, 2: 15, 3: 6, 8: 4, 9: 6, 10: 14, 11: 10, 12: 9}
+   survivors, baseline, l_w = 8: {7: 2, 8: 8, 9: 18, 10: 29, 11: 30, 12: 13}
+   runs with any compliance death, l_w = 8: 4 of 100 (l_w = 4: 57); distinct compliance-death ticks per run: {0: 96, 1: 4}
+   baseline sanity values, l_w = 8 (100 baselines): SC-1 mean 0.847 [0.583, 1.000]; SC-2 mean 0.207 [0.031, 0.446] (too low 4, too high 35); SC-3 binds [solvency, compliance, scope, obligation] [87, 0, 58, 87]; SC-6 variance mean 0.1805 [0.1418, 0.2242]
+   Q4 set A      SC-1 0.48 SC-2 0.52 SC-3 0.00 SC-6 1.00 T1 0.00 | collapse 0.00 | non-zero dH 0.94 | FAIL
+   Q4 set B      SC-1 0.62 SC-2 0.70 SC-3 0.00 SC-6 1.00 T1 0.00 | collapse 0.00 | non-zero dH 0.92 | FAIL
+   Q4 set pooled SC-1 0.55 SC-2 0.61 SC-3 0.00 SC-6 1.00 T1 0.00 | collapse 0.00 | non-zero dH 0.93 | FAIL (verdict)
+ spread level high:
+   metric (pooled, 100 init seeds)    l_w = 8   l_w = 4 (R21 B)
+   collapse_rate                      0.000     0.290
+   mass_death_tick_share              0.000     0.500
+   mean_survival_shocked              0.843     0.500
+   mean_survival_baseline             0.848     0.848
+   nonzero_matched_delta_h_share      0.930     1.000
+   sc1_pass_share                     0.550     0.550
+   sc2_pass_share                     0.300     0.290
+   sc3_pass_share                     0.000     0.830
+   sc6_pass_share                     1.000     1.000
+   t1_pass_share                      0.000     0.090
+   survivors, shocked, l_w = 8: {7: 2, 8: 8, 9: 19, 10: 30, 11: 29, 12: 12}
+   survivors, shocked, l_w = 4: {0: 3, 1: 12, 2: 14, 3: 8, 4: 14, 5: 3, 6: 1, 7: 1, 8: 5, 9: 6, 10: 14, 11: 10, 12: 9}
+   survivors, baseline, l_w = 8: {7: 2, 8: 7, 9: 19, 10: 29, 11: 30, 12: 13}
+   runs with any compliance death, l_w = 8: 5 of 100 (l_w = 4: 57); distinct compliance-death ticks per run: {0: 95, 1: 5}
+   baseline sanity values, l_w = 8 (100 baselines): SC-1 mean 0.848 [0.583, 1.000]; SC-2 mean 0.344 [0.054, 0.729] (too low 0, too high 70); SC-3 binds [solvency, compliance, scope, obligation] [87, 0, 95, 87]; SC-6 variance mean 0.1906 [0.1510, 0.2254]
+   Q4 set A      SC-1 0.48 SC-2 0.28 SC-3 0.00 SC-6 1.00 T1 0.00 | collapse 0.00 | non-zero dH 0.94 | FAIL
+   Q4 set B      SC-1 0.62 SC-2 0.32 SC-3 0.00 SC-6 1.00 T1 0.00 | collapse 0.00 | non-zero dH 0.92 | FAIL
+   Q4 set pooled SC-1 0.55 SC-2 0.30 SC-3 0.00 SC-6 1.00 T1 0.00 | collapse 0.00 | non-zero dH 0.93 | FAIL (verdict)
+  R20 CRITERIA at l_w = 8: low FAIL; medium FAIL; high FAIL   | at l_w = 4: low FAIL; medium FAIL; high FAIL
+
+== PART 3: resource shock with resource.constant (medium, relative, l_w = 8, set A) ==
+  resource +1: survivors {7: 1, 8: 7, 9: 8, 10: 9, 11: 19, 12: 6}; baseline {7: 1, 8: 7, 9: 8, 10: 9, 11: 19, 12: 6}
+    collapse rate 0.000; >= 5 deaths in one tick 0.020; non-zero matched DeltaH 0.020; mean survival 0.843 (baseline 0.843); deaths by cause {'solvency': 94}; runs whose survivors differ from the baseline's 0 of 50
+    R21 'graded' rule (information; not a criterion of this task): extremes 1.00, distinct survivor counts 6 -> not graded
+  resource +2: survivors {7: 1, 8: 7, 9: 8, 10: 9, 11: 19, 12: 6}; baseline {7: 1, 8: 7, 9: 8, 10: 9, 11: 19, 12: 6}
+    collapse rate 0.000; >= 5 deaths in one tick 0.020; non-zero matched DeltaH 0.020; mean survival 0.843 (baseline 0.843); deaths by cause {'solvency': 94}; runs whose survivors differ from the baseline's 0 of 50
+    R21 'graded' rule (information; not a criterion of this task): extremes 1.00, distinct survivor counts 6 -> not graded
+  resource +4: survivors {7: 1, 8: 7, 9: 8, 10: 9, 11: 19, 12: 6}; baseline {7: 1, 8: 7, 9: 8, 10: 9, 11: 19, 12: 6}
+    collapse rate 0.000; >= 5 deaths in one tick 0.020; non-zero matched DeltaH 0.000; mean survival 0.843 (baseline 0.843); deaths by cause {'solvency': 94}; runs whose survivors differ from the baseline's 0 of 50
+    R21 'graded' rule (information; not a criterion of this task): extremes 1.00, distinct survivor counts 6 -> not graded
+  input_price path, init seed 910001, drawn onset 52; ticks 49..65:
+    constant, no shock                 [2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2]  ... last tick 2
+    constant, +4                       [2, 2, 2, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6]  ... last tick 6
+    patchy, +4 (R21 rule set, l_w 8)   [4, 3, 4, 7, 6, 5, 5, 4, 3, 3, 3, 1, 1, 1, 1, 2, 3]  ... last tick 1
+  with resource.constant the price stays shifted from onset to the last tick: True
+
+written under /tmp/claude-1000/-home-jayabratabasu-firma/25acd624-4575-4f2d-9fb5-645f7478f07e/scratchpad/r22: part1_runs.csv, part2_runs.csv, part3_runs.csv, summary.json
+problems: none
+wall-clock time: 162.4 s
+DIAGNOSTIC-ONLY - BLIND-SPOT DIAGNOSTIC (R22) - NOT REGISTERED - NOT FOR TUNING

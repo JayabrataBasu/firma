@@ -1,0 +1,141 @@
+{
+  "Q2_Q3_Q4_runs": {
+    "per_run_metrics": {
+      "collapse": "survivors <= 20% of n, i.e. <= 2 of 12",
+      "distinct_compliance_death_ticks": "number of distinct ticks among deaths whose cause is 'compliance' (0 if none)",
+      "mass_death_tick": "at least 5 firms die in one tick (any cause)",
+      "matched_delta_h": "R14 definition (scripts/exploratory_e1_slice.py::matched_summary)",
+      "survivors": "12 minus the number of agent_died records"
+    },
+    "per_spread_level_and_init_seed": "one NO-SHOCK baseline (shock rule removed, shock seed = init seed) and one shocked run (shock seed = init seed). The baseline IS the shocked run's no-shock fork (same config and seeds, shock rule removed)."
+  },
+  "Q3_difference_rule": "a metric differs between set A and set B if |A - B| > 0.10, or if the larger is more than 2x the smaller (when the smaller is > 0; a zero against a non-zero counts as a difference)",
+  "Q4_success_criteria": {
+    "T1": "per init seed, on the no-shock baseline: SC-1 sc1_survival in [0.60, 0.90]; SC-2 sc2_reconstructed_h_below_crit in [0.05, 0.25]; SC-3 sc3_pass and SC-6 sc6_pass from firma_analysis (same T1 as R16/R18, via scripts/regime_search.py::evaluate_targets)",
+    "criteria": [
+      "at least 50% of init seeds pass T1",
+      "collapse rate <= 10% of shocked runs",
+      "at least 50% of shocked runs have non-zero matched DeltaH"
+    ],
+    "pooling": "the verdict per spread level is computed over sets A and B pooled (100 init seeds); the same three numbers are also shown per set",
+    "status": "REVIEWER-PROPOSED, fixed at step 0"
+  },
+  "Q5": {
+    "cells": {
+      "beta": 1.0,
+      "companions": "pinned_shortfall_capability = 0.0 and pinned_shortfall_obligation_clearance = 0.0 (ADR-0054; firma_lab/spec.py Arm A 'varsigma' factor)",
+      "pinned_margin": [
+        0.02,
+        0.4
+      ],
+      "pinned_shortfall_capital_growth": [
+        0.0,
+        1.0
+      ]
+    },
+    "config": "the fixed items above with the shock rule removed (no shock in Q5); shock seed 910001; decision.satisficing params l_w = 4, beta = 1.0",
+    "drawn_arm": "n = 1: firm id 0 drawn by this generator at the MEDIUM spread level (all five purposes, including the obligation draw), init seeds 910001..910050",
+    "negative_control": "n = 1: firm 0 of the base config unchanged (capital 600, input 40, capability 0.6, aspiration 8.0, no obligation), same 50 init seeds; expect 1 sequence",
+    "outcome": "H_rep per the R12 definition: mean over live firm-ticks of the entropy of the trailing 8 selected actions; and the sha256 of the selected-action sequence",
+    "pin_mechanism": "config 'interventions' at tick 0, written by firma_lab.runner._add_pin_intervention (imported, not edited)"
+  },
+  "choices_made_by_the_builder_before_any_run": [
+    "big-endian byte order for the 8 hash bytes",
+    "a_spread read as an absolute half-width",
+    "capital rounded half up, capability not rounded",
+    "q = 50 + floor(31 u), integers 50..80 inclusive",
+    "theta_q = 40 in every drawn population, whether or not any firm is seeded",
+    "collapse = at most 2 survivors of 12",
+    "Q4 verdict pooled over sets A and B",
+    "Q5: no shock; the drawn single firm keeps its obligation draw; the negative control is base-config firm 0",
+    "the Q3 relative-difference rule when one value is zero"
+  ],
+  "controls": {
+    "byte_equal": "low-spread init seed 910001: config built twice (byte-equal JSON) and the shocked run executed twice (byte-equal events.ndjson)",
+    "cliff_detection": "the R12 4-firm smoke slice config and R18 grid-2 cell 79 at shock mean 0.20, each over shock seeds 910001..910020 (init seed 910004), evaluated with the Q2/Q4 code, must reproduce the numbers recorded in evidence/R16 and evidence/R18"
+  },
+  "derivation": {
+    "byte_order": "big-endian (builder's choice; the prompt says 'first 8 bytes')",
+    "normal": "statistics.NormalDist().inv_cdf(u); u == 0 raises",
+    "purpose_tags": [
+      "capital",
+      "capability",
+      "aspiration_capital_growth",
+      "obligation_flag",
+      "obligation_q"
+    ],
+    "uniform": "u = int.from_bytes(sha256(f'{init_seed}|{firm_id}|{purpose_tag}'.encode('ascii')).digest()[:8], 'big') / 2**64"
+  },
+  "disclosure": "theta_limit = 0.90 was chosen by the reviewer AFTER seeing regime grid 2 (R18: SC-2 was only reachable at 0.90). The distributions and spread levels are reviewer-proposed (R20) and were fixed here before any run.",
+  "distributions": {
+    "aspiration_capital_growth": {
+      "centre": 8.0,
+      "family": "uniform",
+      "half_width": "a_spread",
+      "reading": "a_spread is an ABSOLUTE half-width (literal reading of 'uniform within +/- a_spread of 8.0'); the relative reading 8.0 * (1 +/- a_spread) was NOT used",
+      "value": "8.0 - a_spread + 2 * a_spread * u"
+    },
+    "capability": {
+      "clip": [
+        0.05,
+        1.0
+      ],
+      "family": "normal",
+      "mean": 0.55,
+      "rounding": "none",
+      "sd": "sd_cap"
+    },
+    "capital": {
+      "cv": "cv_cap",
+      "family": "lognormal",
+      "median": 100,
+      "rounding": "half up to an integer; no clipping",
+      "sigma": "sqrt(ln(1 + cv_cap^2))",
+      "value": "100 * exp(sigma * z)"
+    },
+    "every_other_per_firm_field": "copied from firm 0 of the base config (input stock 40, legitimacy 1.0); firm ids are 0 .. n-1",
+    "obligation": {
+      "probability": "u(obligation_flag) < 1/6",
+      "q": "50 + floor(31 * u(obligation_q)), i.e. uniform on integers 50..80",
+      "q_max": 100,
+      "theta_q": 40
+    }
+  },
+  "fixed": {
+    "base_config": "configs/experiments/phase2-stage5-smoke.json (rule set and all parameters not listed here)",
+    "decision": "decision.satisficing (l_w = 4; plugin defaults otherwise)",
+    "environment_seed": 910002,
+    "horizon_ticks": 120,
+    "input_price": 2,
+    "mechanism_seed": 910001,
+    "observation": "observation.full",
+    "output_price": 3,
+    "shock": "shock.stochastic as in R12: regulatory/theta_limit, onset uniform 10..80, instant, permanent, targets all; magnitude_mean 0.20, magnitude_sd 0.20 / 3",
+    "theta_cap": 0.4,
+    "theta_limit": 0.9,
+    "theta_q": 40
+  },
+  "n_firms": 12,
+  "seed_sets": {
+    "A": "init seeds 910001..910050",
+    "B": "init seeds 911001..911050"
+  },
+  "spread_levels": {
+    "high": {
+      "a_spread": 0.5,
+      "cv_cap": 1.0,
+      "sd_cap": 0.2
+    },
+    "low": {
+      "a_spread": 0.1,
+      "cv_cap": 0.25,
+      "sd_cap": 0.05
+    },
+    "medium": {
+      "a_spread": 0.25,
+      "cv_cap": 0.5,
+      "sd_cap": 0.1
+    }
+  },
+  "task": "R20 HETERO - DIAGNOSTIC-ONLY; nothing registered; not for tuning"
+}

@@ -1,0 +1,74 @@
+diff --git a/crates/firma-plugins/firma-plugin-decision/src/lib.rs b/crates/firma-plugins/firma-plugin-decision/src/lib.rs
+index 77ecbb5..a3d6def 100644
+--- a/crates/firma-plugins/firma-plugin-decision/src/lib.rs
++++ b/crates/firma-plugins/firma-plugin-decision/src/lib.rs
+@@ -621,6 +621,34 @@ impl DecideCtx {
+         Self::margin_with_theta(s, aux, &self.theta, scales)
+     }
+ 
++    /// **ADR 0057 prototype (SYMMETRIC, not adopted).** The aux state a
++    /// `SURVIVAL` one-step lookahead should see for action `a`'s `h_{t+1}`:
++    /// `u` recomputed from the window the real `constrain` rule will
++    /// actually hold after this tick records `a` in `W` — the same
++    /// `advance_window` + `u_from_window` pair `constrain`
++    /// (`firma-plugin-constraint::phase_rules::ActionWindow::apply`) and
++    /// `time_to_boundary` (ADR 0049) both call — instead of the current-tick
++    /// value this lookahead used before this prototype.
++    ///
++    /// Applies uniformly to every action class, not just market actions
++    /// (Option A's scope): `constrain` pushes `SELECTED_ACTION` into `W`
++    /// unconditionally for every live agent, with no branch on action class
++    /// and no dependence on a shaping action's later success/failure draw
++    /// (`ActionWindow::apply` reads only `keys::SELECTED_ACTION`, never
++    /// `keys::LAGGED_EFFECTS`). So one window-advance by `a` is the correct
++    /// next-tick `u` for a market action's `h_{t+1}`, for `lobby`/`contract`'s
++    /// `h_success` *and* `h_failure` (the window entry does not depend on
++    /// which of those two branches is realised — only `a` was selected), and
++    /// for `diversify`'s cost-only fallthrough — not three different
++    /// treatments.
++    fn aux_after(&self, a: u8, aux: &FirmAuxState) -> FirmAuxState {
++        let next_window = firma_domain::advance_window(&self.window, self.tick, a, self.l_w);
++        FirmAuxState {
++            regulated_intensity: firma_domain::margin::u_from_window(&next_window, self.l_w),
++            ..*aux
++        }
++    }
++
+     fn margin_with_theta(
+         s: &FirmState,
+         aux: &FirmAuxState,
+@@ -748,8 +776,14 @@ impl DecideCtx {
+             // ttb == None ⇒ unbounded ⇒ arrives comfortably; fall through.
+         }
+ 
+-        let h_success = Self::margin_with_theta(&state_success, aux, &theta_success, scales);
+-        let h_failure = Self::margin_with_theta(&after_cost, aux, &self.theta, scales);
++        // ADR 0057 prototype (SYMMETRIC): both branches use the *same*
++        // next-tick aux (the window after `a` is recorded) — success/failure
++        // is resolved later, at `a`'s own `maturity_tick` via
++        // `resolve_lagged`, and does not change what `constrain` records in
++        // `W` for this tick's `a` (see `aux_after`'s doc comment).
++        let next_aux = self.aux_after(a, aux);
++        let h_success = Self::margin_with_theta(&state_success, &next_aux, &theta_success, scales);
++        let h_failure = Self::margin_with_theta(&after_cost, &next_aux, &self.theta, scales);
+         if trace::is_enabled() {
+             trace::emit(serde_json::json!({
+                 "kind": "shaping_payoff_computed",
+@@ -989,7 +1023,16 @@ impl Satisficing {
+                         return result;
+                     }
+                 }
+-                dc.margin_at(&n, aux, scales) > h_t
++                // ADR 0057 prototype (SYMMETRIC, not adopted): every action
++                // that reaches this cost-only fallthrough — all six market
++                // actions, `lobby`/`contract` when unconfigured or when the
++                // ADR 0048 gate is closed, and `diversify` (always, since
++                // `shaping_expected_survival_margin` has no payoff model for
++                // it) — uses the same next-tick-aware aux (`aux_after`),
++                // applied uniformly rather than singled out for market
++                // actions only (cf. Option A, which special-cased `a < 6`).
++                let next_aux = dc.aux_after(a, aux);
++                dc.margin_at(&n, &next_aux, scales) > h_t
+             }
+             Focus::Goal(j) => {
+                 let dv = match j {

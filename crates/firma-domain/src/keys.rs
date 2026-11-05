@@ -77,6 +77,29 @@ pub const ASPIRATION_CAPABILITY: &str = "aspiration_capability";
 /// `v_3 = −q_t`.
 pub const ASPIRATION_OBLIGATION_CLEARANCE: &str = "aspiration_obligation_clearance";
 
+// --- E1 Arm A direct-manipulation pins (ADR 0054), `Intervention::SetAgentReal`
+// targets read by `decision.satisficing`'s Step 1. `None` (the default, no
+// existing config sets these) ⇒ `h_t`/`ς_j` computed exactly as before this
+// ADR — additive, opt-in, behaviour-preserving (§20.5), the same posture as
+// ADR-0047's shaping-success fields. `decision.satisficing` requires either
+// none of these four keys present, or all four together (ADR-0054 Part A
+// item 1) — a partial pin is a config error, not a partial feature. ---
+
+/// Overrides `h_t` (the viability margin `decision.satisficing`'s Step 1
+/// would otherwise compute via `standard_margin`) for Arm A's direct
+/// manipulation (manual §30.4, ADR 0054). Read-only by `Satisficing::
+/// apply()`; no other rule consults it — `constraint.enforce`'s real
+/// violation detection is unaffected (ADR 0054 Q1/Q5).
+pub const PINNED_MARGIN: &str = "pinned_margin";
+/// Overrides `ς_1` (capital-growth shortfall) for Arm A (ADR 0054). Paired
+/// with [`PINNED_SHORTFALL_CAPABILITY`]/[`PINNED_SHORTFALL_OBLIGATION_
+/// CLEARANCE`] — all three or none.
+pub const PINNED_SHORTFALL_CAPITAL_GROWTH: &str = "pinned_shortfall_capital_growth";
+/// Overrides `ς_2` (capability shortfall) for Arm A (ADR 0054).
+pub const PINNED_SHORTFALL_CAPABILITY: &str = "pinned_shortfall_capability";
+/// Overrides `ς_3` (obligation-clearance shortfall) for Arm A (ADR 0054).
+pub const PINNED_SHORTFALL_OBLIGATION_CLEARANCE: &str = "pinned_shortfall_obligation_clearance";
+
 // --- global real scalars (`AdjustGlobalReal`) ---
 
 /// `θ_limit` — permitted regulated-activity intensity (§8.2). Raised additively

@@ -1,0 +1,288 @@
+{"action": 2, "agent": 0, "kind": "admissible_check", "result": true, "tick": 6}
+{"action": 2, "agent": 0, "focus": "Goal(1)", "h_t": 0.15000000000000002, "kind": "satisfices_check", "result": false, "tick": 6}
+{"action": 1, "agent": 0, "kind": "admissible_check", "result": true, "tick": 6}
+{"action": 1, "agent": 0, "focus": "Goal(1)", "h_t": 0.15000000000000002, "kind": "satisfices_check", "result": false, "tick": 6}
+{"action": 3, "agent": 0, "kind": "admissible_check", "result": false, "tick": 6}
+{"action": 6, "agent": 0, "kind": "admissible_check", "result": true, "tick": 6}
+{"action": 6, "agent": 0, "focus": "Goal(1)", "h_t": 0.15000000000000002, "kind": "satisfices_check", "result": false, "tick": 6}
+{"action": 8, "agent": 0, "kind": "admissible_check", "result": true, "tick": 6}
+{"action": 8, "agent": 0, "focus": "Goal(1)", "h_t": 0.15000000000000002, "kind": "satisfices_check", "result": false, "tick": 6}
+{"action": 5, "agent": 0, "kind": "admissible_check", "result": false, "tick": 6}
+{"action": 4, "agent": 0, "kind": "admissible_check", "result": true, "tick": 6}
+{"action": 4, "agent": 0, "focus": "Goal(1)", "h_t": 0.15000000000000002, "kind": "satisfices_check", "result": false, "tick": 6}
+{"action": 0, "agent": 0, "kind": "admissible_check", "result": true, "tick": 6}
+{"action": 0, "agent": 0, "focus": "Goal(1)", "h_t": 0.15000000000000002, "kind": "satisfices_check", "result": false, "tick": 6}
+{"action": 2, "agent": 0, "kind": "admissible_check", "result": true, "tick": 6}
+{"action": 2, "agent": 0, "focus": "Goal(1)", "h_t": 0.15000000000000002, "kind": "selection", "prev_action": 2, "scan_order": [2, 1, 3, 6, 8, 5, 4, 0, 7], "shortfalls": [53139.96657, 0.0, 0.0], "tick": 6, "w_eff": 6}
+{"action": 2, "agent": 1, "kind": "admissible_check", "result": true, "tick": 6}
+{"action": 2, "agent": 1, "focus": "Goal(1)", "h_t": 0.15000000000000002, "kind": "satisfices_check", "result": false, "tick": 6}
+{"action": 1, "agent": 1, "kind": "admissible_check", "result": true, "tick": 6}
+{"action": 1, "agent": 1, "focus": "Goal(1)", "h_t": 0.15000000000000002, "kind": "satisfices_check", "result": false, "tick": 6}
+{"action": 3, "agent": 1, "kind": "admissible_check", "result": false, "tick": 6}
+{"action": 6, "agent": 1, "kind": "admissible_check", "result": true, "tick": 6}
+{"action": 6, "agent": 1, "focus": "Goal(1)", "h_t": 0.15000000000000002, "kind": "satisfices_check", "result": false, "tick": 6}
+{"action": 8, "agent": 1, "kind": "admissible_check", "result": true, "tick": 6}
+{"action": 8, "agent": 1, "focus": "Goal(1)", "h_t": 0.15000000000000002, "kind": "satisfices_check", "result": false, "tick": 6}
+{"action": 5, "agent": 1, "kind": "admissible_check", "result": false, "tick": 6}
+{"action": 4, "agent": 1, "kind": "admissible_check", "result": true, "tick": 6}
+{"action": 4, "agent": 1, "focus": "Goal(1)", "h_t": 0.15000000000000002, "kind": "satisfices_check", "result": false, "tick": 6}
+{"action": 0, "agent": 1, "kind": "admissible_check", "result": true, "tick": 6}
+{"action": 0, "agent": 1, "focus": "Goal(1)", "h_t": 0.15000000000000002, "kind": "satisfices_check", "result": false, "tick": 6}
+{"action": 2, "agent": 1, "kind": "admissible_check", "result": true, "tick": 6}
+{"action": 2, "agent": 1, "focus": "Goal(1)", "h_t": 0.15000000000000002, "kind": "selection", "prev_action": 2, "scan_order": [2, 1, 3, 6, 8, 5, 4, 0, 7], "shortfalls": [53139.37608, 0.0, 0.0], "tick": 6, "w_eff": 6}
+{"action": 1, "agent": 0, "kind": "admissible_check", "result": true, "tick": 7}
+{"action": 1, "agent": 0, "focus": "Survival", "h_t": 0.025000000000000022, "kind": "satisfices_check", "result": false, "tick": 7}
+{"action": 3, "agent": 0, "kind": "admissible_check", "result": false, "tick": 7}
+{"action": 5, "agent": 0, "kind": "admissible_check", "result": false, "tick": 7}
+{"action": 2, "agent": 0, "kind": "admissible_check", "result": true, "tick": 7}
+{"action": 2, "agent": 0, "focus": "Survival", "h_t": 0.025000000000000022, "kind": "satisfices_check", "result": false, "tick": 7}
+{"action": 0, "agent": 0, "kind": "admissible_check", "result": true, "tick": 7}
+{"action": 0, "agent": 0, "focus": "Survival", "h_t": 0.025000000000000022, "kind": "satisfices_check", "result": false, "tick": 7}
+{"action": 4, "agent": 0, "kind": "admissible_check", "result": true, "tick": 7}
+{"action": 4, "agent": 0, "focus": "Survival", "h_t": 0.025000000000000022, "kind": "satisfices_check", "result": false, "tick": 7}
+{"action": 6, "agent": 0, "kind": "admissible_check", "result": true, "tick": 7}
+{"action": 6, "agent": 0, "kind": "shaping_eval_entered", "tick": 7}
+{"action": 6, "agent": 0, "kind": "shaping_no_success_model_configured", "tick": 7}
+{"action": 6, "agent": 0, "focus": "Survival", "h_t": 0.025000000000000022, "kind": "satisfices_check", "result": false, "tick": 7}
+{"action": 7, "agent": 0, "kind": "admissible_check", "result": false, "tick": 7}
+{"action": 8, "agent": 0, "kind": "admissible_check", "result": true, "tick": 7}
+{"action": 8, "agent": 0, "kind": "shaping_eval_entered", "tick": 7}
+{"action": 8, "agent": 0, "focus": "Survival", "h_t": 0.025000000000000022, "kind": "satisfices_check", "result": false, "tick": 7}
+{"action": 1, "agent": 0, "kind": "admissible_check", "result": true, "tick": 7}
+{"action": 1, "agent": 0, "focus": "Survival", "h_t": 0.025000000000000022, "kind": "selection", "prev_action": 2, "scan_order": [1, 3, 5, 2, 0, 4, 6, 7, 8], "shortfalls": [47825.96991299999, 0.0, 0.0], "tick": 7, "w_eff": 6}
+{"action": 1, "agent": 1, "kind": "admissible_check", "result": true, "tick": 7}
+{"action": 1, "agent": 1, "focus": "Survival", "h_t": 0.025000000000000022, "kind": "satisfices_check", "result": false, "tick": 7}
+{"action": 3, "agent": 1, "kind": "admissible_check", "result": false, "tick": 7}
+{"action": 5, "agent": 1, "kind": "admissible_check", "result": false, "tick": 7}
+{"action": 2, "agent": 1, "kind": "admissible_check", "result": true, "tick": 7}
+{"action": 2, "agent": 1, "focus": "Survival", "h_t": 0.025000000000000022, "kind": "satisfices_check", "result": false, "tick": 7}
+{"action": 0, "agent": 1, "kind": "admissible_check", "result": true, "tick": 7}
+{"action": 0, "agent": 1, "focus": "Survival", "h_t": 0.025000000000000022, "kind": "satisfices_check", "result": false, "tick": 7}
+{"action": 4, "agent": 1, "kind": "admissible_check", "result": true, "tick": 7}
+{"action": 4, "agent": 1, "focus": "Survival", "h_t": 0.025000000000000022, "kind": "satisfices_check", "result": false, "tick": 7}
+{"action": 6, "agent": 1, "kind": "admissible_check", "result": true, "tick": 7}
+{"action": 6, "agent": 1, "kind": "shaping_eval_entered", "tick": 7}
+{"action": 6, "agent": 1, "kind": "shaping_no_success_model_configured", "tick": 7}
+{"action": 6, "agent": 1, "focus": "Survival", "h_t": 0.025000000000000022, "kind": "satisfices_check", "result": false, "tick": 7}
+{"action": 7, "agent": 1, "kind": "admissible_check", "result": false, "tick": 7}
+{"action": 8, "agent": 1, "kind": "admissible_check", "result": true, "tick": 7}
+{"action": 8, "agent": 1, "kind": "shaping_eval_entered", "tick": 7}
+{"action": 8, "agent": 1, "focus": "Survival", "h_t": 0.025000000000000022, "kind": "satisfices_check", "result": false, "tick": 7}
+{"action": 1, "agent": 1, "kind": "admissible_check", "result": true, "tick": 7}
+{"action": 1, "agent": 1, "focus": "Survival", "h_t": 0.025000000000000022, "kind": "selection", "prev_action": 2, "scan_order": [1, 3, 5, 2, 0, 4, 6, 7, 8], "shortfalls": [47825.438472, 0.0, 0.0], "tick": 7, "w_eff": 6}
+{"action": 1, "agent": 0, "kind": "admissible_check", "result": true, "tick": 8}
+{"action": 1, "agent": 0, "focus": "Survival", "h_t": 0.025000000000000022, "kind": "satisfices_check", "result": false, "tick": 8}
+{"action": 3, "agent": 0, "kind": "admissible_check", "result": false, "tick": 8}
+{"action": 5, "agent": 0, "kind": "admissible_check", "result": false, "tick": 8}
+{"action": 2, "agent": 0, "kind": "admissible_check", "result": true, "tick": 8}
+{"action": 2, "agent": 0, "focus": "Survival", "h_t": 0.025000000000000022, "kind": "satisfices_check", "result": false, "tick": 8}
+{"action": 0, "agent": 0, "kind": "admissible_check", "result": true, "tick": 8}
+{"action": 0, "agent": 0, "focus": "Survival", "h_t": 0.025000000000000022, "kind": "satisfices_check", "result": false, "tick": 8}
+{"action": 4, "agent": 0, "kind": "admissible_check", "result": true, "tick": 8}
+{"action": 4, "agent": 0, "focus": "Survival", "h_t": 0.025000000000000022, "kind": "satisfices_check", "result": false, "tick": 8}
+{"action": 6, "agent": 0, "kind": "admissible_check", "result": true, "tick": 8}
+{"action": 6, "agent": 0, "kind": "shaping_eval_entered", "tick": 8}
+{"action": 6, "agent": 0, "kind": "shaping_no_success_model_configured", "tick": 8}
+{"action": 6, "agent": 0, "focus": "Survival", "h_t": 0.025000000000000022, "kind": "satisfices_check", "result": false, "tick": 8}
+{"action": 7, "agent": 0, "kind": "admissible_check", "result": false, "tick": 8}
+{"action": 8, "agent": 0, "kind": "admissible_check", "result": true, "tick": 8}
+{"action": 8, "agent": 0, "kind": "shaping_eval_entered", "tick": 8}
+{"action": 8, "agent": 0, "focus": "Survival", "h_t": 0.025000000000000022, "kind": "satisfices_check", "result": false, "tick": 8}
+{"action": 1, "agent": 0, "kind": "admissible_check", "result": true, "tick": 8}
+{"action": 1, "agent": 0, "focus": "Survival", "h_t": 0.025000000000000022, "kind": "selection", "prev_action": 1, "scan_order": [1, 3, 5, 2, 0, 4, 6, 7, 8], "shortfalls": [43045.172921699996, 0.0, 0.0], "tick": 8, "w_eff": 6}
+{"action": 1, "agent": 1, "kind": "admissible_check", "result": true, "tick": 8}
+{"action": 1, "agent": 1, "focus": "Survival", "h_t": 0.025000000000000022, "kind": "satisfices_check", "result": false, "tick": 8}
+{"action": 3, "agent": 1, "kind": "admissible_check", "result": false, "tick": 8}
+{"action": 5, "agent": 1, "kind": "admissible_check", "result": false, "tick": 8}
+{"action": 2, "agent": 1, "kind": "admissible_check", "result": true, "tick": 8}
+{"action": 2, "agent": 1, "focus": "Survival", "h_t": 0.025000000000000022, "kind": "satisfices_check", "result": false, "tick": 8}
+{"action": 0, "agent": 1, "kind": "admissible_check", "result": true, "tick": 8}
+{"action": 0, "agent": 1, "focus": "Survival", "h_t": 0.025000000000000022, "kind": "satisfices_check", "result": false, "tick": 8}
+{"action": 4, "agent": 1, "kind": "admissible_check", "result": true, "tick": 8}
+{"action": 4, "agent": 1, "focus": "Survival", "h_t": 0.025000000000000022, "kind": "satisfices_check", "result": false, "tick": 8}
+{"action": 6, "agent": 1, "kind": "admissible_check", "result": true, "tick": 8}
+{"action": 6, "agent": 1, "kind": "shaping_eval_entered", "tick": 8}
+{"action": 6, "agent": 1, "kind": "shaping_no_success_model_configured", "tick": 8}
+{"action": 6, "agent": 1, "focus": "Survival", "h_t": 0.025000000000000022, "kind": "satisfices_check", "result": false, "tick": 8}
+{"action": 7, "agent": 1, "kind": "admissible_check", "result": false, "tick": 8}
+{"action": 8, "agent": 1, "kind": "admissible_check", "result": true, "tick": 8}
+{"action": 8, "agent": 1, "kind": "shaping_eval_entered", "tick": 8}
+{"action": 8, "agent": 1, "focus": "Survival", "h_t": 0.025000000000000022, "kind": "satisfices_check", "result": false, "tick": 8}
+{"action": 1, "agent": 1, "kind": "admissible_check", "result": true, "tick": 8}
+{"action": 1, "agent": 1, "focus": "Survival", "h_t": 0.025000000000000022, "kind": "selection", "prev_action": 1, "scan_order": [1, 3, 5, 2, 0, 4, 6, 7, 8], "shortfalls": [43045.594624800004, 0.0, 0.0], "tick": 8, "w_eff": 6}
+{"action": 2, "agent": 0, "kind": "admissible_check", "result": true, "tick": 9}
+{"action": 2, "agent": 0, "focus": "Goal(1)", "h_t": 0.15000000000000002, "kind": "satisfices_check", "result": false, "tick": 9}
+{"action": 1, "agent": 0, "kind": "admissible_check", "result": true, "tick": 9}
+{"action": 1, "agent": 0, "focus": "Goal(1)", "h_t": 0.15000000000000002, "kind": "satisfices_check", "result": false, "tick": 9}
+{"action": 3, "agent": 0, "kind": "admissible_check", "result": false, "tick": 9}
+{"action": 6, "agent": 0, "kind": "admissible_check", "result": true, "tick": 9}
+{"action": 6, "agent": 0, "focus": "Goal(1)", "h_t": 0.15000000000000002, "kind": "satisfices_check", "result": false, "tick": 9}
+{"action": 8, "agent": 0, "kind": "admissible_check", "result": true, "tick": 9}
+{"action": 8, "agent": 0, "focus": "Goal(1)", "h_t": 0.15000000000000002, "kind": "satisfices_check", "result": false, "tick": 9}
+{"action": 5, "agent": 0, "kind": "admissible_check", "result": false, "tick": 9}
+{"action": 4, "agent": 0, "kind": "admissible_check", "result": true, "tick": 9}
+{"action": 4, "agent": 0, "focus": "Goal(1)", "h_t": 0.15000000000000002, "kind": "satisfices_check", "result": false, "tick": 9}
+{"action": 0, "agent": 0, "kind": "admissible_check", "result": true, "tick": 9}
+{"action": 0, "agent": 0, "focus": "Goal(1)", "h_t": 0.15000000000000002, "kind": "satisfices_check", "result": false, "tick": 9}
+{"action": 2, "agent": 0, "kind": "admissible_check", "result": true, "tick": 9}
+{"action": 2, "agent": 0, "focus": "Goal(1)", "h_t": 0.15000000000000002, "kind": "selection", "prev_action": 1, "scan_order": [2, 1, 3, 6, 8, 5, 4, 0, 7], "shortfalls": [38740.655629529996, 0.0, 0.0], "tick": 9, "w_eff": 6}
+{"action": 2, "agent": 1, "kind": "admissible_check", "result": true, "tick": 9}
+{"action": 2, "agent": 1, "focus": "Goal(1)", "h_t": 0.15000000000000002, "kind": "satisfices_check", "result": false, "tick": 9}
+{"action": 1, "agent": 1, "kind": "admissible_check", "result": true, "tick": 9}
+{"action": 1, "agent": 1, "focus": "Goal(1)", "h_t": 0.15000000000000002, "kind": "satisfices_check", "result": false, "tick": 9}
+{"action": 3, "agent": 1, "kind": "admissible_check", "result": false, "tick": 9}
+{"action": 6, "agent": 1, "kind": "admissible_check", "result": true, "tick": 9}
+{"action": 6, "agent": 1, "focus": "Goal(1)", "h_t": 0.15000000000000002, "kind": "satisfices_check", "result": false, "tick": 9}
+{"action": 8, "agent": 1, "kind": "admissible_check", "result": true, "tick": 9}
+{"action": 8, "agent": 1, "focus": "Goal(1)", "h_t": 0.15000000000000002, "kind": "satisfices_check", "result": false, "tick": 9}
+{"action": 5, "agent": 1, "kind": "admissible_check", "result": false, "tick": 9}
+{"action": 4, "agent": 1, "kind": "admissible_check", "result": true, "tick": 9}
+{"action": 4, "agent": 1, "focus": "Goal(1)", "h_t": 0.15000000000000002, "kind": "satisfices_check", "result": false, "tick": 9}
+{"action": 0, "agent": 1, "kind": "admissible_check", "result": true, "tick": 9}
+{"action": 0, "agent": 1, "focus": "Goal(1)", "h_t": 0.15000000000000002, "kind": "satisfices_check", "result": false, "tick": 9}
+{"action": 2, "agent": 1, "kind": "admissible_check", "result": true, "tick": 9}
+{"action": 2, "agent": 1, "focus": "Goal(1)", "h_t": 0.15000000000000002, "kind": "selection", "prev_action": 1, "scan_order": [2, 1, 3, 6, 8, 5, 4, 0, 7], "shortfalls": [38741.035162320004, 0.0, 0.0], "tick": 9, "w_eff": 6}
+{"action": 2, "agent": 0, "kind": "admissible_check", "result": true, "tick": 15}
+{"action": 2, "agent": 0, "focus": "Goal(1)", "h_t": 0.15000000000000002, "kind": "satisfices_check", "result": false, "tick": 15}
+{"action": 1, "agent": 0, "kind": "admissible_check", "result": true, "tick": 15}
+{"action": 1, "agent": 0, "focus": "Goal(1)", "h_t": 0.15000000000000002, "kind": "satisfices_check", "result": false, "tick": 15}
+{"action": 3, "agent": 0, "kind": "admissible_check", "result": false, "tick": 15}
+{"action": 6, "agent": 0, "kind": "admissible_check", "result": true, "tick": 15}
+{"action": 6, "agent": 0, "focus": "Goal(1)", "h_t": 0.15000000000000002, "kind": "satisfices_check", "result": false, "tick": 15}
+{"action": 8, "agent": 0, "kind": "admissible_check", "result": true, "tick": 15}
+{"action": 8, "agent": 0, "focus": "Goal(1)", "h_t": 0.15000000000000002, "kind": "satisfices_check", "result": false, "tick": 15}
+{"action": 5, "agent": 0, "kind": "admissible_check", "result": false, "tick": 15}
+{"action": 4, "agent": 0, "kind": "admissible_check", "result": true, "tick": 15}
+{"action": 4, "agent": 0, "focus": "Goal(1)", "h_t": 0.15000000000000002, "kind": "satisfices_check", "result": false, "tick": 15}
+{"action": 0, "agent": 0, "kind": "admissible_check", "result": true, "tick": 15}
+{"action": 0, "agent": 0, "focus": "Goal(1)", "h_t": 0.15000000000000002, "kind": "satisfices_check", "result": false, "tick": 15}
+{"action": 2, "agent": 0, "kind": "admissible_check", "result": true, "tick": 15}
+{"action": 2, "agent": 0, "focus": "Goal(1)", "h_t": 0.15000000000000002, "kind": "selection", "prev_action": 2, "scan_order": [2, 1, 3, 6, 8, 5, 4, 0, 7], "shortfalls": [20587.30988641305, 0.0, 0.0], "tick": 15, "w_eff": 6}
+{"action": 2, "agent": 1, "kind": "admissible_check", "result": true, "tick": 15}
+{"action": 2, "agent": 1, "focus": "Goal(1)", "h_t": 0.15000000000000002, "kind": "satisfices_check", "result": false, "tick": 15}
+{"action": 1, "agent": 1, "kind": "admissible_check", "result": true, "tick": 15}
+{"action": 1, "agent": 1, "focus": "Goal(1)", "h_t": 0.15000000000000002, "kind": "satisfices_check", "result": false, "tick": 15}
+{"action": 3, "agent": 1, "kind": "admissible_check", "result": false, "tick": 15}
+{"action": 6, "agent": 1, "kind": "admissible_check", "result": true, "tick": 15}
+{"action": 6, "agent": 1, "focus": "Goal(1)", "h_t": 0.15000000000000002, "kind": "satisfices_check", "result": false, "tick": 15}
+{"action": 8, "agent": 1, "kind": "admissible_check", "result": true, "tick": 15}
+{"action": 8, "agent": 1, "focus": "Goal(1)", "h_t": 0.15000000000000002, "kind": "satisfices_check", "result": false, "tick": 15}
+{"action": 5, "agent": 1, "kind": "admissible_check", "result": false, "tick": 15}
+{"action": 4, "agent": 1, "kind": "admissible_check", "result": true, "tick": 15}
+{"action": 4, "agent": 1, "focus": "Goal(1)", "h_t": 0.15000000000000002, "kind": "satisfices_check", "result": false, "tick": 15}
+{"action": 0, "agent": 1, "kind": "admissible_check", "result": true, "tick": 15}
+{"action": 0, "agent": 1, "focus": "Goal(1)", "h_t": 0.15000000000000002, "kind": "satisfices_check", "result": false, "tick": 15}
+{"action": 2, "agent": 1, "kind": "admissible_check", "result": true, "tick": 15}
+{"action": 2, "agent": 1, "focus": "Goal(1)", "h_t": 0.15000000000000002, "kind": "selection", "prev_action": 2, "scan_order": [2, 1, 3, 6, 8, 5, 4, 0, 7], "shortfalls": [20586.980144698504, 0.0, 0.0], "tick": 15, "w_eff": 6}
+{"action": 1, "agent": 0, "kind": "admissible_check", "result": true, "tick": 16}
+{"action": 1, "agent": 0, "focus": "Survival", "h_t": 0.025000000000000022, "kind": "satisfices_check", "result": false, "tick": 16}
+{"action": 3, "agent": 0, "kind": "admissible_check", "result": false, "tick": 16}
+{"action": 5, "agent": 0, "kind": "admissible_check", "result": false, "tick": 16}
+{"action": 2, "agent": 0, "kind": "admissible_check", "result": true, "tick": 16}
+{"action": 2, "agent": 0, "focus": "Survival", "h_t": 0.025000000000000022, "kind": "satisfices_check", "result": false, "tick": 16}
+{"action": 0, "agent": 0, "kind": "admissible_check", "result": true, "tick": 16}
+{"action": 0, "agent": 0, "focus": "Survival", "h_t": 0.025000000000000022, "kind": "satisfices_check", "result": false, "tick": 16}
+{"action": 4, "agent": 0, "kind": "admissible_check", "result": true, "tick": 16}
+{"action": 4, "agent": 0, "focus": "Survival", "h_t": 0.025000000000000022, "kind": "satisfices_check", "result": false, "tick": 16}
+{"action": 6, "agent": 0, "kind": "admissible_check", "result": true, "tick": 16}
+{"action": 6, "agent": 0, "kind": "shaping_eval_entered", "tick": 16}
+{"action": 6, "agent": 0, "kind": "shaping_no_success_model_configured", "tick": 16}
+{"action": 6, "agent": 0, "focus": "Survival", "h_t": 0.025000000000000022, "kind": "satisfices_check", "result": false, "tick": 16}
+{"action": 7, "agent": 0, "kind": "admissible_check", "result": false, "tick": 16}
+{"action": 8, "agent": 0, "kind": "admissible_check", "result": true, "tick": 16}
+{"action": 8, "agent": 0, "kind": "shaping_eval_entered", "tick": 16}
+{"action": 8, "agent": 0, "focus": "Survival", "h_t": 0.025000000000000022, "kind": "satisfices_check", "result": false, "tick": 16}
+{"action": 1, "agent": 0, "kind": "admissible_check", "result": true, "tick": 16}
+{"action": 1, "agent": 0, "focus": "Survival", "h_t": 0.025000000000000022, "kind": "selection", "prev_action": 2, "scan_order": [1, 3, 5, 2, 0, 4, 6, 7, 8], "shortfalls": [18528.578897771746, 0.0, 0.0], "tick": 16, "w_eff": 6}
+{"action": 1, "agent": 1, "kind": "admissible_check", "result": true, "tick": 16}
+{"action": 1, "agent": 1, "focus": "Survival", "h_t": 0.025000000000000022, "kind": "satisfices_check", "result": false, "tick": 16}
+{"action": 3, "agent": 1, "kind": "admissible_check", "result": false, "tick": 16}
+{"action": 5, "agent": 1, "kind": "admissible_check", "result": false, "tick": 16}
+{"action": 2, "agent": 1, "kind": "admissible_check", "result": true, "tick": 16}
+{"action": 2, "agent": 1, "focus": "Survival", "h_t": 0.025000000000000022, "kind": "satisfices_check", "result": false, "tick": 16}
+{"action": 0, "agent": 1, "kind": "admissible_check", "result": true, "tick": 16}
+{"action": 0, "agent": 1, "focus": "Survival", "h_t": 0.025000000000000022, "kind": "satisfices_check", "result": false, "tick": 16}
+{"action": 4, "agent": 1, "kind": "admissible_check", "result": true, "tick": 16}
+{"action": 4, "agent": 1, "focus": "Survival", "h_t": 0.025000000000000022, "kind": "satisfices_check", "result": false, "tick": 16}
+{"action": 6, "agent": 1, "kind": "admissible_check", "result": true, "tick": 16}
+{"action": 6, "agent": 1, "kind": "shaping_eval_entered", "tick": 16}
+{"action": 6, "agent": 1, "kind": "shaping_no_success_model_configured", "tick": 16}
+{"action": 6, "agent": 1, "focus": "Survival", "h_t": 0.025000000000000022, "kind": "satisfices_check", "result": false, "tick": 16}
+{"action": 7, "agent": 1, "kind": "admissible_check", "result": false, "tick": 16}
+{"action": 8, "agent": 1, "kind": "admissible_check", "result": true, "tick": 16}
+{"action": 8, "agent": 1, "kind": "shaping_eval_entered", "tick": 16}
+{"action": 8, "agent": 1, "focus": "Survival", "h_t": 0.025000000000000022, "kind": "satisfices_check", "result": false, "tick": 16}
+{"action": 1, "agent": 1, "kind": "admissible_check", "result": true, "tick": 16}
+{"action": 1, "agent": 1, "focus": "Survival", "h_t": 0.025000000000000022, "kind": "selection", "prev_action": 2, "scan_order": [1, 3, 5, 2, 0, 4, 6, 7, 8], "shortfalls": [18528.282130228654, 0.0, 0.0], "tick": 16, "w_eff": 6}
+{"action": 1, "agent": 0, "kind": "admissible_check", "result": true, "tick": 17}
+{"action": 1, "agent": 0, "focus": "Survival", "h_t": 0.025000000000000022, "kind": "satisfices_check", "result": false, "tick": 17}
+{"action": 3, "agent": 0, "kind": "admissible_check", "result": false, "tick": 17}
+{"action": 5, "agent": 0, "kind": "admissible_check", "result": false, "tick": 17}
+{"action": 2, "agent": 0, "kind": "admissible_check", "result": true, "tick": 17}
+{"action": 2, "agent": 0, "focus": "Survival", "h_t": 0.025000000000000022, "kind": "satisfices_check", "result": false, "tick": 17}
+{"action": 0, "agent": 0, "kind": "admissible_check", "result": true, "tick": 17}
+{"action": 0, "agent": 0, "focus": "Survival", "h_t": 0.025000000000000022, "kind": "satisfices_check", "result": false, "tick": 17}
+{"action": 4, "agent": 0, "kind": "admissible_check", "result": true, "tick": 17}
+{"action": 4, "agent": 0, "focus": "Survival", "h_t": 0.025000000000000022, "kind": "satisfices_check", "result": false, "tick": 17}
+{"action": 6, "agent": 0, "kind": "admissible_check", "result": true, "tick": 17}
+{"action": 6, "agent": 0, "kind": "shaping_eval_entered", "tick": 17}
+{"action": 6, "agent": 0, "kind": "shaping_no_success_model_configured", "tick": 17}
+{"action": 6, "agent": 0, "focus": "Survival", "h_t": 0.025000000000000022, "kind": "satisfices_check", "result": false, "tick": 17}
+{"action": 7, "agent": 0, "kind": "admissible_check", "result": false, "tick": 17}
+{"action": 8, "agent": 0, "kind": "admissible_check", "result": true, "tick": 17}
+{"action": 8, "agent": 0, "kind": "shaping_eval_entered", "tick": 17}
+{"action": 8, "agent": 0, "focus": "Survival", "h_t": 0.025000000000000022, "kind": "satisfices_check", "result": false, "tick": 17}
+{"action": 1, "agent": 0, "kind": "admissible_check", "result": true, "tick": 17}
+{"action": 1, "agent": 0, "focus": "Survival", "h_t": 0.025000000000000022, "kind": "selection", "prev_action": 1, "scan_order": [1, 3, 5, 2, 0, 4, 6, 7, 8], "shortfalls": [16677.521007994572, 0.0, 0.0], "tick": 17, "w_eff": 6}
+{"action": 1, "agent": 1, "kind": "admissible_check", "result": true, "tick": 17}
+{"action": 1, "agent": 1, "focus": "Survival", "h_t": 0.025000000000000022, "kind": "satisfices_check", "result": false, "tick": 17}
+{"action": 3, "agent": 1, "kind": "admissible_check", "result": false, "tick": 17}
+{"action": 5, "agent": 1, "kind": "admissible_check", "result": false, "tick": 17}
+{"action": 2, "agent": 1, "kind": "admissible_check", "result": true, "tick": 17}
+{"action": 2, "agent": 1, "focus": "Survival", "h_t": 0.025000000000000022, "kind": "satisfices_check", "result": false, "tick": 17}
+{"action": 0, "agent": 1, "kind": "admissible_check", "result": true, "tick": 17}
+{"action": 0, "agent": 1, "focus": "Survival", "h_t": 0.025000000000000022, "kind": "satisfices_check", "result": false, "tick": 17}
+{"action": 4, "agent": 1, "kind": "admissible_check", "result": true, "tick": 17}
+{"action": 4, "agent": 1, "focus": "Survival", "h_t": 0.025000000000000022, "kind": "satisfices_check", "result": false, "tick": 17}
+{"action": 6, "agent": 1, "kind": "admissible_check", "result": true, "tick": 17}
+{"action": 6, "agent": 1, "kind": "shaping_eval_entered", "tick": 17}
+{"action": 6, "agent": 1, "kind": "shaping_no_success_model_configured", "tick": 17}
+{"action": 6, "agent": 1, "focus": "Survival", "h_t": 0.025000000000000022, "kind": "satisfices_check", "result": false, "tick": 17}
+{"action": 7, "agent": 1, "kind": "admissible_check", "result": false, "tick": 17}
+{"action": 8, "agent": 1, "kind": "admissible_check", "result": true, "tick": 17}
+{"action": 8, "agent": 1, "kind": "shaping_eval_entered", "tick": 17}
+{"action": 8, "agent": 1, "focus": "Survival", "h_t": 0.025000000000000022, "kind": "satisfices_check", "result": false, "tick": 17}
+{"action": 1, "agent": 1, "kind": "admissible_check", "result": true, "tick": 17}
+{"action": 1, "agent": 1, "focus": "Survival", "h_t": 0.025000000000000022, "kind": "selection", "prev_action": 1, "scan_order": [1, 3, 5, 2, 0, 4, 6, 7, 8], "shortfalls": [16678.15391720579, 0.0, 0.0], "tick": 17, "w_eff": 6}
+{"action": 2, "agent": 0, "kind": "admissible_check", "result": true, "tick": 18}
+{"action": 2, "agent": 0, "focus": "Goal(1)", "h_t": 0.15000000000000002, "kind": "satisfices_check", "result": false, "tick": 18}
+{"action": 1, "agent": 0, "kind": "admissible_check", "result": true, "tick": 18}
+{"action": 1, "agent": 0, "focus": "Goal(1)", "h_t": 0.15000000000000002, "kind": "satisfices_check", "result": false, "tick": 18}
+{"action": 3, "agent": 0, "kind": "admissible_check", "result": false, "tick": 18}
+{"action": 6, "agent": 0, "kind": "admissible_check", "result": true, "tick": 18}
+{"action": 6, "agent": 0, "focus": "Goal(1)", "h_t": 0.15000000000000002, "kind": "satisfices_check", "result": false, "tick": 18}
+{"action": 8, "agent": 0, "kind": "admissible_check", "result": true, "tick": 18}
+{"action": 8, "agent": 0, "focus": "Goal(1)", "h_t": 0.15000000000000002, "kind": "satisfices_check", "result": false, "tick": 18}
+{"action": 5, "agent": 0, "kind": "admissible_check", "result": false, "tick": 18}
+{"action": 4, "agent": 0, "kind": "admissible_check", "result": true, "tick": 18}
+{"action": 4, "agent": 0, "focus": "Goal(1)", "h_t": 0.15000000000000002, "kind": "satisfices_check", "result": false, "tick": 18}
+{"action": 0, "agent": 0, "kind": "admissible_check", "result": true, "tick": 18}
+{"action": 0, "agent": 0, "focus": "Goal(1)", "h_t": 0.15000000000000002, "kind": "satisfices_check", "result": false, "tick": 18}
+{"action": 2, "agent": 0, "kind": "admissible_check", "result": true, "tick": 18}
+{"action": 2, "agent": 0, "focus": "Goal(1)", "h_t": 0.15000000000000002, "kind": "selection", "prev_action": 1, "scan_order": [2, 1, 3, 6, 8, 5, 4, 0, 7], "shortfalls": [15009.768907195114, 0.0, 0.0], "tick": 18, "w_eff": 6}
+{"action": 2, "agent": 1, "kind": "admissible_check", "result": true, "tick": 18}
+{"action": 2, "agent": 1, "focus": "Goal(1)", "h_t": 0.15000000000000002, "kind": "satisfices_check", "result": false, "tick": 18}
+{"action": 1, "agent": 1, "kind": "admissible_check", "result": true, "tick": 18}
+{"action": 1, "agent": 1, "focus": "Goal(1)", "h_t": 0.15000000000000002, "kind": "satisfices_check", "result": false, "tick": 18}
+{"action": 3, "agent": 1, "kind": "admissible_check", "result": false, "tick": 18}
+{"action": 6, "agent": 1, "kind": "admissible_check", "result": true, "tick": 18}
+{"action": 6, "agent": 1, "focus": "Goal(1)", "h_t": 0.15000000000000002, "kind": "satisfices_check", "result": false, "tick": 18}
+{"action": 8, "agent": 1, "kind": "admissible_check", "result": true, "tick": 18}
+{"action": 8, "agent": 1, "focus": "Goal(1)", "h_t": 0.15000000000000002, "kind": "satisfices_check", "result": false, "tick": 18}
+{"action": 5, "agent": 1, "kind": "admissible_check", "result": false, "tick": 18}
+{"action": 4, "agent": 1, "kind": "admissible_check", "result": true, "tick": 18}
+{"action": 4, "agent": 1, "focus": "Goal(1)", "h_t": 0.15000000000000002, "kind": "satisfices_check", "result": false, "tick": 18}
+{"action": 0, "agent": 1, "kind": "admissible_check", "result": true, "tick": 18}
+{"action": 0, "agent": 1, "focus": "Goal(1)", "h_t": 0.15000000000000002, "kind": "satisfices_check", "result": false, "tick": 18}
+{"action": 2, "agent": 1, "kind": "admissible_check", "result": true, "tick": 18}
+{"action": 2, "agent": 1, "focus": "Goal(1)", "h_t": 0.15000000000000002, "kind": "selection", "prev_action": 1, "scan_order": [2, 1, 3, 6, 8, 5, 4, 0, 7], "shortfalls": [15010.338525485211, 0.0, 0.0], "tick": 18, "w_eff": 6}

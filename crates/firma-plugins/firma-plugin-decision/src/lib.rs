@@ -37,8 +37,10 @@ use firma_core::{
     PluginId, ResourceKind, RngKey, Rule, View,
 };
 use firma_domain::dynamics::{
-    market_core, shaping_cost_step, ActionParams, EnvParams, MARKET_ACTIONS,
+    market_core, shaping_cost_step, time_to_boundary, ActionParams, EnvParams, MarketAction,
+    MARKET_ACTIONS,
 };
+use firma_domain::shaping::{ContractParams, LobbyParams};
 use firma_domain::{
     keys, margin::standard_margin, Aspirations, ConstraintContext, ConstraintParams, FirmAuxState,
     FirmState, RelationGraph, ScaleFactors,
@@ -48,6 +50,72 @@ use firma_domain::{
 #[must_use]
 pub fn version() -> semver::Version {
     semver::Version::new(1, 0, 0)
+}
+
+// ============================================================================
+// TEMPORARY DIAGNOSTIC TRACE — H3 lobby/contract non-selection investigation.
+//
+// Added per the owner's instruction to observe, with direct evidence, why
+// ADR-0047–0049's shaping-lookahead mechanism essentially never gets
+// selected: whether the scan never reaches lobby/contract's checklist
+// position, reaches it but the ADR-0048 time-margin gate never opens,
+// reaches it with the gate open but still loses the payoff comparison, or a
+// mix. This module and its call sites are **strictly observational**: every
+// `trace::emit` call is a side effect only (an optional write to stderr or a
+// file named by `FIRMA_TRACE_DECISION_PATH`), gated behind the
+// `FIRMA_TRACE_DECISION=1` environment variable, and never changes a
+// return value, a branch taken, or the `Vec<Delta>` `Satisficing::apply`
+// produces. No threshold, cost, gate condition, or scan order is touched.
+//
+// Deliberately **not** `#[cfg(test)]`-gated: the diagnosis instruction asks
+// for traces from full `sanity.rs` scenario runs (`cfg_arm_b_satisficing`,
+// `cfg_wide_search`), which are ordinary `#[test]` functions compiled in the
+// normal (non-cfg-test-attribute) build of this crate — a `#[cfg(test)]`
+// gate here would not reach them from an external `tests/` crate. A runtime
+// env-var gate was chosen instead of a Cargo feature so the "tracing off vs
+// on, same binary, diff the hash" check the instruction asks for needs no
+// rebuild between the two runs. This is temporary, diagnostic-only code —
+// strip this module and its four call sites (search
+// `FIRMA_TRACE_DECISION`/`trace::`) before merging this branch.
+// ============================================================================
+mod trace {
+    use std::io::Write;
+    use std::sync::{Mutex, OnceLock};
+
+    /// `true` iff `FIRMA_TRACE_DECISION=1` is set. Checked once per process.
+    pub(crate) fn is_enabled() -> bool {
+        static ENABLED: OnceLock<bool> = OnceLock::new();
+        *ENABLED.get_or_init(|| std::env::var("FIRMA_TRACE_DECISION").as_deref() == Ok("1"))
+    }
+
+    fn sink() -> &'static Mutex<Box<dyn Write + Send>> {
+        static SINK: OnceLock<Mutex<Box<dyn Write + Send>>> = OnceLock::new();
+        SINK.get_or_init(|| {
+            let w: Box<dyn Write + Send> = match std::env::var("FIRMA_TRACE_DECISION_PATH") {
+                Ok(path) if !path.is_empty() => Box::new(
+                    std::fs::OpenOptions::new()
+                        .create(true)
+                        .append(true)
+                        .open(&path)
+                        .unwrap_or_else(|e| panic!("FIRMA_TRACE_DECISION_PATH={path}: {e}")),
+                ),
+                _ => Box::new(std::io::stderr()),
+            };
+            Mutex::new(w)
+        })
+    }
+
+    /// Write one newline-delimited JSON record. No-op unless `is_enabled()`.
+    /// Never panics on a write failure (a full disk must not perturb a run
+    /// that happens to be diagnosed) — the write error is silently dropped.
+    pub(crate) fn emit(v: serde_json::Value) {
+        if !is_enabled() {
+            return;
+        }
+        if let Ok(mut w) = sink().lock() {
+            let _ = writeln!(w, "{v}");
+        }
+    }
 }
 
 /// Plugin ids and declared content hashes (Phase-1 style — no artefact hashing).
@@ -285,21 +353,71 @@ fn firm_state(view: &dyn View, agent: AgentId) -> FirmState {
     }
 }
 
+/// The action window `W` (ADR 0014, ADR 0028), parsed. **ADR 0049**: also
+/// the starting point for `time_to_boundary`'s projected window — one
+/// parse, two consumers.
+fn firm_window(view: &dyn View, agent: AgentId) -> Vec<firma_domain::WindowEntry> {
+    view.agent_records(agent, keys::ACTION_WINDOW)
+        .iter()
+        .map(|s| {
+            firma_domain::WindowEntry::from_json(s)
+                .unwrap_or_else(|e| corrupt_record(Some(agent), keys::ACTION_WINDOW, s, &e))
+        })
+        .collect()
+}
+
+/// A persisted record this plugin reads could not be parsed. There is no
+/// repair-and-continue path (manual §19.5): dropping the record would
+/// silently change `u`, the pending-effect queue, the observed environment
+/// or the relation graph, and with them the decision. `Rule::apply` has no
+/// `Result` return, so — as for a partial Arm-A pin (ADR 0054) — the loud
+/// failure is a panic naming the agent (if any), the store key and the
+/// offending string.
+fn corrupt_record(agent: Option<AgentId>, key: &str, record: &str, err: &str) -> ! {
+    let who = agent.map_or_else(|| "global".to_owned(), |a| format!("agent {}", a.0));
+    panic!(
+        "{who}: corrupt persisted record under `{key}` ({err}); offending record: \
+         {record:?}. Refusing to drop it and continue (manual §19.5)."
+    )
+}
+
+/// The relation graph from `keys::RELATION_EDGES`; a record that is not a
+/// valid edge is a loud failure, not an empty graph ([`corrupt_record`]).
+fn relation_graph(view: &dyn View) -> RelationGraph {
+    let records = view.global_records(keys::RELATION_EDGES);
+    RelationGraph::from_records(records).unwrap_or_else(|e| {
+        let bad = records
+            .iter()
+            .find(|r| RelationGraph::from_records(std::slice::from_ref(*r)).is_err())
+            .map_or("<unidentified>", String::as_str);
+        corrupt_record(None, keys::RELATION_EDGES, bad, &e)
+    })
+}
+
 /// `u` (regulated-activity intensity, §9.1 `g_2`) for one firm — derived on
 /// demand from the action window `W` (ADR 0014, ADR 0028), falling back to a
 /// seeded `keys::REGULATED_INTENSITY` while `W` is still empty (tick 0).
 fn firm_u(view: &dyn View, agent: AgentId, l_w: usize) -> f64 {
-    let w = view.agent_records(agent, keys::ACTION_WINDOW);
+    let w = firm_window(view, agent);
     if w.is_empty() {
         view.agent_real(agent, keys::REGULATED_INTENSITY)
             .unwrap_or(0.0)
     } else {
-        let entries: Vec<firma_domain::WindowEntry> = w
-            .iter()
-            .filter_map(|s| firma_domain::WindowEntry::from_json(s).ok())
-            .collect();
-        firma_domain::margin::u_from_window(&entries, l_w)
+        firma_domain::margin::u_from_window(&w, l_w)
     }
+}
+
+/// **ADR 0049.** The firm's real, already-committed `Λ` queue at this tick
+/// (not hypothetical) — `time_to_boundary`'s "already-pending effects"
+/// input, parsed the same way `resolve_lagged`'s real `apply` parses it.
+fn firm_pending_effects(view: &dyn View, agent: AgentId) -> Vec<firma_domain::LaggedRecord> {
+    view.agent_records(agent, keys::LAGGED_EFFECTS)
+        .iter()
+        .map(|s| {
+            firma_domain::LaggedRecord::from_json(s)
+                .unwrap_or_else(|e| corrupt_record(Some(agent), keys::LAGGED_EFFECTS, s, &e))
+        })
+        .collect()
 }
 
 /// §8.1 auxiliary state relevant to `g_j`: `λ` and `u` (aspirations are not a
@@ -324,7 +442,10 @@ fn firm_aux(view: &dyn View, agent: AgentId, l_w: usize) -> FirmAuxState {
 fn observed_env(view: &dyn View, agent: AgentId) -> Option<firma_domain::EnvSnapshot> {
     view.agent_records(agent, keys::OBSERVED_ENV)
         .last()
-        .and_then(|s| firma_domain::EnvSnapshot::from_json(s).ok())
+        .map(|s| {
+            firma_domain::EnvSnapshot::from_json(s)
+                .unwrap_or_else(|e| corrupt_record(Some(agent), keys::OBSERVED_ENV, s, &e))
+        })
 }
 
 /// §8.2 `θ` **as `agent` sees it** (§12.2 via ADR 0035): the observed snapshot
@@ -387,10 +508,43 @@ pub struct ShapingScanParams {
     /// `κ_d` — diversify cost. `None` ⇒ `diversify` not in repertoire.
     #[serde(default)]
     pub diversify_cost: Option<i64>,
+    /// **ADR 0047 (H3 revision).** `lobby`'s own declared success model and
+    /// `δ_θ` payoff — the *same* `LobbyParams` shape
+    /// `action.shaping.rdt_standard.lobby` is configured with (a config
+    /// author sets both to the same values so the firm's belief matches
+    /// what will actually happen). `None` (the default, and every config
+    /// that predates this ADR) ⇒ `satisfices()`'s `SURVIVAL` test for
+    /// `lobby` stays exactly the pre-ADR-0047 cost-only lookahead —
+    /// additive, opt-in, behaviour-preserving by default (§20.5).
+    #[serde(default)]
+    pub lobby_success: Option<LobbyParams>,
+    /// **ADR 0047 (H3 revision).** `contract`'s own declared success model
+    /// and `(δ_Q, q_0)` payoff, mirroring `lobby_success` above. `None` ⇒
+    /// cost-only, unchanged.
+    #[serde(default)]
+    pub contract_success: Option<ContractParams>,
+    /// **ADR 0048 (H3 revision, round 2).** Whether `SURVIVAL`'s shaping
+    /// evaluation must *also* clear a race against `time_to_boundary`
+    /// (§14.3) before its expected-relief calculation (ADR 0047) is used at
+    /// all — `Δ_min ≥ time_to_boundary` (the payoff cannot possibly arrive
+    /// before the projected boundary) falls back to the pre-ADR-0047
+    /// cost-only test, exactly implementing H3's "increases narrowing"
+    /// direction as a real mechanical consequence, not an emergent one.
+    /// **Defaults to `true`** (ADR 0048's Decision explains why the
+    /// time-aware behaviour, not the payoff-only one, is the standard going
+    /// forward). Set `false` to fall back to ADR-0047's payoff-only test
+    /// (an explicit ablation / like-for-like comparison switch) — a config
+    /// change, never a code change.
+    #[serde(default = "default_require_time_margin")]
+    pub require_time_margin: bool,
 }
 
 fn default_lobby_cost() -> i64 {
     25
+}
+
+fn default_require_time_margin() -> bool {
+    true
 }
 
 impl Default for ShapingScanParams {
@@ -399,6 +553,9 @@ impl Default for ShapingScanParams {
             lobby_cost: default_lobby_cost(),
             contract_cost: None,
             diversify_cost: None,
+            lobby_success: None,
+            contract_success: None,
+            require_time_margin: default_require_time_margin(),
         }
     }
 }
@@ -430,6 +587,25 @@ struct DecideCtx {
     action: ActionParams,
     shaping: Option<ShapingScanParams>,
     graph: RelationGraph,
+    /// **ADR 0048.** Last tick's `SELECTED_ACTION` (default `hold`, `0`) —
+    /// `time_to_boundary`'s "current action" for the race check. The same
+    /// value and the same default `select()`'s `NONE`-focus inertia
+    /// fallback already uses (§12.3), not a second definition of "what the
+    /// firm is currently doing."
+    prev_action: u8,
+    /// **ADR 0049.** The real action window `W`, for `time_to_boundary`'s
+    /// projection to advance forward — the same raw entries `firm_u` reads.
+    window: Vec<firma_domain::WindowEntry>,
+    /// **ADR 0049.** `L_W`, so the projection's window trims exactly as
+    /// `constraint.action_window`'s real `apply` would.
+    l_w: usize,
+    /// **ADR 0049.** The firm's real, already-committed `Λ` queue — facts,
+    /// not hypotheticals, for `time_to_boundary` to apply at their real
+    /// `maturity_tick`s.
+    pending: Vec<firma_domain::LaggedRecord>,
+    /// **ADR 0049.** The current tick — `time_to_boundary`'s `start_tick`,
+    /// so a `pending` effect's absolute `maturity_tick` compares correctly.
+    tick: u64,
 }
 
 impl DecideCtx {
@@ -479,12 +655,147 @@ impl DecideCtx {
     /// `u` is held at its current value — §9.3: `u` tracking is not part of the
     /// `FirmState → FirmState` core).
     fn margin_at(&self, s: &FirmState, aux: &FirmAuxState, scales: &ScaleFactors) -> f64 {
+        Self::margin_with_theta(s, aux, &self.theta, scales)
+    }
+
+    fn margin_with_theta(
+        s: &FirmState,
+        aux: &FirmAuxState,
+        theta: &ConstraintParams,
+        scales: &ScaleFactors,
+    ) -> f64 {
         let ctx = ConstraintContext {
             state: s,
             aux,
-            theta: &self.theta,
+            theta,
         };
         standard_margin(&ctx, scales)
+    }
+
+    /// **ADR 0047/0048 (H3 revision).** `SURVIVAL`'s `Expected h_{t+1}` for a
+    /// shaping action `a ∈ {6, 7}` whose success model is configured
+    /// (`ShapingScanParams::lobby_success` / `contract_success`), taken as a
+    /// proper expectation over the Bernoulli success draw — "stochastic
+    /// terms at expectation" (§12.3), applied to shaping specifically:
+    ///
+    /// `E[h_{t+1}] = p_success · h(state_after_payoff, θ_after_payoff)
+    ///             + (1 − p_success) · h(state_after_cost, θ)`
+    ///
+    /// `p_success` is `firma_domain::shaping::SuccessModel::p_success` —
+    /// the exact function `action.shaping.rdt_standard` calls at
+    /// commitment, with the exact same `legitimacy` input (nothing between
+    /// `decide` and `act_shaping` writes it). Cost is paid in both branches
+    /// (§11.3 property 1: "cost paid at commitment, not at success").
+    ///
+    /// **ADR 0048's race check, gating the above** (when
+    /// `ShapingScanParams::require_time_margin`, the default): the payoff is
+    /// evaluated at all only if `Δ_min` (the action's *fastest possible*
+    /// lag draw — H3's "*can* arrive in time", not "is guaranteed to") is
+    /// strictly less than `time_to_boundary` under the firm's current
+    /// action (§14.3, `firma_domain::dynamics::time_to_boundary`). If
+    /// `Δ_min ≥ time_to_boundary`, the payoff cannot possibly arrive before
+    /// the projected boundary — this returns `None` (the caller's cost-only
+    /// fallback), mechanically implementing H3's "increases narrowing"
+    /// direction rather than leaving it to emerge downstream. A `None`
+    /// (uncapped/practically-unbounded) `time_to_boundary` is treated as
+    /// "arrives comfortably" — no finite lag can fail to beat an
+    /// unbounded horizon.
+    ///
+    /// `None` if `a` is not `{6, 7}`, not admissible, has no configured
+    /// success model, or loses the race — callers fall back to the
+    /// cost-only comparison.
+    fn shaping_expected_survival_margin(
+        &self,
+        a: u8,
+        aux: &FirmAuxState,
+        scales: &ScaleFactors,
+    ) -> Option<f64> {
+        // DIAGNOSTIC (read-only, see `trace` module doc comment): scan reached
+        // this shaping action's SURVIVAL-branch evaluation at all.
+        if trace::is_enabled() {
+            trace::emit(serde_json::json!({
+                "kind": "shaping_eval_entered",
+                "tick": self.tick, "agent": self.agent.0, "action": a,
+            }));
+        }
+        let scan = self.shaping.as_ref()?;
+        let cost = scan.cost(a)?;
+        let after_cost = shaping_cost_step(cost, &self.state)?;
+        if trace::is_enabled()
+            && (a == 6 && scan.lobby_success.is_none() || a == 7 && scan.contract_success.is_none())
+        {
+            trace::emit(serde_json::json!({
+                "kind": "shaping_no_success_model_configured",
+                "tick": self.tick, "agent": self.agent.0, "action": a,
+            }));
+        }
+        let (lag_min, p, theta_success, state_success) = match a {
+            6 => {
+                let lp = scan.lobby_success?;
+                let p = lp.success.p_success(aux.legitimacy, cost);
+                let mut theta = self.theta;
+                theta.theta_limit += lp.delta_theta;
+                (lp.lag.min, p, theta, after_cost)
+            }
+            7 => {
+                let cp = scan.contract_success?;
+                let p = cp.success.p_success(aux.legitimacy, cost);
+                let mut theta = self.theta;
+                theta.theta_q += cp.delta_q;
+                let mut state = after_cost;
+                state.obligation += cp.q0;
+                (cp.lag.min, p, theta, state)
+            }
+            _ => return None, // diversify (8): no payoff representable in (FirmState, θ)
+        };
+
+        if scan.require_time_margin {
+            let current_action = if self.prev_action < 6 {
+                MARKET_ACTIONS[self.prev_action as usize]
+            } else {
+                MarketAction::Hold // ADR 0048: prev was shaping ⇒ assume no organic change
+            };
+            let ttb = time_to_boundary(
+                current_action,
+                &self.state,
+                &self.theta,
+                &self.env,
+                aux.legitimacy,
+                aux.regulated_intensity,
+                &self.window,
+                self.l_w,
+                &self.pending,
+                self.tick,
+                &self.action,
+                scales,
+            );
+            if trace::is_enabled() {
+                let gate_open = ttb.is_none_or(|t| lag_min < t);
+                trace::emit(serde_json::json!({
+                    "kind": "shaping_gate",
+                    "tick": self.tick, "agent": self.agent.0, "action": a,
+                    "lag_min": lag_min, "time_to_boundary": ttb, "gate_open": gate_open,
+                }));
+            }
+            if let Some(ttb) = ttb {
+                if lag_min >= ttb {
+                    return None; // cannot possibly arrive in time ⇒ cost-only fallback
+                }
+            }
+            // ttb == None ⇒ unbounded ⇒ arrives comfortably; fall through.
+        }
+
+        let h_success = Self::margin_with_theta(&state_success, aux, &theta_success, scales);
+        let h_failure = Self::margin_with_theta(&after_cost, aux, &self.theta, scales);
+        if trace::is_enabled() {
+            trace::emit(serde_json::json!({
+                "kind": "shaping_payoff_computed",
+                "tick": self.tick, "agent": self.agent.0, "action": a,
+                "p_success": p, "h_success": h_success, "h_failure": h_failure,
+                "e_h": p * h_success + (1.0 - p) * h_failure,
+            }));
+        }
+        Some(p * h_success + (1.0 - p) * h_failure)
     }
 }
 
@@ -621,6 +932,67 @@ impl Satisficing {
         sc
     }
 
+    /// ADR 0054 (E1 Arm A direct manipulation): read the four
+    /// `keys::PINNED_*` fields `Intervention::SetAgentReal` writes,
+    /// enforcing the "all four or none" contract (ADR-0054 Part A item 1).
+    /// `None` ⇒ no pin active for this agent (every existing config, and
+    /// every agent no Arm-A intervention targets) — Step 1 computes exactly
+    /// as before this ADR. `Some((h, [ς_1, ς_2, ς_3]))` ⇒ all four pins are
+    /// active and Step 1 substitutes them directly.
+    ///
+    /// # Panics
+    /// If **some but not all** of the four keys are present for `agent` —
+    /// this is almost certainly a config/intervention error (a forgotten
+    /// pin, not a meaningful partial state: `h` and the three `ς_j` are
+    /// pinned as one atomic group for Arm A, never independently), so it
+    /// fails loudly rather than silently computing a mix of pinned and real
+    /// values. `Rule::apply` has no `Result` return (manual §18.2's
+    /// `firma-kernel` contract), so a loud panic — not a silent fallback —
+    /// is this codebase's only mechanism for rejecting a runtime-detected
+    /// state this invalid; true config-load-time rejection isn't possible
+    /// here because these values arrive via a scheduled `Intervention`, not
+    /// via static `SatisficingParams`, so their presence isn't knowable
+    /// until the tick they're applied.
+    fn read_pins(view: &dyn View, agent: AgentId) -> Option<(f64, [f64; 3])> {
+        let margin = view.agent_real(agent, keys::PINNED_MARGIN);
+        let s1 = view.agent_real(agent, keys::PINNED_SHORTFALL_CAPITAL_GROWTH);
+        let s2 = view.agent_real(agent, keys::PINNED_SHORTFALL_CAPABILITY);
+        let s3 = view.agent_real(agent, keys::PINNED_SHORTFALL_OBLIGATION_CLEARANCE);
+        let slots = [
+            ("PINNED_MARGIN", margin.is_some()),
+            ("PINNED_SHORTFALL_CAPITAL_GROWTH", s1.is_some()),
+            ("PINNED_SHORTFALL_CAPABILITY", s2.is_some()),
+            ("PINNED_SHORTFALL_OBLIGATION_CLEARANCE", s3.is_some()),
+        ];
+        match slots.iter().filter(|(_, present)| *present).count() {
+            0 => None,
+            4 => Some((
+                margin.expect("checked present above"),
+                [
+                    s1.expect("checked present above"),
+                    s2.expect("checked present above"),
+                    s3.expect("checked present above"),
+                ],
+            )),
+            n => {
+                let missing: Vec<&str> = slots
+                    .iter()
+                    .filter(|(_, present)| !present)
+                    .map(|(name, _)| *name)
+                    .collect();
+                panic!(
+                    "agent {}: partial Arm-A pin state (ADR 0054) — {n}/4 of \
+                     PINNED_MARGIN/PINNED_SHORTFALL_{{CAPITAL_GROWTH,CAPABILITY,\
+                     OBLIGATION_CLEARANCE}} are set for this agent; missing: \
+                     {missing:?}. All four must be set together, or none — a \
+                     partial pin is a config/intervention error, not a \
+                     supported partial feature.",
+                    agent.0
+                );
+            }
+        }
+    }
+
     /// `satisfices(a, focus)` (§12.3 Step 5 table).
     fn satisfices(
         dc: &DecideCtx,
@@ -635,7 +1007,27 @@ impl Satisficing {
             return false;
         };
         match focus {
-            Focus::Survival => dc.margin_at(&n, aux, scales) > h_t,
+            // ADR 0047 (H3 revision): a shaping action with a configured
+            // success model gets its *expected* h, not just its cost-only
+            // lookahead — additive; falls through to the pre-ADR-0047
+            // comparison (`n`, cost-only) when unconfigured (`None`), so
+            // every config that predates this ADR is unaffected.
+            Focus::Survival => {
+                if a >= 6 {
+                    if let Some(e_h) = dc.shaping_expected_survival_margin(a, aux, scales) {
+                        let result = e_h > h_t;
+                        if trace::is_enabled() {
+                            trace::emit(serde_json::json!({
+                                "kind": "shaping_payoff_comparison",
+                                "tick": dc.tick, "agent": dc.agent.0, "action": a,
+                                "e_h": e_h, "h_t": h_t, "result": result,
+                            }));
+                        }
+                        return result;
+                    }
+                }
+                dc.margin_at(&n, aux, scales) > h_t
+            }
             Focus::Goal(j) => {
                 let dv = match j {
                     1 => (n.liquid_capital - dc.state.liquid_capital) as f64,
@@ -668,13 +1060,22 @@ impl Rule for Satisficing {
     }
     fn apply(&self, view: &dyn View, _key: RngKey) -> Vec<Delta> {
         let p = &self.params;
-        let graph = RelationGraph::from_records(view.global_records(keys::RELATION_EDGES))
-            .unwrap_or_default();
+        let graph = relation_graph(view);
         let mut out = Vec::new();
 
         for &agent in view.live_agents() {
             let state = firm_state(view, agent);
             let aux = firm_aux(view, agent, p.l_w as usize);
+            // `prev` (last tick's `SELECTED_ACTION`, defaulting to `hold`) is
+            // needed *before* `dc` this round (ADR 0048): it is also
+            // `time_to_boundary`'s "current action" input, the same default
+            // `NONE`'s inertia fallback already uses — one definition, two
+            // consumers, not invented twice.
+            let prev = view
+                .agent_int(agent, keys::SELECTED_ACTION)
+                .and_then(|v| u8::try_from(v).ok())
+                .filter(|a| *a <= 8)
+                .unwrap_or(0);
             let dc = DecideCtx {
                 agent,
                 state,
@@ -683,22 +1084,36 @@ impl Rule for Satisficing {
                 action: p.action,
                 shaping: p.shaping,
                 graph: graph.clone(),
+                prev_action: prev,
+                window: firm_window(view, agent),
+                l_w: p.l_w as usize,
+                pending: firm_pending_effects(view, agent),
+                tick: view.tick().0,
             };
 
             // --- Step 1: Evaluate the two quantities VT-8 must show are
             //     independently manipulable (ADR 0040). `h_t` comes only from
-            //     `standard_margin`; `sc` only from `A_j − v_j`. ---
-            let h_t = dc.margin_at(&dc.state, &aux, &p.scales);
-            let sc = Self::shortfalls(view, agent, &dc.state);
-            let prev = view
-                .agent_int(agent, keys::SELECTED_ACTION)
-                .and_then(|v| u8::try_from(v).ok())
-                .filter(|a| *a <= 8)
-                .unwrap_or(0);
+            //     `standard_margin`; `sc` only from `A_j − v_j` — unless Arm
+            //     A's direct-manipulation pins (ADR 0054) are active, in
+            //     which case the pinned values are substituted here, before
+            //     `select()` is ever called, so `select()` itself never
+            //     learns whether a component was pinned or computed. ---
+            let (h_t, sc) = match Self::read_pins(view, agent) {
+                Some((pinned_h, pinned_sc)) => (pinned_h, pinned_sc),
+                None => (
+                    dc.margin_at(&dc.state, &aux, &p.scales),
+                    Self::shortfalls(view, agent, &dc.state),
+                ),
+            };
 
             // --- Steps 2–5: the pure decision function. `apply` carries no
             //     Step-2–5 logic of its own, so this path and the VT-8 harness
             //     cannot drift (ADR 0040). ---
+            // DIAGNOSTIC (read-only, see `trace` module doc comment): the two
+            // closures below are unchanged except for one `trace::emit` call
+            // each, which is a no-op unless `FIRMA_TRACE_DECISION=1`. Neither
+            // closure's return value is altered by the addition — `r` is
+            // computed first, exactly as before, and returned unchanged.
             let sel = select(
                 h_t,
                 sc,
@@ -706,9 +1121,37 @@ impl Rule for Satisficing {
                 p.h_crit,
                 p.w_max,
                 prev,
-                |a| dc.admissible(a),
-                |a, focus| Self::satisfices(&dc, &aux, &p.scales, a, focus, h_t, &sc),
+                |a| {
+                    let r = dc.admissible(a);
+                    if trace::is_enabled() {
+                        trace::emit(serde_json::json!({
+                            "kind": "admissible_check",
+                            "tick": dc.tick, "agent": dc.agent.0, "action": a, "result": r,
+                        }));
+                    }
+                    r
+                },
+                |a, focus| {
+                    let r = Self::satisfices(&dc, &aux, &p.scales, a, focus, h_t, &sc);
+                    if trace::is_enabled() {
+                        trace::emit(serde_json::json!({
+                            "kind": "satisfices_check",
+                            "tick": dc.tick, "agent": dc.agent.0, "action": a,
+                            "focus": format!("{focus:?}"), "h_t": h_t, "result": r,
+                        }));
+                    }
+                    r
+                },
             );
+            if trace::is_enabled() {
+                trace::emit(serde_json::json!({
+                    "kind": "selection",
+                    "tick": dc.tick, "agent": dc.agent.0,
+                    "focus": format!("{:?}", sel.focus), "w_eff": sel.w_eff,
+                    "action": sel.action, "prev_action": prev, "h_t": h_t,
+                    "shortfalls": sc, "scan_order": Focus::scan_order(sel.focus),
+                }));
+            }
 
             let set = |field: &str, value: i64| Delta {
                 target: DeltaTarget::Agent(agent),
@@ -794,8 +1237,7 @@ impl Rule for DecisionRandom {
         &self.writes
     }
     fn apply(&self, view: &dyn View, key: RngKey) -> Vec<Delta> {
-        let graph = RelationGraph::from_records(view.global_records(keys::RELATION_EDGES))
-            .unwrap_or_default();
+        let graph = relation_graph(view);
         let mut out = Vec::new();
 
         for &agent in view.live_agents() {
@@ -807,6 +1249,11 @@ impl Rule for DecisionRandom {
                 action: self.params.action,
                 shaping: self.params.shaping,
                 graph: graph.clone(),
+                prev_action: 0, // unused here — `decision.random` never calls `satisfices`
+                window: Vec::new(),
+                l_w: 1,
+                pending: Vec::new(),
+                tick: 0,
             };
 
             // Admissible set, ascending index (deterministic). Never empty:

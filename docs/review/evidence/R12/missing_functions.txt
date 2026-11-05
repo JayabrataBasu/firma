@@ -1,0 +1,37 @@
+### Evidence for the STOP: what firma_lab exposes (working tree)
+--- every function defined in firma_lab.metrics / firma_lab.load:
+python/firma_lab/load.py:24:def read_events(run_dir: PathLike) -> pd.DataFrame:
+python/firma_lab/load.py:43:def read_manifest(run_dir: PathLike) -> dict:
+python/firma_lab/load.py:55:def read_config_json(run_dir: PathLike) -> str:
+python/firma_lab/metrics.py:24:def sanity_report(run_dir: PathLike) -> dict:
+python/firma_lab/metrics.py:37:def final_margins(run_dir: PathLike) -> pd.DataFrame:
+--- functions exported by the native extension (crates/firma-py/src/lib.rs):
+170:    m.add_function(wrap_pyfunction!(sanity_report, m)?)?;
+171:    m.add_function(wrap_pyfunction!(final_margins, m)?)?;
+172:    m.add_function(wrap_pyfunction!(config_identity_hash, m)?)?;
+--- any shortfall / aspiration derivation in firma_lab or firma-analysis (non-test):
+crates/firma-analysis/src/reconstruct.rs:13:    keys, margin, Aspirations, ConstraintContext, ConstraintParams, FirmAuxState, FirmState,
+crates/firma-analysis/src/reconstruct.rs:546:            aspirations: Aspirations {
+   (the only hits are the reconstruction zeroing the aspirations field: h does not read it)
+            aspirations: Aspirations {
+                capital_growth: 0.0,
+                capability: 0.0,
+                obligation_clearance: 0.0,
+            },
+--- per-tick h: FirmSnapshot.h is computed inside Reconstruction; exposed to Python only via final_margins (final state) and sc2_reconstructed_h_below_crit (a fraction):
+67:        "sc2_reconstructed_h_below_crit",
+68:        report.sc2_reconstructed_h_below_crit,
+115:            d.set_item("h", f.h)?;
+--- runner seeds: every job's four stream seeds are equal, and there is no fork job:
+141:        mechanism=replicate, environment=replicate, shock=replicate, init=replicate
+   (no 'fork' in runner.py if the lines above are empty)
+
+--- what the event log itself carries (one shocked run, shock seed 910001): the raw ingredients of shortfall are logged, but no existing function turns them into a shortfall
+  records touching 'aspiration_capital_growth': 227
+  records touching 'aspiration_capability': 15
+  records touching 'aspiration_obligation_clearance': 0
+  records touching 'realized_capital_growth': 238
+  records touching 'prev_tick_capital': 238
+  records touching 'focus': 241
+  records touching 'w_eff': 241
+  initial aspirations come from the config's agents[].reals (e.g. aspiration_capital_growth), not from the log

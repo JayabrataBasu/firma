@@ -1,0 +1,189 @@
+DIAGNOSTIC-ONLY - COLLAPSE DIAGNOSTIC (R21) - NOT REGISTERED - NOT FOR TUNING
+spec: /home/jayabratabasu/firma/docs/review/evidence/R21/diag_spec.json  sha256 220a5c210756beceec3d8d42dcc11072e67d3368e691e89b2698ff93285c4e03
+
+== controls ==
+  A cell (population 910001, shock seed 910101) run twice: BYTE-EQUAL  5802412800baf749f713531ae108b1960b28b76743b6a91f68d5dd9db427d758
+  no-shock run of population 910001 at shock seeds 910101 / 910115 / 910130: BYTE-EQUAL (one baseline per population is valid)
+  R18 cell 79 (shock mean 0.20, 20 shock seeds): REPRODUCES the R18 record; collapse rate 0.50, >= 5 deaths in one tick 0.50, survivors {1: 10, 10: 10}
+  R20 medium init seed 910001: REPRODUCES its q2_runs.csv row ({'shocked_events_sha256': True, 'baseline_events_sha256': True, 'shocked_survivors': True, 'baseline_survivors': True, 'T1': True, 'sc2_h_below_crit': True, 'delta_h_rep_matched': True}); shocked survivors 1, event log 786dd9d790575090
+
+== A: attribution - 30 population seeds x 30 shock seeds, medium spread ==
+  collapse matrix (rows: population seed; columns: shock seeds 910101..910130; 1 = survivors <= 2):
+           000000000111111111122222222223
+           123456789012345678901234567890
+    910001 010011011110111100000001010000  rate 0.433  baseline survivors 11
+    910002 010011011110111100000001010000  rate 0.433  baseline survivors 9
+    910003 010011011110111100000001010000  rate 0.433  baseline survivors 8
+    910004 010011011110111100000001010000  rate 0.433  baseline survivors 8
+    910005 000000000000000000000000000000  rate 0.000  baseline survivors 12
+    910006 010011011110111100000001010000  rate 0.433  baseline survivors 9
+    910007 010011011110111100000001010000  rate 0.433  baseline survivors 8
+    910008 010011011110111100000001010000  rate 0.433  baseline survivors 12
+    910009 010011011110111100000001010000  rate 0.433  baseline survivors 8
+    910010 010011011110111100000001010000  rate 0.433  baseline survivors 11
+    910011 010011011110111100000001010000  rate 0.433  baseline survivors 9
+    910012 000000000000000000000000000000  rate 0.000  baseline survivors 11
+    910013 010011011110111100000001010000  rate 0.433  baseline survivors 9
+    910014 010011011110111100000001010000  rate 0.433  baseline survivors 11
+    910015 010011011110111100000001010000  rate 0.433  baseline survivors 8
+    910016 010011011110111100000001010000  rate 0.433  baseline survivors 11
+    910017 010011011110111100000001010000  rate 0.433  baseline survivors 10
+    910018 000000000000000000000000000000  rate 0.000  baseline survivors 11
+    910019 010011011110111100000001010000  rate 0.433  baseline survivors 10
+    910020 010011011110111100000001010000  rate 0.433  baseline survivors 11
+    910021 010011011110111100000001010000  rate 0.433  baseline survivors 9
+    910022 010011011110111100000001010000  rate 0.433  baseline survivors 11
+    910023 000000000000000000000000000000  rate 0.000  baseline survivors 11
+    910024 010011011110111100000001010000  rate 0.433  baseline survivors 11
+    910025 010011011110111100000001010000  rate 0.433  baseline survivors 10
+    910026 010011011110111100000001010000  rate 0.433  baseline survivors 11
+    910027 000000000000000000000000000000  rate 0.000  baseline survivors 10
+    910028 010011011110111100000001010000  rate 0.433  baseline survivors 11
+    910029 000000000000000000000000000000  rate 0.000  baseline survivors 12
+    910030 010011011110111100000001010000  rate 0.433  baseline survivors 11
+  marginal collapse rate by shock seed, with the drawn onset and magnitude (all 30, seed order):
+    910101: rate 0.000  onset 70  magnitude 0.3563
+    910102: rate 0.800  onset 43  magnitude 0.2290
+    910103: rate 0.000  onset 71  magnitude 0.1188
+    910104: rate 0.000  onset 45  magnitude 0.2546
+    910105: rate 0.800  onset 35  magnitude 0.2068
+    910106: rate 0.800  onset 47  magnitude 0.1781
+    910107: rate 0.000  onset 42  magnitude 0.3048
+    910108: rate 0.800  onset 32  magnitude 0.1580
+    910109: rate 0.800  onset 32  magnitude 0.1699
+    910110: rate 0.800  onset 22  magnitude 0.2320
+    910111: rate 0.800  onset 47  magnitude 0.2223
+    910112: rate 0.000  onset 79  magnitude 0.1085
+    910113: rate 0.800  onset 75  magnitude 0.1509
+    910114: rate 0.800  onset 13  magnitude 0.1969
+    910115: rate 0.800  onset 29  magnitude 0.1898
+    910116: rate 0.800  onset 33  magnitude 0.2154
+    910117: rate 0.000  onset 55  magnitude 0.2742
+    910118: rate 0.000  onset 54  magnitude 0.1130
+    910119: rate 0.000  onset 67  magnitude 0.1411
+    910120: rate 0.000  onset 78  magnitude 0.2992
+    910121: rate 0.000  onset 39  magnitude 0.3097
+    910122: rate 0.000  onset 21  magnitude 0.1436
+    910123: rate 0.000  onset 21  magnitude 0.2731
+    910124: rate 0.800  onset 47  magnitude 0.1604
+    910125: rate 0.000  onset 34  magnitude 0.1053
+    910126: rate 0.800  onset 48  magnitude 0.2288
+    910127: rate 0.000  onset 22  magnitude 0.2554
+    910128: rate 0.000  onset 32  magnitude 0.3668
+    910129: rate 0.000  onset 46  magnitude 0.2781
+    910130: rate 0.000  onset 31  magnitude 0.1221
+  overall collapse rate: 0.3467 (312 of 900)
+  range of marginal rates: across shock seeds 0.800 (min 0.000, max 0.800); across population seeds 0.433 (min 0.000, max 0.433)
+  share of collapse variance (two-way SS, one run per cell): shock seed 0.694; population seed 0.133; interaction (incl. residual) 0.173
+  PREDECLARED READING: mixed
+  survivors over the 900 shocked runs: {0: 104, 1: 91, 2: 117, 3: 52, 4: 26, 8: 85, 9: 85, 10: 68, 11: 221, 12: 51}
+  shock seeds with marginal rate exactly 0: 17; exactly 1: 0; strictly between: 13
+
+== B: R20 Q2/Q4 with the aspiration spread read as RELATIVE ==
+ spread level low (aspiration 8.0 x (1 +/- 0.1): 7.2 to 8.8; R20 absolute: 7.90 to 8.10)
+   metric (pooled, 100 init seeds)    relative   R20 absolute
+   collapse_rate                      0.570      0.570
+   mass_death_tick_share              0.570      0.570
+   mean_survival_shocked              0.376      0.376
+   mean_survival_baseline             0.847      0.847
+   nonzero_matched_delta_h_share      1.000      1.000
+   sc1_pass_share                     0.550      0.550
+   sc2_pass_share                     0.580      0.580
+   sc3_pass_share                     0.010      0.010
+   sc6_pass_share                     1.000      1.000
+   t1_pass_share                      0.010      0.010
+   survivors, shocked (relative): {0: 50, 1: 7, 8: 4, 9: 6, 10: 14, 11: 10, 12: 9}
+   survivors, shocked (R20 abs.): {0: 50, 1: 7, 8: 4, 9: 6, 10: 14, 11: 10, 12: 9}
+   distinct compliance-death ticks per shocked run (relative): {0: 43, 1: 36, 2: 17, 3: 4}
+   Q4 set A      SC-1 0.48 SC-2 0.50 SC-3 0.02 SC-6 1.00 T1 0.02 | collapse 0.58 | non-zero dH 1.00 | FAIL
+   Q4 set B      SC-1 0.62 SC-2 0.66 SC-3 0.00 SC-6 1.00 T1 0.00 | collapse 0.56 | non-zero dH 1.00 | FAIL
+   Q4 set pooled SC-1 0.55 SC-2 0.58 SC-3 0.01 SC-6 1.00 T1 0.01 | collapse 0.57 | non-zero dH 1.00 | FAIL (verdict)
+   set A vs set B, metrics that differ under the R20 rule: ['sc1_pass_share', 'sc2_pass_share', 'sc3_pass_share', 't1_pass_share']
+   init seeds with a compliance death: 57 of 100
+ spread level medium (aspiration 8.0 x (1 +/- 0.25): 6.0 to 10.0; R20 absolute: 7.75 to 8.25)
+   metric (pooled, 100 init seeds)    relative   R20 absolute
+   collapse_rate                      0.510      0.510
+   mass_death_tick_share              0.570      0.570
+   mean_survival_shocked              0.426      0.426
+   mean_survival_baseline             0.847      0.847
+   nonzero_matched_delta_h_share      1.000      1.000
+   sc1_pass_share                     0.550      0.550
+   sc2_pass_share                     0.550      0.550
+   sc3_pass_share                     0.520      0.520
+   sc6_pass_share                     1.000      1.000
+   t1_pass_share                      0.130      0.130
+   survivors, shocked (relative): {0: 17, 1: 19, 2: 15, 3: 6, 8: 4, 9: 6, 10: 14, 11: 10, 12: 9}
+   survivors, shocked (R20 abs.): {0: 17, 1: 19, 2: 15, 3: 6, 8: 4, 9: 6, 10: 14, 11: 10, 12: 9}
+   distinct compliance-death ticks per shocked run (relative): {0: 43, 1: 28, 2: 24, 3: 4, 4: 1}
+   Q4 set A      SC-1 0.48 SC-2 0.40 SC-3 0.58 SC-6 1.00 T1 0.10 | collapse 0.50 | non-zero dH 1.00 | FAIL
+   Q4 set B      SC-1 0.62 SC-2 0.70 SC-3 0.46 SC-6 1.00 T1 0.16 | collapse 0.52 | non-zero dH 1.00 | FAIL
+   Q4 set pooled SC-1 0.55 SC-2 0.55 SC-3 0.52 SC-6 1.00 T1 0.13 | collapse 0.51 | non-zero dH 1.00 | FAIL (verdict)
+   set A vs set B, metrics that differ under the R20 rule: ['sc1_pass_share', 'sc2_pass_share', 'sc3_pass_share', 'baseline_mass_death_tick_share']
+   init seeds with a compliance death: 57 of 100
+ spread level high (aspiration 8.0 x (1 +/- 0.5): 4.0 to 12.0; R20 absolute: 7.50 to 8.50)
+   metric (pooled, 100 init seeds)    relative   R20 absolute
+   collapse_rate                      0.290      0.290
+   mass_death_tick_share              0.500      0.500
+   mean_survival_shocked              0.500      0.500
+   mean_survival_baseline             0.848      0.848
+   nonzero_matched_delta_h_share      1.000      1.000
+   sc1_pass_share                     0.550      0.550
+   sc2_pass_share                     0.290      0.290
+   sc3_pass_share                     0.830      0.830
+   sc6_pass_share                     1.000      1.000
+   t1_pass_share                      0.090      0.090
+   survivors, shocked (relative): {0: 3, 1: 12, 2: 14, 3: 8, 4: 14, 5: 3, 6: 1, 7: 1, 8: 5, 9: 6, 10: 14, 11: 10, 12: 9}
+   survivors, shocked (R20 abs.): {0: 3, 1: 12, 2: 14, 3: 8, 4: 14, 5: 3, 6: 1, 7: 1, 8: 5, 9: 6, 10: 14, 11: 10, 12: 9}
+   distinct compliance-death ticks per shocked run (relative): {0: 43, 1: 30, 2: 23, 3: 4}
+   Q4 set A      SC-1 0.48 SC-2 0.26 SC-3 0.88 SC-6 1.00 T1 0.02 | collapse 0.30 | non-zero dH 1.00 | FAIL
+   Q4 set B      SC-1 0.62 SC-2 0.32 SC-3 0.78 SC-6 1.00 T1 0.16 | collapse 0.28 | non-zero dH 1.00 | FAIL
+   Q4 set pooled SC-1 0.55 SC-2 0.29 SC-3 0.83 SC-6 1.00 T1 0.09 | collapse 0.29 | non-zero dH 1.00 | FAIL (verdict)
+   set A vs set B, metrics that differ under the R20 rule: ['sc1_pass_share', 't1_pass_share']
+   init seeds with a compliance death: 57 of 100
+  VERDICTS (relative reading): low FAIL; medium FAIL; high FAIL   | R20 absolute reading: low FAIL; medium FAIL; high FAIL
+
+== C: distinct behaviour among the 12 firms, baseline, ticks 0..39 ==
+  low    absolute: action sequences mean 2.53 range [1, 4] {1: 1, 2: 14, 3: 13, 4: 2}; (focus, action) sequences mean 2.53 range [1, 4] {1: 1, 2: 14, 3: 13, 4: 2}
+  low    relative: action sequences mean 2.53 range [1, 4] {1: 1, 2: 14, 3: 13, 4: 2}; (focus, action) sequences mean 2.53 range [1, 4] {1: 1, 2: 14, 3: 13, 4: 2}
+  medium absolute: action sequences mean 2.93 range [2, 5] {2: 9, 3: 15, 4: 5, 5: 1}; (focus, action) sequences mean 2.93 range [2, 5] {2: 9, 3: 15, 4: 5, 5: 1}
+  medium relative: action sequences mean 2.93 range [2, 5] {2: 9, 3: 15, 4: 5, 5: 1}; (focus, action) sequences mean 2.93 range [2, 5] {2: 9, 3: 15, 4: 5, 5: 1}
+  high   absolute: action sequences mean 2.67 range [2, 5] {2: 15, 3: 12, 4: 1, 5: 2}; (focus, action) sequences mean 2.67 range [2, 5] {2: 15, 3: 12, 4: 1, 5: 2}
+  high   relative: action sequences mean 2.67 range [2, 5] {2: 15, 3: 12, 4: 1, 5: 2}; (focus, action) sequences mean 2.67 range [2, 5] {2: 15, 3: 12, 4: 1, 5: 2}
+
+== D: shock channel (medium spread, relative aspiration, set A, 50 init seeds) ==
+  baseline identical across the six cells for every init seed: True
+  regulatory magnitude 0.2:
+    survivors (of 12): {0: 7, 1: 10, 2: 8, 3: 4, 8: 3, 9: 3, 10: 4, 11: 7, 12: 4}; baseline: {7: 1, 8: 7, 9: 8, 10: 9, 11: 19, 12: 6}
+    collapse rate 0.500; >= 5 deaths in one tick 0.580; non-zero matched DeltaH 1.000; mean survival 0.423 (baseline 0.843); T1 pass share 0.100
+    deaths by cause over the 50 shocked runs: {'compliance': 252, 'solvency': 94}
+    graded rule: runs at an extreme 0.920 (collapsed 25, equal to baseline survivors 21); distinct survivor counts 9 -> not graded
+  resource magnitude 1:
+    survivors (of 12): {7: 1, 8: 7, 9: 8, 10: 9, 11: 19, 12: 6}; baseline: {7: 1, 8: 7, 9: 8, 10: 9, 11: 19, 12: 6}
+    collapse rate 0.000; >= 5 deaths in one tick 0.020; non-zero matched DeltaH 0.000; mean survival 0.843 (baseline 0.843); T1 pass share 0.100
+    deaths by cause over the 50 shocked runs: {'solvency': 94}
+    graded rule: runs at an extreme 1.000 (collapsed 0, equal to baseline survivors 50); distinct survivor counts 6 -> not graded
+  resource magnitude 2:
+    survivors (of 12): {7: 1, 8: 7, 9: 8, 10: 9, 11: 19, 12: 6}; baseline: {7: 1, 8: 7, 9: 8, 10: 9, 11: 19, 12: 6}
+    collapse rate 0.000; >= 5 deaths in one tick 0.020; non-zero matched DeltaH 0.000; mean survival 0.843 (baseline 0.843); T1 pass share 0.100
+    deaths by cause over the 50 shocked runs: {'solvency': 94}
+    graded rule: runs at an extreme 1.000 (collapsed 0, equal to baseline survivors 50); distinct survivor counts 6 -> not graded
+  resource magnitude 4:
+    survivors (of 12): {7: 1, 8: 7, 9: 8, 10: 9, 11: 19, 12: 6}; baseline: {7: 1, 8: 7, 9: 8, 10: 9, 11: 19, 12: 6}
+    collapse rate 0.000; >= 5 deaths in one tick 0.020; non-zero matched DeltaH 0.000; mean survival 0.843 (baseline 0.843); T1 pass share 0.100
+    deaths by cause over the 50 shocked runs: {'solvency': 94}
+    graded rule: runs at an extreme 1.000 (collapsed 0, equal to baseline survivors 50); distinct survivor counts 6 -> not graded
+  competitive magnitude 1:
+    survivors (of 12): {7: 1, 8: 7, 9: 8, 10: 9, 11: 19, 12: 6}; baseline: {7: 1, 8: 7, 9: 8, 10: 9, 11: 19, 12: 6}
+    collapse rate 0.000; >= 5 deaths in one tick 0.020; non-zero matched DeltaH 0.480; mean survival 0.843 (baseline 0.843); T1 pass share 0.100
+    deaths by cause over the 50 shocked runs: {'solvency': 94}
+    graded rule: runs at an extreme 1.000 (collapsed 0, equal to baseline survivors 50); distinct survivor counts 6 -> not graded
+  competitive magnitude 2:
+    survivors (of 12): {7: 1, 8: 7, 9: 8, 10: 9, 11: 19, 12: 6}; baseline: {7: 1, 8: 7, 9: 8, 10: 9, 11: 19, 12: 6}
+    collapse rate 0.000; >= 5 deaths in one tick 0.020; non-zero matched DeltaH 0.580; mean survival 0.843 (baseline 0.843); T1 pass share 0.100
+    deaths by cause over the 50 shocked runs: {'solvency': 94}
+    graded rule: runs at an extreme 1.000 (collapsed 0, equal to baseline survivors 50); distinct survivor counts 6 -> not graded
+
+written under /tmp/claude-1000/-home-jayabratabasu-firma/25acd624-4575-4f2d-9fb5-645f7478f07e/scratchpad/r21: a_matrix.csv, a_runs.csv, b_runs.csv, c_runs.csv, d_runs.csv, summary.json
+problems: none
+wall-clock time: 228.4 s
+DIAGNOSTIC-ONLY - COLLAPSE DIAGNOSTIC (R21) - NOT REGISTERED - NOT FOR TUNING

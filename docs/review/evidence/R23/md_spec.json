@@ -1,0 +1,94 @@
+{
+  "choices_made_by_the_builder_before_any_run": [
+    "reserved seeds are not executed; gate transcriptions run at seeds 910001..910004",
+    "cfg_wide_search is run at (w_max 6, beta 1.0), the manual defaults",
+    "P4 is evaluated at the decision in the strike tick T; T-1 is shown for information",
+    "the P5 NEITHER outcome",
+    "P6 is evaluated per cell (any cell at a level), pooled share shown for information",
+    "the thin-capital firms are ids 0 and 1; theta_q stays 40 when no firm is seeded",
+    "u is computed in Python from the logged action window; h_t comes from the plugin's diagnostic trace"
+  ],
+  "controls": {
+    "byte_equal": "part-3 cell 0, init seed 910001, baseline run twice",
+    "r22_reproduces": "the part-3 cell (theta_limit 0.90, obligation 1/6, thin 0, price 3) is the R22 part-2 medium baseline config; for init seeds 910001..910020 its SC values and baseline event-log sha256 must equal docs/review/evidence/R22/part2_runs.csv"
+  },
+  "part_1": {
+    "P4_rule": "For every firm whose first compliance strike at or after tick 40 is at tick T (l_w = 4 cell): take its decision IN tick T (made before that tick's enforcement; the action that completes the violating window). P4 HOLDS iff for every such firm the decision-time compliance margin is >= 0.15 AND the focus is not SURVIVAL; FALSIFIED if any struck firm fails either, or if no firm is struck. The same two values at tick T-1 are printed for information.",
+    "cells": "R22 part-1 config (medium spread, relative aspiration, onset 40, fixed magnitude 0.20, h_crit 0.15, init seed 910001) at l_w = 4 and at l_w = 8",
+    "columns": {
+      "action": "logged selected_action (decision.* SetAgentInt)",
+      "death": "agent_died record in that tick",
+      "focus": "logged focus code (-1 NONE, 0 SURVIVAL, 1..3 GOAL j)",
+      "h_t": "the margin the plugin itself used, from its existing read-only diagnostic trace (FIRMA_TRACE_DECISION 'selection' records); not in the event log",
+      "margin": "theta_limit - u (the compliance margin at decision time)",
+      "strike": "constraint.enforce write of compliance_last_violation_tick in that tick",
+      "theta_limit": "config value plus the logged AdjustGlobalReal deltas up to and including the tick (the shock is applied in the environment phase, before decide)",
+      "u": "NOT a logged scalar. Computed here from the LOGGED action window (constraint.action_window's ReplaceAgentList 'action_window') as it stood before the tick's decision: (number of entries with action 2 = produce_regulated among the last l_w) / l_w, the formula of firma-domain margin::u_from_window"
+    },
+    "l_w_8_statement": "reported, no prediction: for the l_w = 8 cell, whether any firm is struck in 40..52, and for each firm the first tick >= 40 with SURVIVAL focus",
+    "trace_control": "the event log with the diagnostic trace switched on must be byte-equal to the log without it",
+    "window": "ticks 36..52 inclusive, every firm alive at tick 36"
+  },
+  "part_2": {
+    "P5_rule": "Compared values per config between l_w = 4 and 8: SC-1 survival, SC-2 (survival-attention share, the gate's SC-2; and the reconstructed share), SC-3 binds vector, SC-4 fraction, SC-5, SC-6 variance. P5 HOLDS iff SC-2 (either share) or the SC-3 binds vector differs for cfg_threaded or for cfg_healthy. FALSIFIED iff all the compared values are unchanged for both configs. If SC-2 and SC-3 are unchanged for both but another SC value changes, the result is printed as NEITHER (the prompt's wording covers neither case). cfg_wide_search is reported and does not enter P5.",
+    "configs": "cfg_healthy, cfg_threaded and cfg_wide_search(w_max = 6, beta = 1.0) of tests/tests/sanity.rs, transcribed into Python",
+    "reported": "SC-1..SC-6 for every (config, l_w), via firma_lab.metrics.sanity_report",
+    "reserved_seeds": "The Rust configs use seeds 55/2/3/4, 7/2/3/4 and 909/2/3/4. Seeds 1-200 are reserved (BUILDER.md, STATE.md hard stop) and are NOT executed by this script. The transcriptions run with mechanism/environment/shock/init = 910001/910002/910003/910004. The original numbers are taken from the output of the existing tests themselves (`cargo test -p firma-conformance --test sanity sc16_gate sc4_wmax_beta_probe -- --nocapture`, part of the standard suite), passed in with --gate-output.",
+    "runs": "each of the three configs at l_w = 4 and l_w = 8, set in decision.satisficing, constraint.action_window and constraint.enforce; no other parameter changes",
+    "validation": [
+      "a unit test rebuilds each config mechanically from the Rust source text of tests/tests/sanity.rs and requires equality with the transcription (seeds aside)",
+      "the transcription at its original l_w must reproduce the test's printed SC-1..SC-6 lines exactly (same formatted strings): cfg_threaded SC-2 1.000, SC-4 0/3202; cfg_healthy SC-2 0.005, SC-4 0/1600; cfg_wide_search(6, 1.0): the GOAL / NONE / SURVIVAL decision and shaping counts printed by sc4_wmax_beta_probe",
+      "seed-insensitivity: each transcription is also run with seeds 911001..911004 and the two event logs are compared; if they are byte-equal the reserved-seed run would give the same log"
+    ]
+  },
+  "part_3": {
+    "P6_rule": "P6 HOLDS iff at some theta_limit level at least one of its 8 cells has an SC-3 pass share >= 0.50; otherwise FALSIFIED. For information the SC-3 pass share pooled over all 8 cells of each level (160 baselines) is also printed; cells with obligation probability 0 cannot bind the obligation constraint.",
+    "axes_in_declared_order": [
+      {
+        "levels": [
+          0.5,
+          0.6,
+          0.7,
+          0.8,
+          0.9
+        ],
+        "name": "theta_limit"
+      },
+      {
+        "levels": [
+          0.0,
+          0.16666666666666666
+        ],
+        "meaning": "0: no firm starts with an obligation (theta_q stays 40); 1/6: the R20 keyed obligation draw, unchanged",
+        "name": "obligation_probability"
+      },
+      {
+        "levels": [
+          0.0,
+          0.16666666666666666
+        ],
+        "meaning": "1/6: firm ids 0 and 1 (2 of 12) are thin-capital: capital = round_half_up(0.2 x the firm's own unrounded lognormal draw), i.e. median 20 with the same keyed normal; 0: no thin firm",
+        "name": "thin_fraction"
+      },
+      {
+        "levels": [
+          2,
+          3
+        ],
+        "name": "output_price"
+      }
+    ],
+    "cell_order": "itertools.product in the order listed, last axis fastest; 40 cells",
+    "fixed": "l_w = 8 in the three rules; h_crit = 0.15; observation.full; base-config rule set (resource.patchy); horizon 120; input_price 2; theta_cap 0.40; theta_q 40; mechanism seed 910001; environment seed 910002; shock seed = init seed",
+    "population": "R20 generator, medium spread, relative aspiration (R21), 12 firms, init seeds 910001..910020",
+    "stage_1": "per cell, one no-shock baseline per init seed (20); per cell the pass share of SC-1 (sc1_survival in [0.60, 0.90]), SC-2 (sc2_reconstructed_h_below_crit in [0.05, 0.25]), SC-3 (sc3_pass), SC-6 (sc6_pass) and T1 (all four), as in R16-R22",
+    "stage_2": "only cells with T1 pass share >= 0.50: regulatory/theta_limit shock, onset uniform 10..80, instant, permanent, magnitude mean 0.10 / 0.20 / 0.30 with sd mean/3, one shocked run per init seed with its no-shock fork; per (cell, magnitude) row: collapse rate (survivors <= 2 of 12), non-zero matched DeltaH share (R14), and the R20 Q4 verdict (collapse <= 0.10 AND non-zero >= 0.50 AND T1 share >= 0.50)"
+  },
+  "predictions_verbatim_from_the_R23_prompt": {
+    "P4": "P4 (part 1) the l_w = 4 first violation is preceded by a tick with margin >= 0.15 and non-survival focus",
+    "P5": "P5 (part 2) changing l_w between 4 and 8 changes SC-2 and/or SC-3 for cfg_threaded or cfg_healthy; falsified if all six SC values are unchanged for both configs.",
+    "P6": "P6 (part 3) at least one theta_limit level makes SC-3 pass in >= 50% of populations.",
+    "rule": "State FALSIFIED where they fail; do not reinterpret."
+  },
+  "task": "R23 MANUALDEF - DIAGNOSTIC-ONLY; nothing registered"
+}

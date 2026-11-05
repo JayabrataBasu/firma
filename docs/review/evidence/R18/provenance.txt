@@ -1,0 +1,13 @@
+### R18 provenance (DIAGNOSTIC-ONLY)
+date: 2026-10-02T10:38Z; step 0 written: 2026-10-02T10:33:33Z
+git rev: 2820610076bc9bf0317ffa0daaa49859ac8e430b (branch h3-satisficing-lookahead); working tree uncommitted
+step 0: .venv/bin/python scripts/regime_search.py --write-grid2 docs/review/evidence/R18/grid2.json
+run:    .venv/bin/python scripts/regime_search.py --grid2 docs/review/evidence/R18/grid2.json --out <scratch> --jobs 8
+describe: .venv/bin/python docs/review/evidence/R18/describe_passing_cells.py <repo> <scratch>
+grid2.json sha256: 617239841e91e5c53cd9dc3a3ef46ad0b4b884ad281779c11b0082bae1dcf792
+firma binary: target/debug/firma sha256 97f1feac7cbe615f8c01b15d5afd8f2668a6ecced851ce559352e70279275d07
+python: Python 3.14.7
+wall-clock: attempt 1 (crashed in the printer) 18.5 s; attempt 2 (complete) 80.4 s
+seeds: mechanism 910001, environment 910002, init 910004, shock 910001..910020; smallest executed seed 910001
+runs in attempt 2: control (a) 2; control (b) 4; Stage 1 288; Stage 2 18 rows x (1 baseline + 20 shocked + 20 forks) = 738. Attempt 1: 2 + 4 + 288 (results never printed or saved). Description script: 15. Tests: 5 runs per pytest invocation of test_regime_search.py.
+order: slice fix (failing test first) -> grid-2 code -> grid2.json written -> tests (grid-1 cell 0 baseline; grid-2 cell 287 baseline; 2 shocked + 2 forks of grid-1 cell 0) -> attempt 1 -> printer fix -> attempt 2 -> description script.

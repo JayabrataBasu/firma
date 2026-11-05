@@ -1,0 +1,85 @@
+{
+  "choices_made_by_the_builder_before_any_run": [
+    "the P1 evaluation rule (edges exempt; per-level thresholds), with the strict variant printed for information",
+    "fixed onset and magnitude via shock.stochastic with degenerate ranges, not shock.scheduled",
+    "a 'compliance strike' is a first-violation record; both readings of 'deaths at the tick of first compliance strike' are reported",
+    "part 3 uses the relative aspiration reading and replaces resource.patchy in the fork too",
+    "part 3 keeps the stochastic onset (uniform 10..80) of R21 part D"
+  ],
+  "controls": {
+    "byte_equal": "part-1 cell (m = 0.200, l_w = 4, h_crit = 0.15, init seed 910001) run twice",
+    "config_shown": "the three l_w values and h_crit of one generated config are printed",
+    "r20_row": "R20 medium init seed 910001 (absolute reading, stochastic shock) built by this script with l_w = 4 and h_crit = 0.15 set explicitly reproduces its docs/review/evidence/R20/q2_runs.csv row"
+  },
+  "falsification_statements": {
+    "P1": "FALSIFIED if any interior level has share < 0.80 or any outside level has share > 0.10",
+    "P2": "FALSIFIED if any magnitude has share > 0.10 at l_w = 4, h_crit = 0.30",
+    "P3": "FALSIFIED if any magnitude has share > 0.10 at l_w = 8, h_crit = 0.15",
+    "hypothesis": "the blind-spot explanation is not supported as stated if any of P1, P2, P3 is falsified"
+  },
+  "how_the_predictions_are_evaluated": {
+    "P1": "'allow the grid resolution' is read as: the two edge levels m = 0.150 and m = 0.250 (theta_new exactly 0.75 and 0.65, the boundaries of the hypothesised open interval) are reported but not counted. P1 HOLDS iff the compliance-death share is >= 0.80 at EACH of m = 0.175, 0.200, 0.225 and <= 0.10 at EACH of m = 0.100, 0.125, 0.275, 0.300, 0.325, 0.350; otherwise FALSIFIED.",
+    "P1_strict_for_information": "the same with the two edge levels counted as inside (share >= 0.80 required at all five of 0.150 .. 0.250) is also printed; it is not the verdict",
+    "P2": "HOLDS iff the share is <= 0.10 at each of the 11 magnitudes in the (4, 0.30) cells",
+    "P3": "HOLDS iff the share is <= 0.10 at each of the 11 magnitudes in the (8, 0.15) cells",
+    "no_prediction": "(l_w = 8, h_crit = 0.30) is run and reported; nothing was predicted"
+  },
+  "hypothesis": "u moves in steps of 1/L_W = 0.25 (l_w = 4), larger than h_crit = 0.15, so for 0.65 < theta_new < 0.75 a firm at u = 0.5 has margin above h_crit (no survival focus), takes one more regulated step to u = 0.75 and violates; below 0.65 survival focus triggers one step earlier and it steers away. If it holds, the cliff is an artefact of l_w = 4 with h_crit = 0.15.",
+  "part_1": {
+    "fixed": "everything else as R20/R21: theta_limit 0.90, theta_cap 0.40, theta_q 40, output_price 3, input_price 2, observation.full, base rule set (resource.patchy), horizon 120, mechanism seed 910001, environment seed 910002",
+    "grid": {
+      "cells": 44,
+      "forks": "one no-shock run per (l_w, h_crit, init seed): 40",
+      "h_crit": [
+        0.15,
+        0.3
+      ],
+      "l_w": [
+        4,
+        8
+      ],
+      "magnitude": [
+        0.1,
+        0.125,
+        0.15,
+        0.175,
+        0.2,
+        0.225,
+        0.25,
+        0.275,
+        0.3,
+        0.325,
+        0.35
+      ],
+      "shocked_runs": 440
+    },
+    "h_crit": "decision.satisficing params key 'h_crit' (SatisficingParams::h_crit, firma-plugin-decision/src/lib.rs:812-813; default 0.15)",
+    "l_w": "set to the same value in decision.satisficing, constraint.action_window and constraint.enforce",
+    "per_cell": {
+      "compliance_death_share": "share of the 10 runs in which at least one firm dies with cause 'compliance'",
+      "first_compliance_death_tick": "also reported, because 'deaths at the tick of first compliance strike' can be read either way: mean number of compliance deaths in the first tick that has a compliance death",
+      "first_strike": "a 'compliance strike' is a constraint.enforce write of compliance_last_violation_tick (a first violation). T = the first tick >= 40 with any strike. Reported per cell: share of runs with such a strike; mean number of firms struck at T; mean number of deaths (any cause) at T",
+      "nonzero_matched_delta_h_share": "R14 definition, against the cell's no-shock fork",
+      "survivors": "distribution of survivors at end (of 12)"
+    },
+    "population": "R20 medium spread, aspiration read RELATIVE (R21 part B), 12 firms, init seeds 910001..910010",
+    "shock": "shock.stochastic with onset_min = onset_max = 40 and magnitude_sd = 0 (so onset and magnitude are fixed): regulatory/theta_limit, instant, permanent, targets all; shock seed = init seed (no draw depends on it)"
+  },
+  "part_2": {
+    "comparison": "next to the l_w = 4 relative-reading numbers copied from docs/review/evidence/R21/summary.json (part B)",
+    "criteria": "R20's, unchanged; no new criteria",
+    "design": "exactly the R20 Q2/Q4 measurements (three spread levels, sets A and B, shock seed = init seed, shock.stochastic regulatory mean 0.20 sd 0.20/3 onset uniform 10..80, one shocked run and its fork per init seed), relative aspiration, with l_w = 8 in the three rules and h_crit = 0.15"
+  },
+  "part_3": {
+    "design": "R21 part D resource cells (+1, +2, +4 on input_price; shock.stochastic channel resource, magnitude_sd 0, onset uniform 10..80, instant, permanent), medium spread, relative aspiration, init seeds 910001..910050, shock seed = init seed, l_w = 8, h_crit = 0.15, with the rule resource.patchy REPLACED by {id: resource.constant, params: {}} in both the shocked run and its fork",
+    "price_path": "input_price per tick for init seed 910001 at +4, shocked against no-shock, reconstructed from the logged AdjustGlobalInt deltas",
+    "resource_constant": "takes no parameters and emits nothing (ADR-0038 section 1; firma-plugin-resource/src/lib.rs:57, :90-92, :223-225)"
+  },
+  "predictions_verbatim_from_the_R22_prompt": {
+    "P1": "P1 (l_w = 4, h_crit = 0.15): compliance deaths appear only for m in [0.150, 0.250] (allow the grid resolution) and the share is >= 80% inside that interval, <= 10% outside.",
+    "P2": "P2 (l_w = 4, h_crit = 0.30): no such band: compliance-death share <= 10% for every m (0.30 exceeds the 0.25 step).",
+    "P3": "P3 (l_w = 8, h_crit = 0.15): no such band: compliance-death share <= 10% for every m (step 0.125 < 0.15).",
+    "rule": "A prediction that fails is reported as FALSIFIED with the numbers; do not reinterpret."
+  },
+  "task": "R22 BLIND - DIAGNOSTIC-ONLY; nothing registered"
+}

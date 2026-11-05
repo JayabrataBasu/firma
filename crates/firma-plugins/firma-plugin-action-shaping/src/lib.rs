@@ -243,10 +243,22 @@ impl Rule for ShapingRule {
         let tick = view.tick().0;
 
         // The relation graph is only consulted by `contract`; parse once.
-        let graph = match RelationGraph::from_records(view.global_records(keys::RELATION_EDGES)) {
-            Ok(g) => g,
-            Err(_) => return Vec::new(), // corrupt store — do nothing rather than guess
-        };
+        // A corrupt relation store is a loud failure, not "emit nothing": a
+        // firm that selected a shaping action would otherwise silently not
+        // act this tick (manual §19.5: no repair-and-continue; `Rule::apply`
+        // has no `Result`; precedent: the partial Arm-A pin, ADR 0054).
+        let edge_records = view.global_records(keys::RELATION_EDGES);
+        let graph = RelationGraph::from_records(edge_records).unwrap_or_else(|e| {
+            let bad = edge_records
+                .iter()
+                .find(|r| RelationGraph::from_records(std::slice::from_ref(*r)).is_err())
+                .map_or("<unidentified>", String::as_str);
+            panic!(
+                "global: corrupt persisted record under `{}` ({e}); offending record: \
+                 {bad:?}. Refusing to drop it and continue (manual §19.5).",
+                keys::RELATION_EDGES
+            )
+        });
 
         let mut out = Vec::new();
         for &agent in view.live_agents() {

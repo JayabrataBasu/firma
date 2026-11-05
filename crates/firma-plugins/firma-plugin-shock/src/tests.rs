@@ -328,3 +328,66 @@ fn params_validated() {
         let _ = id;
     }
 }
+
+// --- review H-2: a corrupt ACTIVE_SHOCKS record is a loud failure (§19.5) ---
+
+fn h2_panic_message(f: impl FnOnce()) -> String {
+    let r = std::panic::catch_unwind(std::panic::AssertUnwindSafe(f));
+    let payload =
+        r.expect_err("expected a panic on the corrupt record, but the rule returned normally");
+    payload
+        .downcast_ref::<String>()
+        .cloned()
+        .or_else(|| payload.downcast_ref::<&str>().map(|s| (*s).to_owned()))
+        .unwrap_or_default()
+}
+
+const H2_CORRUPT: &str = r#"{"owner":"CORRUPT-RECORD"}"#;
+
+#[test]
+fn scheduled_panics_on_a_corrupt_active_shock_record_naming_key_and_record() {
+    let rule = Scheduled::new(ScheduledParams {
+        shocks: vec![reg_shock(
+            "s",
+            3,
+            0.1,
+            Persistence::Permanent,
+            Ramp::Instant,
+        )],
+    })
+    .unwrap();
+    let v = Mv::new(1, &[0, 1]).rec(keys::ACTIVE_SHOCKS, H2_CORRUPT.to_owned());
+    let msg = h2_panic_message(|| {
+        rule.apply(&v, v.key(StreamId::Environment));
+    });
+    for p in [keys::ACTIVE_SHOCKS, "CORRUPT-RECORD"] {
+        assert!(msg.contains(p), "panic message does not name {p:?}: {msg}");
+    }
+}
+
+#[test]
+fn stochastic_panics_on_a_corrupt_active_shock_record_naming_key_and_record() {
+    let rule = Stochastic::new(StochasticParams {
+        id: "rand".into(),
+        channel: ShockChannel::Regulatory {
+            target: RegulatoryTarget::ThetaLimit,
+        },
+        onset_min: 2,
+        onset_max: 5,
+        magnitude_mean: 0.1,
+        magnitude_sd: 0.0,
+        ramp: Ramp::Instant,
+        persistence: Persistence::Permanent,
+        observability: ShockObservability::Full,
+        novelty: 0.5,
+        targets: ShockTargets::All,
+    })
+    .unwrap();
+    let v = Mv::new(1, &[0, 1]).rec(keys::ACTIVE_SHOCKS, H2_CORRUPT.to_owned());
+    let msg = h2_panic_message(|| {
+        rule.apply(&v, v.key(StreamId::Shock));
+    });
+    for p in [keys::ACTIVE_SHOCKS, "CORRUPT-RECORD"] {
+        assert!(msg.contains(p), "panic message does not name {p:?}: {msg}");
+    }
+}

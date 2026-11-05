@@ -129,10 +129,15 @@ fn cfg_healthy() -> String {
     )
 }
 
-/// The "threaded needle" — mostly healthy, a few stressed, `θ_limit = 0.40 /
-/// L_W = 4` so a subset dies of `compliance`. This is the closest any config
-/// gets: SC-1, SC-3 (solvency via a knife-edge seed + compliance + scope +
-/// obligation), and SC-6 pass; SC-2 and SC-4/SC-5 fail.
+/// The "threaded needle" — `θ_limit = 0.40 / L_W = 4`, ten firms, two of them
+/// knife-edge solvency seeds. What it actually produces, as `sc16_gate`
+/// prints it: SC-1 passes (0.800 — 10 firms → 8 survivors); SC-2 = 1.000
+/// (survival attention on every decision), fail; SC-3 fails — binds
+/// `[sol, cmp, scp, obl] = [true, false, true, true]`, so `compliance` never
+/// binds; SC-4 = 0/3202 decisions, fail; SC-5 none, fail; SC-6 fails (entropy
+/// variance 0.0000). Only SC-1 passes. (An earlier version of this comment
+/// said a subset dies of `compliance` and that SC-3 and SC-6 pass; the
+/// printout does not show that.)
 fn cfg_threaded() -> String {
     format!(
         r#"{{ "experiment": "sc-thread", "schema_version": "1.0.0", "engine": ">=0.1.0, <0.2.0",
@@ -200,6 +205,17 @@ fn cfg_random_shaping() -> String {
 /// `w_max`**, and the **full shaping repertoire**. If a wide search width ever
 /// lets the scan reach `lobby` (position 4 in the `GOAL(1)` order) and select
 /// it, it happens here.
+///
+/// **Correction (ADR-0056, ADR-0057 F2): the "persists" / "never drops to
+/// `SURVIVAL`" / "well above `h_crit`" description above is false, and was
+/// false when written.** The firm's `GOAL(1)` fallback is `produce_regulated`
+/// every tick, which drives `u` to 7/8 and `h` to `0.90 − 7/8 = 0.025` within
+/// 7 ticks, so it cycles into `SURVIVAL` (44 of 200 ticks at the
+/// pre-ADR-0047 commit). The aspiration does not stay "far beyond" either:
+/// `decision.aspiration_update` (α = 0.10) adapts it toward realised growth,
+/// so `ς_1 ≤ 0` and focus becomes `NONE` (inertia) from about tick 118 in most
+/// cells. `sc4_wmax_beta_probe` now checks these states explicitly instead of
+/// assuming them. The text above is kept for the record.
 fn cfg_wide_search(w_max: u32, beta: f64) -> String {
     format!(
         r#"{{ "experiment": "sc-wide", "schema_version": "1.0.0", "engine": ">=0.1.0, <0.2.0",
@@ -218,7 +234,13 @@ fn cfg_wide_search(w_max: u32, beta: f64) -> String {
       "rules": [
         {{ "id": "decision.satisficing", "version": "^1",
            "params": {{ "l_w": 8, "w_max": {w_max}, "beta": {beta},
-             "shaping": {{ "lobby_cost": 25, "contract_cost": 25, "diversify_cost": 25 }} }} }},{MARKET_ACTIONS},
+             "shaping": {{ "lobby_cost": 25, "contract_cost": 25, "diversify_cost": 25,
+               "lobby_success": {{ "lag": {{ "min": 2, "max": 6 }},
+                 "success": {{ "p0": 0.25, "b_lambda": 0.2, "b_kappa": 0.1, "p_max": 0.75, "kappa_min": 25 }},
+                 "delta_theta": 0.10 }},
+               "contract_success": {{ "lag": {{ "min": 2, "max": 6 }},
+                 "success": {{ "p0": 0.30, "b_lambda": 0.20, "b_kappa": 0.10, "p_max": 0.60, "kappa_min": 25 }},
+                 "delta_q": 4, "q0": 3 }} }} }} }},{MARKET_ACTIONS},
         {{ "id": "action.shaping.rdt_standard.lobby", "version": "^1", "params": {{}} }},
         {{ "id": "action.shaping.rdt_standard.contract", "version": "^1",
            "params": {{ "delta_q": 4, "q0": 3,
@@ -257,40 +279,220 @@ fn cfg_input_starved() -> String {
       "environment": {{ "stocks": {{ "capital": 100000000, "input": 100000000 }} }},
       "rules": [
         {{ "id": "decision.satisficing", "version": "^1",
-           "params": {{ "l_w": 8, "w_max": 9, "shaping": {{ "lobby_cost": 25 }} }} }},{MARKET_ACTIONS},
+           "params": {{ "l_w": 8, "w_max": 9,
+             "shaping": {{ "lobby_cost": 25,
+               "lobby_success": {{ "lag": {{ "min": 2, "max": 6 }},
+                 "success": {{ "p0": 0.25, "b_lambda": 0.2, "b_kappa": 0.1, "p_max": 0.75, "kappa_min": 25 }},
+                 "delta_theta": 0.10 }} }} }} }},{MARKET_ACTIONS},
         {{ "id": "action.shaping.rdt_standard.lobby", "version": "^1", "params": {{}} }},{}
       ] }}"#,
         constraint_rules(8)
     )
 }
 
-/// Follow-up: does a wide `w_max` / any `β` open the shaping channel for
-/// `decision.satisficing`? **No** — `cfg_wide_search` produces 0 shaping over
-/// the full §16.1 `β × w_max` sweep; only `cfg_input_starved` (a degenerate
-/// `π^I > κ_ℓ`, can't-operate firm) reaches `lobby`, and only as a one-shot
-/// (the firm cannot afford to lobby twice). This complements the structural
-/// unit test `validation::sc4_shaping_selected_only_as_the_goal_fallback_...`.
+// --------------------------------------------------------------------------
+// sc4_wmax_beta_probe — restructured per ADR-0057 Option B (test hygiene).
+//
+// **What this restructuring does NOT do: it does not resolve or validate the
+// asymmetry ADR-0057 diagnosed.** Under `SURVIVAL` focus the one-step
+// lookahead holds `u` fixed for market actions but credits `lobby` with its
+// full expected `θ` relief (ADR-0047), so in this scenario `lobby` is the only
+// action that can satisfice once the scan reaches it. The non-zero
+// `SURVIVAL`-focus result checked in part (a2) below is a **known, current
+// property of the model, pending a decision on ADR-0057 Option A** — not an
+// accepted, intended design. If Option A is adopted, (a2)'s expectations must
+// be re-derived (the Option A prototype, branch
+// `adr0057-survival-lookahead-u-fix`, measured 0 shaping in every cell).
+// --------------------------------------------------------------------------
+
+/// `h_crit` in `cfg_wide_search`: it sets none, so `SatisficingParams`'
+/// §16.1 default applies.
+const PROBE_H_CRIT: f64 = 0.15;
+/// `h` in the probe firm's `SURVIVAL` episodes, from its config alone: its
+/// `GOAL(1)` fallback is `produce_regulated` every tick, so `SURVIVAL` starts
+/// when 7 of the last `L_W = 8` actions are regulated: `θ_limit − u =
+/// 0.90 − 7/8` (ADR-0057 F2).
+const PROBE_SURVIVAL_H: f64 = 0.90 - 7.0 / 8.0;
+/// `lobby`'s position among *admissible* actions in the `SURVIVAL` scan
+/// `[1,3,5,2,0,4,6,7,8]`: `acquire_input` (3), `deliver` (5) and `contract`
+/// (7, no supply partner) are inadmissible for this firm and consume no
+/// budget, so `lobby` is 5th (ADR-0057 F5).
+const PROBE_LOBBY_SURVIVAL_RANK: u32 = 5;
+
+/// `w_eff` the probe firm has in every `SURVIVAL` decision, from §12.3's
+/// formula (the plugin's own `psi`/`w_eff`). At `β = 0`, `ψ ≡ 1` for any
+/// `h < h_crit`, so this also holds after a successful lobby raises `θ_limit`.
+fn probe_survival_w_eff(w_max: u32, beta: f64) -> u32 {
+    firma_plugin_decision::w_eff(
+        firma_plugin_decision::psi(PROBE_SURVIVAL_H, PROBE_H_CRIT, beta),
+        w_max,
+    )
+}
+
+/// The prediction, made from the formula before running: the `SURVIVAL` scan
+/// can reach `lobby` iff `w_eff ≥` its admissible rank.
+fn lobby_reachable_in_survival(w_max: u32, beta: f64) -> bool {
+    probe_survival_w_eff(w_max, beta) >= PROBE_LOBBY_SURVIVAL_RANK
+}
+
+/// One `decision.satisficing` decision, read back from the run's event log:
+/// the `focus` code (`-1` NONE, `0` SURVIVAL, `1..=3` GOAL(j)), the selected
+/// action, and `w_eff`.
+struct ProbeDecision {
+    focus: i64,
+    action: i64,
+    w_eff: i64,
+}
+
+/// Run `json` and return every `decision.satisficing` decision in it.
+fn run_decisions(name: &str, json: &str) -> Vec<ProbeDecision> {
+    use firma_core::{DeltaKind, DeltaTarget, Event};
+    use std::collections::BTreeMap;
+
+    let cfg = config(json);
+    let dir = scratch(name);
+    let rep = execute_run(&cfg, &model_registry(), &dir, &RunOptions::default()).unwrap();
+    assert!(rep.conservation_ok, "{name}: conservation failed");
+    let events: Vec<Event> = firma_io::read_events::<Event>(&dir.join("events.ndjson"))
+        .expect("read events")
+        .map(|e| e.expect("parse event"))
+        .collect();
+    let _ = std::fs::remove_dir_all(&dir);
+
+    // (tick, agent) -> [focus, selected_action, w_eff]
+    let mut by: BTreeMap<(u64, u64), [Option<i64>; 3]> = BTreeMap::new();
+    for ev in events {
+        if let Event::DeltaApplied {
+            tick,
+            origin,
+            target: DeltaTarget::Agent(agent),
+            kind: DeltaKind::SetAgentInt { field, value },
+            ..
+        } = ev
+        {
+            if origin.0 != firma_plugin_decision::catalog::SATISFICING_ID {
+                continue;
+            }
+            let slot = match field.as_str() {
+                f if f == firma_domain::keys::FOCUS => 0,
+                f if f == firma_domain::keys::SELECTED_ACTION => 1,
+                f if f == firma_domain::keys::W_EFF => 2,
+                _ => continue,
+            };
+            by.entry((tick, agent.0)).or_default()[slot] = Some(value);
+        }
+    }
+    by.into_iter()
+        .map(|(k, v)| ProbeDecision {
+            focus: v[0].unwrap_or_else(|| panic!("{name}: decision {k:?} has no focus")),
+            action: v[1].unwrap_or_else(|| panic!("{name}: decision {k:?} has no action")),
+            w_eff: v[2].unwrap_or_else(|| panic!("{name}: decision {k:?} has no w_eff")),
+        })
+        .collect()
+}
+
+/// **SC-4 probe over the full §16.1 `β × w_max` sweep, split by focus**
+/// (ADR-0042, as corrected by ADR-0056; restructured per ADR-0057 Option B).
+///
+/// - **(state)** The scenario is in the states this test claims to test: every
+///   decision is `GOAL(1)`, `SURVIVAL` or `NONE` (the last from aspiration
+///   adaptation late in the run — found by this check on its first run), `GOAL`
+///   and `SURVIVAL` both occur in every cell (neither check below is vacuous),
+///   and every `SURVIVAL` decision's
+///   logged `w_eff` equals the formula's value at `PROBE_SURVIVAL_H`. ADR-0042's
+///   original probe never checked its premise ("`h` stays well above `h_crit`"),
+///   which was false from the start (44/200 `SURVIVAL` ticks at `9c49c34`).
+/// - **(a1)** No shaping action is ever selected under any focus other than
+///   `SURVIVAL` (`GOAL` or `NONE`), in any cell — ADR-0042's structural claim,
+///   at full strength.
+/// - **(a2)** Under `SURVIVAL` focus, shaping is selected in exactly the cells
+///   predicted from the formula (`lobby_reachable_in_survival`), and in no
+///   other cell. **Known current model property pending ADR-0057 Option A —
+///   not an accepted design** (see the block comment above).
+/// - **(b)** The degenerate input-starved channel reaches `lobby` but stays
+///   under SC-4's 5%.
+///
+/// Every part runs and reports; failures are collected and asserted once at
+/// the end, so one part failing cannot hide another (part (b) was unreachable
+/// behind part (a)'s panic before this restructuring).
 #[test]
 fn sc4_wmax_beta_probe() {
-    eprintln!("\n--- (a) healthy GOAL(1) firm, full §16.1 β × w_max sweep ---");
-    let mut any_shaping = false;
+    let mut failures: Vec<String> = Vec::new();
+
+    eprintln!(
+        "\n--- (a) cfg_wide_search, full §16.1 β × w_max sweep, decisions split by focus ---"
+    );
     for &wm in &[3u32, 6, 9] {
         for &b in &[0.0_f64, 0.5, 1.0, 2.0, 4.0] {
-            let r = run_report("sc-wide", &cfg_wide_search(wm, b));
-            let n_shaping = (r.sc4_shaping_fraction * r.decisions as f64).round() as i64;
+            let ds = run_decisions(&format!("sc-wide-{wm}-{b}"), &cfg_wide_search(wm, b));
+            let goal: Vec<&ProbeDecision> = ds.iter().filter(|d| d.focus >= 1).collect();
+            let surv: Vec<&ProbeDecision> = ds.iter().filter(|d| d.focus == 0).collect();
+            let none: Vec<&ProbeDecision> = ds.iter().filter(|d| d.focus == -1).collect();
+            let goal_shaping = goal.iter().filter(|d| d.action >= 6).count();
+            let none_shaping = none.iter().filter(|d| d.action >= 6).count();
+            let surv_shaping = surv.iter().filter(|d| d.action >= 6).count();
+            let predicted = lobby_reachable_in_survival(wm, b);
+            let expected_w = probe_survival_w_eff(wm, b);
             eprintln!(
-                "  w_max={wm} β={b:.1} → shaping {n_shaping}/{} decisions ({:.4})",
-                r.decisions, r.sc4_shaping_fraction
+                "  w_max={wm} β={b:.1} → GOAL shaping {goal_shaping}/{} | NONE shaping {none_shaping}/{} | \
+                 SURVIVAL shaping {surv_shaping}/{} (predicted reachable: {predicted}, w_eff {expected_w}) | total {}",
+                goal.len(),
+                none.len(),
+                surv.len(),
+                ds.len()
             );
-            if r.sc4_shaping_fraction > 0.0 {
-                any_shaping = true;
+
+            // (state)
+            let other: Vec<i64> = ds
+                .iter()
+                .map(|d| d.focus)
+                .filter(|&f| f != 0 && f != 1 && f != -1)
+                .collect();
+            if !other.is_empty() {
+                failures.push(format!(
+                    "(state) w_max={wm} β={b}: focus codes other than GOAL(1)/SURVIVAL/NONE: {other:?}"
+                ));
+            }
+            if goal.is_empty() || surv.is_empty() {
+                failures.push(format!(
+                    "(state) w_max={wm} β={b}: {} GOAL / {} SURVIVAL decisions — a check below would be vacuous",
+                    goal.len(),
+                    surv.len()
+                ));
+            }
+            let off_w: Vec<i64> = surv
+                .iter()
+                .map(|d| d.w_eff)
+                .filter(|&w| w != i64::from(expected_w))
+                .collect();
+            if !off_w.is_empty() {
+                failures.push(format!(
+                    "(state) w_max={wm} β={b}: SURVIVAL w_eff {off_w:?} ≠ formula {expected_w} — the firm is \
+                     not at h = {PROBE_SURVIVAL_H} in SURVIVAL, so the (a2) prediction does not apply"
+                ));
+            }
+            // (a1)
+            if goal_shaping != 0 || none_shaping != 0 {
+                failures.push(format!(
+                    "(a1) w_max={wm} β={b}: {goal_shaping} shaping selections under GOAL focus, {none_shaping} \
+                     under NONE (ADR-0042 claims 0 outside SURVIVAL)"
+                ));
+            }
+            // (a2) — known current property pending ADR-0057 Option A.
+            if predicted && surv_shaping == 0 {
+                failures.push(format!(
+                    "(a2) w_max={wm} β={b}: predicted SURVIVAL shaping (w_eff {expected_w} ≥ rank \
+                     {PROBE_LOBBY_SURVIVAL_RANK}) but got 0 — if ADR-0057 Option A was adopted, re-derive (a2)"
+                ));
+            }
+            if !predicted && surv_shaping != 0 {
+                failures.push(format!(
+                    "(a2) w_max={wm} β={b}: {surv_shaping} SURVIVAL shaping selections where the formula says \
+                     lobby is unreachable (w_eff {expected_w} < rank {PROBE_LOBBY_SURVIVAL_RANK})"
+                ));
             }
         }
     }
-    assert!(
-        !any_shaping,
-        "a healthy GOAL(1) firm selected a shaping action at some (w_max, β) — the SC-4 finding needs revising"
-    );
 
     eprintln!("\n--- (b) the degenerate channel: input-starved firm, π^I = 30 > κ_ℓ = 25 ---");
     let s = run_report("sc-starved", &cfg_input_starved());
@@ -303,13 +505,24 @@ fn sc4_wmax_beta_probe() {
     );
     // The channel exists but produces at most a one-shot lobby per firm — a
     // firm that cannot operate cannot afford to lobby repeatedly.
+    if s.sc4_shaping_fraction <= 0.0 {
+        failures.push("(b) the input-starved channel should reach lobby at least once".into());
+    }
+    if s.sc4_pass() {
+        failures.push(
+            "(b) even the degenerate channel should not reach 5% — a can't-operate firm lobbies at most once"
+                .into(),
+        );
+    }
+
+    for f in &failures {
+        eprintln!("  FAILURE {f}");
+    }
     assert!(
-        s.sc4_shaping_fraction > 0.0,
-        "the input-starved channel should reach lobby at least once"
-    );
-    assert!(
-        !s.sc4_pass(),
-        "even the degenerate channel should not reach 5% — a can't-operate firm lobbies at most once"
+        failures.is_empty(),
+        "{} sc4_wmax_beta_probe check(s) failed:\n{}",
+        failures.len(),
+        failures.join("\n")
     );
 }
 
@@ -338,7 +551,19 @@ fn sc16_gate() {
     );
     eprintln!("  SC-2  NOT achievable — bimodal: {:.3} (healthy) vs {:.3} (threaded); never in [0.05, 0.25]",
         healthy.sc2_survival_attention, threaded.sc2_survival_attention);
-    eprintln!("  SC-3  partial — compliance/scope/obligation emerge; solvency only from a knife-edge seed");
+    // Printed from the report itself, not asserted in prose: an earlier
+    // hard-coded line here said compliance "emerges" while the same run's
+    // report showed it does not bind.
+    eprintln!(
+        "  SC-3  {} — threaded binds [sol,cmp,scp,obl] = {:?}, first@ {:?}",
+        if threaded.sc3_pass() {
+            "achieved"
+        } else {
+            "NOT achieved"
+        },
+        threaded.sc3_binds,
+        threaded.sc3_first_bind_tick
+    );
     eprintln!(
         "  SC-4  NOT achievable under decision.satisficing ({:.4}) — incl. full §16.1 β×w_max sweep\n\
          \x20       (ADR-0042; see sc4_wmax_beta_probe); {:.3} under decision.random",
@@ -553,7 +778,10 @@ fn cfg_arm_b_satisficing() -> String {
            ] }} }},
         {{ "id": "decision.satisficing", "version": "^1",
            "params": {{ "l_w": 4, "w_max": 9,
-             "shaping": {{ "lobby_cost": 25, "diversify_cost": 25 }} }} }},{MARKET_ACTIONS},
+             "shaping": {{ "lobby_cost": 25, "diversify_cost": 25,
+               "lobby_success": {{ "lag": {{ "min": 2, "max": 6 }},
+                 "success": {{ "p0": 0.25, "b_lambda": 0.2, "b_kappa": 0.1, "p_max": 0.75, "kappa_min": 25 }},
+                 "delta_theta": 0.10 }} }} }} }},{MARKET_ACTIONS},
         {{ "id": "action.shaping.rdt_standard.lobby", "version": "^1", "params": {{}} }},
         {{ "id": "action.shaping.rdt_standard.diversify", "version": "^1",
            "params": {{ "success": {{ "p0": 0.30, "b_lambda": 0.20, "b_kappa": 0.10, "p_max": 0.60, "kappa_min": 25 }},
@@ -765,5 +993,67 @@ fn sc16b_arm_scoping() {
     assert_eq!(
         b.sc4_shaping_fraction, 0.0,
         "decision.satisficing selected a shaping action under shock — ADR-0042's structural finding changed"
+    );
+}
+
+// --------------------------------------------------------------------------
+// ADR 0047 (H3 model revision) — Part C: confirm the channel opens in a real
+// `execute_run`, not just the structural unit tests in
+// `firma-plugin-decision`'s own `tests.rs`. Mirrors that unit test's
+// hand-computed scenario (a compliance-bound SURVIVAL firm, seeded
+// `regulated_intensity` so tick 0's decision — the window is still empty —
+// reads the same `u` the unit test used) at full-run scale, through the
+// kernel and the model registry, exactly as a real config would be launched.
+// --------------------------------------------------------------------------
+
+/// One tick is enough: at `t=0` the action window is empty, so `u` falls
+/// back to the seeded `regulated_intensity` real (same as the unit test) —
+/// `h_t = 0.10 < h_crit(0.15)` ⇒ `SURVIVAL`; `lobby_success` configured to
+/// match `action.shaping.rdt_standard.lobby`'s own declared model
+/// (ADR 0047's "same formula, config-duplicated numbers" convention).
+fn cfg_h3_survival_lobby_opens() -> String {
+    format!(
+        r#"{{ "experiment": "h3-survival-lobby", "schema_version": "1.0.0", "engine": ">=0.1.0, <0.2.0",
+      "seeds": {{ "mechanism": 47, "environment": 2, "shock": 3, "init": 4 }},
+      "world": {{ "ticks": 1, "resources": ["capital", "input"],
+        "conflict_resolver": {{ "id": "conflict.additive", "version": "^1" }}, "snapshot_every": 1,
+        "global_reals": {{ "theta_limit": 0.5, "theta_cap": 0.4 }},
+        "global_ints": {{ "theta_q": 100, "input_price": 2, "output_price": 3 }} }},
+      "agents": [
+        {{ "id": 0, "stocks": {{ "capital": 500, "input": 20 }},
+           "reals": {{ "capability": 0.9, "legitimacy": 1.0, "regulated_intensity": 0.4 }},
+           "ints": {{ "obligation": 3 }} }}
+      ],
+      "environment": {{ "stocks": {{ "capital": 100000000, "input": 100000000 }} }},
+      "rules": [
+        {{ "id": "decision.satisficing", "version": "^1",
+           "params": {{ "l_w": 8, "beta": 0.5, "w_max": 9,
+             "shaping": {{ "lobby_cost": 25,
+               "lobby_success": {{ "lag": {{ "min": 2, "max": 6 }},
+                 "success": {{ "p0": 0.25, "b_lambda": 0.2, "b_kappa": 0.1, "p_max": 0.75, "kappa_min": 25 }},
+                 "delta_theta": 0.10 }} }} }} }},{MARKET_ACTIONS},
+        {{ "id": "action.shaping.rdt_standard.lobby", "version": "^1", "params": {{}} }},{}
+      ] }}"#,
+        constraint_rules(8)
+    )
+}
+
+/// **ADR 0047 Part C** — the mechanism opens in a real, kernel-executed run,
+/// not just the isolated `Satisficing::apply` unit tests. `SC-4 > 0` here
+/// means the model-registry-driven, event-logged, offline-reconstructed
+/// pipeline all agree with the structural finding.
+#[test]
+fn h3_channel_opens_in_a_real_run() {
+    let r = run_report("h3-open", &cfg_h3_survival_lobby_opens());
+    eprintln!(
+        "\n--- ADR-0047 full-run probe: {}/{} decisions were shaping ---",
+        (r.sc4_shaping_fraction * r.decisions as f64).round() as i64,
+        r.decisions
+    );
+    assert_eq!(r.decisions, 1, "one firm, one tick, one decision");
+    assert_eq!(
+        r.sc4_shaping_fraction, 1.0,
+        "the one decision this tick should be lobby (action 6) — the ADR-0047 \
+         channel did not open in a real run the way the unit tests predict"
     );
 }

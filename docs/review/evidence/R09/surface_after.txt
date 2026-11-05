@@ -1,0 +1,12 @@
+== sanity_report_json on the clean log
+   exit 0; stdout 3333 bytes; stderr: 
+== firma_lab.metrics on the clean log
+   sanity_report: returned normally (sc6_entropy_mean=0.09098579861712074)
+   final_margins: returned normally (4 firms)
+== sanity_report_json on the corrupt log
+   exit 1; stdout 0 bytes; stderr: sanity_report_json: event log contains 1 unparsable persisted record(s); every quantity derived from them (u, h, repertoire entropy, shaping counts) would be wrong, so no result is returned:   tick 5, agent 0: corrupt record under `action_window` (invalid WindowEntry: invalid type: string "CORRUPT-RECORD", expected u64 at line 1 column 24); offending record: "{\"tick\":\"CORRUPT-RECORD\"}" 
+== firma_lab.metrics on the corrupt log
+   sanity_report: raised ValueError: event log contains 1 unparsable persisted record(s); every quantity derived from them (u, h, repertoire entropy, shaping counts) would be wrong, so no result is returned:
+  tick 5, agent 0: corrupt record under `action_window` (invalid WindowEntry: invalid type: string "CORRUPT-RECORD", expected u64 at line 1 column 24); offendi
+   final_margins: raised ValueError: event log contains 1 unparsable persisted record(s); every quantity derived from them (u, h, repertoire entropy, shaping counts) would be wrong, so no result is returned:
+  tick 5, agent 0: corrupt record under `action_window` (invalid WindowEntry: invalid type: string "CORRUPT-RECORD", expected u64 at line 1 column 24); offendi

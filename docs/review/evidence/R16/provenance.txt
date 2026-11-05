@@ -1,0 +1,11 @@
+### R16 provenance (DIAGNOSTIC-ONLY)
+date: 2026-10-02T09:12Z; step 0 written: 2026-10-02T09:06:00Z
+git rev: 2820610076bc9bf0317ffa0daaa49859ac8e430b (branch h3-satisficing-lookahead); working tree uncommitted
+step 0: .venv/bin/python scripts/regime_search.py --write-grid docs/review/evidence/R16/grid.json
+run:    .venv/bin/python scripts/regime_search.py --grid docs/review/evidence/R16/grid.json --out <scratch> --jobs 8
+grid.json sha256: 1371026b859b2da07e87ad5186fed47c9063ec96d6cf214d866670577701963a
+firma binary: target/debug/firma sha256 97f1feac7cbe615f8c01b15d5afd8f2668a6ecced851ce559352e70279275d07
+python: Python 3.14.7
+seeds: mechanism 910001, environment 910002, init 910004, shock 910001..910020; smallest executed seed 910001
+runs: 72 cells x (1 baseline + 20 shocked + 20 forks) = 2952; control (a) 4; control (b) 41; tests: 1 baseline + 2 shocked + 2 forks per pytest invocation
+order of events: grid.json written; then pytest (one cell-0 baseline and 2 shock seeds, which exposed a crash in the reused slice function on zero-death runs); script changed to work around it (grid bytes unchanged, enforced by hash); then the full run, once.
